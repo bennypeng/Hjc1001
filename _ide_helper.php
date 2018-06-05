@@ -8957,6 +8957,11 @@ namespace Illuminate\Support\Facades {
         {
             return \Illuminate\Routing\Router::post($uri, $action);
         }
+
+        public static function prefix($uri)
+        {
+            return \Illuminate\Routing\Router::prefix($uri);
+        }
         
         /**
          * Register a new PUT route with the router.

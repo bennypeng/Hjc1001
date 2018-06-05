@@ -11,9 +11,21 @@
 |
 */
 
-
+//  日志查询
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
+//  用户路由
+Route::prefix('users')->group(function () {
 
-//Route::get('/pets/{id}', 'PetsController@');
+    Route::post('/login', 'UsersController@login');
 
+    Route::post('/register', 'UsersController@register');
+
+    Route::post('/nickname', 'UsersController@changName');
+
+});
+
+//  错误返回
+Route::fallback(function (){
+    return response()->json(['message' => 'Not Found!', 'code' => 404], 404);
+});
