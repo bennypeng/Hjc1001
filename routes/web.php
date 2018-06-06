@@ -31,7 +31,6 @@ Route::prefix('users')->group(function () {
 
 });
 
-
 //  错误返回
 Route::fallback(function (){
     return response()->json(['message' => 'Not Found!', 'code' => 404], 404);

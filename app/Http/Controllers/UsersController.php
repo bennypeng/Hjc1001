@@ -27,14 +27,14 @@ class UsersController extends Controller
         if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_USER_OR_PWD'));
 
         if (Redis::exists($mobile)) {
-            $res = Redis::hgetall($mobile);
+            $res = $this->_getUserInfo($mobile);
         } else {
             $userModel = new Users;
             $res = $userModel->checkUserExist($mobile);
 
             if ($res && is_object($res)) {
                 $res = $res->toArray();
-                Redis::hmset($mobile, $res);
+                $this->_setUserInfo($mobile, $res);
             } else {
                 //  找不到该用户
                 return response()->json(Config::get('constants.NOT_FOUND_USER'));
@@ -47,10 +47,8 @@ class UsersController extends Controller
 
         unset($res['id'], $res['pwd']);
 
-        //  保存session
-        $req->session()->put($mobile, 1);
-        $req->session()->save();
-
+        //  保存登陆状态
+        $this->_setLoginSatus($mobile);
 
         //  登录成功
         return response()->json(array_merge($res, Config::get('constants.LOGIN_SUCCESS')));
@@ -70,18 +68,17 @@ class UsersController extends Controller
         if (!$mobile || !$verfyCode || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
         //  账号已被注册
-        if (Redis::exists($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_USER'));
+        if ($this->_checkUserExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_USER'));
 
         //  校验验证码
         if ($verfyCode != "111") return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
 
         $userModel = new Users;
         if ($userModel->registerUser($mobile, $pwd)) {
-            Redis::del($mobile);
             $res = $userModel->checkUserExist($mobile);
             if ($res && is_object($res)) {
                 $res = $res->toArray();
-                Redis::hmset($mobile, $res);
+                $this->_setUserInfo($mobile, $res);
                 return response()->json(Config::get('constants.REGIST_SUCCESS'));
             }
             return response()->json(Config::get('constants.REGIST_ERROR'));
@@ -103,7 +100,10 @@ class UsersController extends Controller
 
         $userModel = new Users;
         $res = $userModel->updateUser($mobile, ['nickname' => $nickname]);
-        if ($res) return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+        if ($res) {
+            $this->_delUserKey($mobile);
+            return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+        }
         return response()->json(Config::get('constants.UPDATE_ERROR'));
     }
 
@@ -118,11 +118,36 @@ class UsersController extends Controller
         //  缺少必填字段
         if (!$mobile) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
-        if ($req->session()->has($mobile))
+        if ($this->_getLoginStatus($mobile))
             return response()->json(Config::get('constants.LOGIN_SUCCESS'));
 
         return response()->json(Config::get('constants.LOGIN_HACK'));
     }
 
 
+    private function _setLoginSatus($key = '') {
+        Redis::select(Config::get('constants.LOGIN_INDEX'));
+        Redis::set($key, 1);
+        Redis::expire($key, 7200);
+    }
+    private function _getLoginStatus($key = '') {
+        Redis::select(Config::get('constants.LOGIN_INDEX'));
+        return Redis::exists($key);
+    }
+    private function _setUserInfo($key = '', $data = []) {
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        Redis::hmset($key, $data);
+    }
+    private function _delUserKey($key = '') {
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        Redis::del($key);
+    }
+    private function _getUserInfo($key = '') {
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        return Redis::hgetall($key);
+    }
+    private function _checkUserExist($key = '') {
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        return Redis::exists($key);
+    }
 }

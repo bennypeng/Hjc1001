@@ -2,6 +2,11 @@
 
 return [
 
+    'USERS_INDEX'              => 0,
+    'LOGIN_INDEX'              => 1,
+
+
+
     'LOGIN_SUCCESS'            => ['message' => '登录成功',                 'code' => 1000],
     'EMPTY_USER_OR_PWD'        => ['message' => '账号或密码空',             'code' => 1001],
     'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录', 'code' => 1002],
@@ -14,5 +19,6 @@ return [
     'UPDATE_SUCCESS'           => ['message' => '修改成功',                 'code' => 1009],
     'UPDATE_ERROR'             => ['message' => '修改失败',                 'code' => 1010],
     'LOGIN_HACK'               => ['message' => '请重新登录',               'code' => 1111],
+
 
 ];
