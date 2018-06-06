@@ -13,5 +13,6 @@ return [
     'REGIST_SUCCESS'           => ['message' => '注册成功',                 'code' => 1008],
     'UPDATE_SUCCESS'           => ['message' => '修改成功',                 'code' => 1009],
     'UPDATE_ERROR'             => ['message' => '修改失败',                 'code' => 1010],
+    'LOGIN_HACK'               => ['message' => '请重新登录',               'code' => 1111],
 
 ];

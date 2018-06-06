@@ -23,7 +23,14 @@ Route::prefix('users')->group(function () {
 
     Route::post('/nickname', 'UsersController@changName');
 
+    Route::post('/status/', 'UsersController@loginStatus');
+
+    Route::get('/qrcode/{id}', function ($address) {
+        return view('QrCode')->with('address', $address);
+    });
+
 });
+
 
 //  错误返回
 Route::fallback(function (){

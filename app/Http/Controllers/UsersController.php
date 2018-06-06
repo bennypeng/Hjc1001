@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Users;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
@@ -18,10 +19,11 @@ class UsersController extends Controller
      * @return JsonResponse
      */
     public function login(Request $req) {
+
         $mobile    = $req->get('mobile');
         $pwd       = $req->get('pwd');
 
-        //  账号或密码空
+        //  缺少必填字段
         if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_USER_OR_PWD'));
 
         if (Redis::exists($mobile)) {
@@ -45,6 +47,11 @@ class UsersController extends Controller
 
         unset($res['id'], $res['pwd']);
 
+        //  保存session
+        $req->session()->put($mobile, 1);
+        $req->session()->save();
+
+
         //  登录成功
         return response()->json(array_merge($res, Config::get('constants.LOGIN_SUCCESS')));
     }
@@ -63,7 +70,7 @@ class UsersController extends Controller
         if (!$mobile || !$verfyCode || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
         //  账号已被注册
-        if (Redis::exists($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_USER');
+        if (Redis::exists($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_USER'));
 
         //  校验验证码
         if ($verfyCode != "111") return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
@@ -97,7 +104,25 @@ class UsersController extends Controller
         $userModel = new Users;
         $res = $userModel->updateUser($mobile, ['nickname' => $nickname]);
         if ($res) return response()->json(Config::get('constants.UPDATE_SUCCESS'));
-        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+        return response()->json(Config::get('constants.UPDATE_ERROR'));
     }
+
+    /**
+     * 获取登录状态
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function loginStatus(Request $req) {
+        $mobile = $req->get('mobile');
+
+        //  缺少必填字段
+        if (!$mobile) return response()->json(Config::get('constants.EMPTY_ERROR'));
+
+        if ($req->session()->has($mobile))
+            return response()->json(Config::get('constants.LOGIN_SUCCESS'));
+
+        return response()->json(Config::get('constants.LOGIN_HACK'));
+    }
+
 
 }

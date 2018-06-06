@@ -31,7 +31,7 @@ class Users extends Model
         if (strlen(trim($mobile)) == 0 || strlen(trim($pwd)) == 0) return false;
         $usersModel = new Users;
         $usersModel->mobile   = $mobile;
-        $usersModel->pwd      = $pwd;
+        $usersModel->pwd      = substr(md5($pwd), 8, 16);
         $usersModel->nickname = $mobile;
         return $usersModel->save();
     }
@@ -45,10 +45,9 @@ class Users extends Model
     function updateUser($mobile = '', $data = []) {
         if (strlen(trim($mobile)) == 0 || count($data) == 0) return false;
         $usersModel = new Users;
-        foreach ($data as $k => $v) {
-            $usersModel->$k = $v;
-        }
-        return $usersModel->save();
+        return $usersModel
+            ->where('mobile', '=', $mobile)
+            ->update($data);
     }
 
 
