@@ -182,6 +182,11 @@ return [
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
+        /**
+         * Helper Service Providers
+         */
+        App\Providers\HelperServiceProvider::class,
+
     ],
 
     /*

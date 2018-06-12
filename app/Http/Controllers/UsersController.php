@@ -24,7 +24,7 @@ class UsersController extends Controller
         $pwd       = $req->get('pwd');
 
         //  缺少必填字段
-        if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_USER_OR_PWD'));
+        if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
         if (Redis::exists($mobile)) {
             $res = $this->_getUserInfo($mobile);
@@ -59,7 +59,7 @@ class UsersController extends Controller
      * @param Request $req
      * @return JsonResponse
      */
-    public function register(Request $req) {
+    public function regist(Request $req) {
         $mobile    = $req->get('mobile');
         $verfyCode = $req->get('verfyCode');
         $pwd       = $req->get('pwd');
@@ -81,7 +81,7 @@ class UsersController extends Controller
                 $this->_setUserInfo($mobile, $res);
                 return response()->json(Config::get('constants.REGIST_SUCCESS'));
             }
-            return response()->json(Config::get('constants.REGIST_ERROR'));
+            return response()->json(Config::get('constants.DATA_MATCHING_ERROR'));
         }
         return response()->json(Config::get('constants.REGIST_ERROR'));
     }
@@ -112,7 +112,7 @@ class UsersController extends Controller
      * @param Request $req
      * @return JsonResponse
      */
-    public function loginStatus(Request $req) {
+    public function getLoginStatus(Request $req) {
         $mobile = $req->get('mobile');
 
         //  缺少必填字段
@@ -125,29 +125,38 @@ class UsersController extends Controller
     }
 
 
-    private function _setLoginSatus($key = '') {
+    private function _setLoginSatus($mobile = '') {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.LOGIN_INDEX'));
         Redis::set($key, 1);
         Redis::expire($key, 7200);
     }
-    private function _getLoginStatus($key = '') {
+    private function _getLoginStatus($mobile = '') {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.LOGIN_INDEX'));
         return Redis::exists($key);
     }
-    private function _setUserInfo($key = '', $data = []) {
+    private function _setUserInfo($mobile = '', $data = []) {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.USERS_INDEX'));
         Redis::hmset($key, $data);
     }
-    private function _delUserKey($key = '') {
+    private function _delUserKey($mobile = '') {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.USERS_INDEX'));
         Redis::del($key);
     }
-    private function _getUserInfo($key = '') {
+    private function _getUserInfo($mobile = '') {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.USERS_INDEX'));
         return Redis::hgetall($key);
     }
-    private function _checkUserExist($key = '') {
+    private function _checkUserExist($mobile = '') {
+        $key = $this->_getUserKey($mobile);
         Redis::select(Config::get('constants.USERS_INDEX'));
         return Redis::exists($key);
+    }
+    private function _getUserKey($mobile = '') {
+        return 'U:' . $mobile;
     }
 }
