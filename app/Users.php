@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Users extends Model
 {
+
+    use Notifiable;
+
     protected $table      = 'users';
     protected $primaryKey = 'id';
     public    $timestamps = false;
     //protected $dateFormat = 'U';
-    //protected $fillable = ['mobile', 'nickname', 'pwd'];
-
 
     /**
      * 通过用户ID获取用户信息
