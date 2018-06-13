@@ -23,55 +23,37 @@ Route::prefix('user')->group(function($router) {
 
     Route::post('register', 'UserController@regist');         //  注册
 
-    Route::post('nickname', 'UserController@changName');      //  修改昵称
-
-    Route::post('status', 'UserController@getLoginStatus');   //  查询登录状态
-
-    Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
-
-    Route::get('qrcode/{id}', function ($address) {
-        return view('QrCode')->with('address', $address);             //  生成二维码
-    });
-
 });
 
+//  需要在header带上Authorization参数
 Route::middleware('jwt.auth')->group(function($router) {
-    $router->get('profile','UserController@profile');
-});
 
+    Route::prefix('user')->group(function($router) {
 
+        Route::post('logout', 'UserController@logout');           //  登出
 
-//  用户路由
-/*
-Route::prefix('user')->group(function () {
+        Route::post('nickname', 'UserController@changName');      //  修改昵称
 
-    Route::post('/login', 'UserController@login');             //  登录
+        Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
-    Route::post('/register', 'UserController@regist');         //  注册
-
-    Route::post('/nickname', 'UserController@changName');      //  修改昵称
-
-    Route::post('/status', 'UserController@getLoginStatus');   //  查询登录状态
-
-    Route::post('/agent', 'UserController@generateAgent');     //  生成代理身份
-
-    Route::get('/qrcode/{id}', function ($address) {
-        return view('QrCode')->with('address', $address);             //  生成二维码
+        Route::get('qrcode/{id}', function ($address) {
+            return view('QrCode')->with('address', $address);           //  生成二维码
+        });
     });
 
 });
-*/
+
 
 //  宠物路由
 Route::prefix('pet')->group(function () {
 
     Route::get('/lists/{type}', 'PetController@getLists')
-        ->where('type', '[1-2]');                        //  宠物列表
+        ->where('type', '[1-2]');                       //  宠物列表
 
     Route::get('/birth', 'PetController@autoBirth');           //  宠物自动出生
 
     Route::get('/details/{id}', 'PetController@getDetails')
-        ->where('id', '[0-9]+');                       //  获取宠物详情
+        ->where('id', '[0-9]+');                        //  获取宠物详情
 
     Route::post('/auction', 'PetController@auction');          //  宠物拍卖
 

@@ -18,10 +18,6 @@ class UserController extends Controller
         $this->userModel = new User;
     }
 
-    public function profile() {
-        echo "hello!";
-    }
-
     /**
      * 注册账号
      * @param Request $req
@@ -29,16 +25,15 @@ class UserController extends Controller
      */
     public function regist(Request $req) {
 
-
         $mobile    = $req->get('mobile');
         $verfyCode = $req->get('verfyCode');
-        $pwd       = $req->get('password');
+        $password  = $req->get('password');
 
         //  缺少必填字段
-        if (!$mobile || !$verfyCode || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$mobile || !$verfyCode || !$password) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
         //  手机号已被注册
-        if ($this->_checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
+        //if ($this->_checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
 
         //  校验验证码
         if ($verfyCode != "111") return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
@@ -49,7 +44,7 @@ class UserController extends Controller
             array(
                 'mobile' => $mobile,
                 'nickname' => $mobile,
-                'pwd' => substr(md5($pwd), 8, 16)
+                'password' => bcrypt($password)
             )
         );
 
@@ -60,7 +55,6 @@ class UserController extends Controller
         $res = $this->userModel->getUserByUserId($userId);
         if ($res) {
             $this->_setUserInfo($userId, $res);
-            $this->_setMobile($mobile, $res);
             return response()->json(Config::get('constants.REGIST_SUCCESS'));
         }
         return response()->json(Config::get('constants.DATA_MATCHING_ERROR'));
@@ -73,7 +67,6 @@ class UserController extends Controller
      */
     public function login(Request $req) {
 
-
         $rules = [
             'mobile'   => [
                 'required',
@@ -84,56 +77,30 @@ class UserController extends Controller
 
         $params = $this->validate($req, $rules);
 
-
-        //$mobile    = $req->get('mobile');
-        //$password  = $req->get('password');
-
-
-        return ($token = Auth::guard('api')->attempt($params))
-            ? response()->json(array_merge(['token' => 'bearer ' . $token], Config::get('constants.LOGIN_SUCCESS')))
-            : response()->json(Config::get('constants.LOGIN_ERROR'));
-
-
-
-/*
-
-        //  缺少必填字段
-        if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
-
-        //  获取用户信息
-        if ($this->_checkMobileExist($mobile)) {
-            $res = $this->_getUserInfoByMobile($mobile);
-        } else {
-            $res = $this->userModel->getUserByMobile($mobile);
-
-            //  找不到该用户
-            if (!$res) return response()->json(Config::get('constants.NOT_FOUND_USER'));
-
-            $this->_setUserInfo($res['id'], $res);
-            $this->_setMobile($mobile, $res);
-        }
-
-        //  密码错误
-        if ($res['pwd'] != substr(md5($pwd), 8, 16))
-            return response()->json(Config::get('constants.LOGIN_ERROR'));
-
-        unset($res['pwd']);
-
-        //  保存登陆状态
-        $this->_setLoginSatus($res['id']);
-
         //  登录成功
-        return response()->json(array_merge($res, Config::get('constants.LOGIN_SUCCESS')));
-        */
+        if ($token = Auth::guard('api')->attempt($params)) {
+
+            $userInfo = Auth::guard('api')->user()->toArray();
+
+            return response()->json(array_merge(
+                ['token' => 'bearer ' . $token, 'userInfo' => $userInfo],
+                Config::get('constants.LOGIN_SUCCESS'))
+            );
+        } else {
+            return response()->json(Config::get('constants.LOGIN_ERROR'));
+        }
     }
 
+    /**
+     * 用户登出
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout()
     {
         Auth::guard('api')->logout();
 
-        return response(['message' => '退出成功']);
+        return response()->json(Config::get('constants.LOGIN_OUT'));
     }
-
 
     /**
      * 修改昵称
@@ -141,60 +108,22 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public function changName(Request $req) {
-        $userId      = $req->get('uid');
         $nickname    = $req->get('nickname');
 
         //  缺少必填字段
-        if (!$userId || !$nickname) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$nickname) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
-        $res = $this->userModel->updateUser($userId, ['nickname' => $nickname]);
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        $res = $this->userModel->updateUser($userInfo['id'], ['nickname' => $nickname]);
         if ($res) {
-            $this->_delUserKey($userId);
+            $this->_delUserKey($userInfo['id']);
+            $this->_setUserInfo($userInfo['id'], $userInfo);
             return response()->json(Config::get('constants.UPDATE_SUCCESS'));
         }
         return response()->json(Config::get('constants.UPDATE_ERROR'));
     }
 
-    /**
-     * 获取登录状态
-     * @param Request $req
-     * @return JsonResponse
-     */
-    public function getLoginStatus(Request $req) {
-        $userId = $req->get('uid');
-
-        //  缺少必填字段
-        if (!$userId) return response()->json(Config::get('constants.EMPTY_ERROR'));
-
-        if ($this->_getLoginStatus($userId))
-            return response()->json(Config::get('constants.LOGIN_SUCCESS'));
-
-        return response()->json(Config::get('constants.LOGIN_HACK'));
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private function _setLoginSatus($userId = '') {
-        $key = $this->_getLoginSatusKey($userId);
-        Redis::select(Config::get('constants.LOGIN_INDEX'));
-        Redis::set($key, 1);
-        Redis::expire($key, 7200);
-    }
-    private function _getLoginStatus($userId = '') {
-        $key = $this->_getUserKey($userId);
-        Redis::select(Config::get('constants.LOGIN_INDEX'));
-        return Redis::exists($key);
-    }
     private function _setUserInfo($userId = '', $data = []) {
         $key = $this->_getUserKey($userId);
         Redis::select(Config::get('constants.USERS_INDEX'));
@@ -210,31 +139,13 @@ class UserController extends Controller
         Redis::select(Config::get('constants.USERS_INDEX'));
         return Redis::hgetall($key);
     }
-    private function _getUserInfoByMobile($mobile = '') {
-        $key = $this->_getMobileKey($mobile);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        return Redis::hgetall($key);
-    }
     private function _checkUserExist($userId = '') {
         $key = $this->_getUserKey($userId);
         Redis::select(Config::get('constants.USERS_INDEX'));
         return Redis::exists($key);
     }
-    private function _checkMobileExist($mobile = '') {
-        $key = $this->_getMobileKey($mobile);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        return Redis::exists($key);
-    }
-    private function _setMobile($mobile = '', $data = []) {
-        $key = $this->_getUserKey($mobile);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        Redis::hmset($key, $data);
-    }
     private function _getUserKey($userId = '') {
         return 'U:' . $userId;
     }
-    private function _getMobileKey($mobile = '') {
-        return 'M:' . $mobile;
-    }
-    private function _getLoginStatusKey() {}
+
 }

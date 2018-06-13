@@ -52,7 +52,7 @@ class User extends Authenticatable implements JWTSubject
      */
     function getUserByUserId($userId = '') {
         if (!$userId) return array();
-        $res = Users::where('id', '=', $userId)->first();
+        $res = User::where('id', '=', $userId)->first();
         if (!$res || !is_object($res)) return array();
         return $res->toArray();
     }
@@ -64,7 +64,7 @@ class User extends Authenticatable implements JWTSubject
      */
     function getUserByMobile($mobile = '') {
         if (!$mobile) return array();
-        $res = Users::where('mobile', '=', $mobile)->first();
+        $res = User::where('mobile', '=', $mobile)->first();
         if (!$res || !is_object($res)) return array();
         return $res->toArray();
     }
@@ -76,7 +76,7 @@ class User extends Authenticatable implements JWTSubject
      */
     function registerUser($data = []) {
         if (count($data) == 0) return false;
-        return Users::insertGetId($data);
+        return User::insertGetId($data);
     }
 
     /**
@@ -87,7 +87,7 @@ class User extends Authenticatable implements JWTSubject
      */
     function updateUser($userId = '', $data = []) {
         if (strlen(trim($userId)) == 0 || count($data) == 0) return false;
-        return Users::where('id', '=', $userId)
+        return User::where('id', '=', $userId)
             ->update($data);
     }
 
