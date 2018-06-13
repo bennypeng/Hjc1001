@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Users extends Model
 {
 
-    use Notifiable;
-
     protected $table      = 'users';
     protected $primaryKey = 'id';
     public    $timestamps = false;
