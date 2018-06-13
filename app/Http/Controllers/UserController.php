@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Users;
+use App\User;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 
-class UsersController extends Controller
+class UserController extends Controller
 {
 
     protected $userModel;
 
     public function __construct() {
-        $this->userModel = new Users;
+        $this->userModel = new User;
+    }
+
+    public function profile() {
+        echo "hello!";
     }
 
     /**
@@ -23,9 +28,11 @@ class UsersController extends Controller
      * @return JsonResponse
      */
     public function regist(Request $req) {
+
+
         $mobile    = $req->get('mobile');
         $verfyCode = $req->get('verfyCode');
-        $pwd       = $req->get('pwd');
+        $pwd       = $req->get('password');
 
         //  缺少必填字段
         if (!$mobile || !$verfyCode || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
@@ -66,8 +73,29 @@ class UsersController extends Controller
      */
     public function login(Request $req) {
 
-        $mobile    = $req->get('mobile');
-        $pwd       = $req->get('pwd');
+
+        $rules = [
+            'mobile'   => [
+                'required',
+                'exists:users',
+            ],
+            'password' => 'required|string|min:6|max:20',
+        ];
+
+        $params = $this->validate($req, $rules);
+
+
+        //$mobile    = $req->get('mobile');
+        //$password  = $req->get('password');
+
+
+        return ($token = Auth::guard('api')->attempt($params))
+            ? response()->json(array_merge(['token' => 'bearer ' . $token], Config::get('constants.LOGIN_SUCCESS')))
+            : response()->json(Config::get('constants.LOGIN_ERROR'));
+
+
+
+/*
 
         //  缺少必填字段
         if (!$mobile || !$pwd) return response()->json(Config::get('constants.EMPTY_ERROR'));
@@ -96,7 +124,16 @@ class UsersController extends Controller
 
         //  登录成功
         return response()->json(array_merge($res, Config::get('constants.LOGIN_SUCCESS')));
+        */
     }
+
+    public function logout()
+    {
+        Auth::guard('api')->logout();
+
+        return response(['message' => '退出成功']);
+    }
+
 
     /**
      * 修改昵称
@@ -134,6 +171,17 @@ class UsersController extends Controller
 
         return response()->json(Config::get('constants.LOGIN_HACK'));
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
     private function _setLoginSatus($userId = '') {

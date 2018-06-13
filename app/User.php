@@ -2,15 +2,48 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Users extends Model
+class User extends Authenticatable implements JWTSubject
 {
 
-    protected $table      = 'users';
-    protected $primaryKey = 'id';
-    public    $timestamps = false;
+    //protected $table      = 'users';
+    //protected $primaryKey = 'id';
+    //public    $timestamps = false;
     //protected $dateFormat = 'U';
+
+
+    use Notifiable;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'mobile', 'nickname', 'password', 'address'
+    ];
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+
 
     /**
      * 通过用户ID获取用户信息

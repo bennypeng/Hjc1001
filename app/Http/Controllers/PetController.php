@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\HelperContract;
-use App\Pets;
+use App\Pet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
-class PetsController extends Controller
+class PetController extends Controller
 {
 
     protected $helper;
@@ -20,7 +20,7 @@ class PetsController extends Controller
     public function __construct(HelperContract $helper)
     {
         $this->helper = $helper;
-        $this->petModel = new Pets;
+        $this->petModel = new Pet;
         $this->petOptions = Config::getMany(
             array(
                 'constants.PETS_OPTIONS',
@@ -227,12 +227,13 @@ class PetsController extends Controller
         return array_values($res);
     }
     private function _calcRarity(array $petInfo) {
+        return 0;
         //稀有值=[角色体力值(体力*成长系数)+属性值（萌力/形体/肌肉）]*装饰完整度
         return round((
-            $this->petOptions['constants.PETS_STRENGTH_OPTIONS'][$petInfo['attr1']][0]
-            * $this->petOptions['constants.PETS_OPTIONS'][$petInfo['id']][2]
-            + $this->petOptions['constants.PETS_ATTRIBUTE_OPTIONS'][$petInfo['attr2']][0]
-        ) * $petInfo['attr3']);
+                $this->petOptions['constants.PETS_STRENGTH_OPTIONS'][$petInfo['attr1']][0]
+                * $this->petOptions['constants.PETS_OPTIONS'][$petInfo['id']][2]
+                + $this->petOptions['constants.PETS_ATTRIBUTE_OPTIONS'][$petInfo['attr2']][0]
+            ) * $petInfo['attr3']);
 
     }
     private function _getOwnerNickname($uid) {

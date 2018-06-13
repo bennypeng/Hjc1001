@@ -5,7 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Pets extends Model
+class Pet extends Model
 {
     protected $table      = 'pets';
     protected $primaryKey = 'id';
@@ -19,7 +19,7 @@ class Pets extends Model
      */
     public function createPet($data = []) {
         if (count($data) == 0) return false;
-        return Pets::insertGetId($data);
+        return Pet::insertGetId($data);
     }
 
     /**
@@ -29,12 +29,12 @@ class Pets extends Model
      */
     public function getPetLists($type = 1) {
         if ($type == 1) {
-            $res = Pets::where('expired_at', '>', Carbon::now())
+            $res = Pet::where('expired_at', '>', Carbon::now())
                 ->where('ownerId', '=', 0)
                 ->where('on_sale', '=', 2)
                 ->get();
         } else {
-            $res = Pets::where('expired_at', '>', Carbon::now())
+            $res = Pet::where('expired_at', '>', Carbon::now())
                 ->where('ownerId', '!=', 0)
                 ->where('on_sale', '=', 2)
                 ->get();
@@ -50,7 +50,7 @@ class Pets extends Model
      */
     public function getPetDetails($id = '') {
         if (!$id) return array();
-        $res = Pets::where('id', '=', $id)
+        $res = Pet::where('id', '=', $id)
             ->first();
         if (!$res || !is_object($res)) return array();
         return $res->toArray();
