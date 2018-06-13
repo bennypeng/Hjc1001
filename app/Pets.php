@@ -43,5 +43,18 @@ class Pets extends Model
         return $res->toArray();
     }
 
+    /**
+     * 获取宠物信息
+     * @param string $id 宠物ID
+     * @return array
+     */
+    public function getPetDetails($id = '') {
+        if (!$id) return array();
+        $res = Pets::where('id', '=', $id)
+            ->first();
+        if (!$res || !is_object($res)) return array();
+        return $res->toArray();
+    }
+
 
 }

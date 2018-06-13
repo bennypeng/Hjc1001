@@ -7,6 +7,7 @@ use App\Pets;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class PetsController extends Controller
@@ -34,7 +35,28 @@ class PetsController extends Controller
      * @return JsonResponse
      */
     public function getDetails(Request $req) {
-        return "";
+        $id = $req->route('id');
+
+        //  缺少必填字段
+        if (!$id) return response()->json(Config::get('constants.EMPTY_ERROR'));
+
+        //  获取宠物信息
+        if (false) {
+            /**
+             * @todo 缓存查询
+             */
+        } else {
+            $petInfo = $this->petModel->getPetDetails($id);
+        }
+
+        return response()->json(
+            array_merge(
+                Config::get('constants.HANDLE_SUCCESS'),
+                array(
+                    'detail' => $this->_parsePetDetails(array($petInfo), true)
+                )
+            )
+        );
     }
 
     /**
@@ -51,8 +73,8 @@ class PetsController extends Controller
         if (time() < $this->_getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
 
         //  出生数量已达上限
-        if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->_getAmount())
-            return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
+        //if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->_getAmount())
+        //    return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
 
         //  随机抽取宠物
         $petType = $this->_generatePet();
@@ -76,6 +98,8 @@ class PetsController extends Controller
         //  更新冷却时间及出生数量
         $this->_setCoolTime(time() + 15 * 60);
         $this->_setAmount(1);
+
+        Log::info("debug-" . __FUNCTION__, array('message' => "SUCCESS GENERATE THE ". $this->_getAmount() . "th PET!"));
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
@@ -185,15 +209,19 @@ class PetsController extends Controller
         //  随机获取一个宠物
         return $this->helper->getRandomByWeight($allowList);
     }
-    private function _parsePetDetails(array $data) {
+    private function _parsePetDetails(array $data, $fullData = false) {
         $res = array();
         foreach($data as $k => $v) {
             $res[$v['id']] = array(
                 'id' => $v['id'],
+                'owner' => $v['ownerId'] == 0 ,
                 'petType' => $v['type'],
                 'price' => $v['price'],
                 'rarity' => $this->_calcRarity($v)
             );
+            if ($fullData) {
+
+            }
         }
         krsort($res);
         return array_values($res);
@@ -205,6 +233,11 @@ class PetsController extends Controller
             * $this->petOptions['constants.PETS_OPTIONS'][$petInfo['id']][2]
             + $this->petOptions['constants.PETS_ATTRIBUTE_OPTIONS'][$petInfo['attr2']][0]
         ) * $petInfo['attr3']);
+
+    }
+    private function _getOwnerNickname($uid) {
+        if ($uid == 0) return "无";
+        Redis::select(Config::get('constants.USERS_INDEX'));
 
     }
 }

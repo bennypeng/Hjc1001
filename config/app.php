@@ -181,6 +181,8 @@ return [
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
+        //Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+        //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
         /**
          * Helper Service Providers
@@ -236,6 +238,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        //'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+        //'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 
     ],
 

@@ -41,7 +41,8 @@ Route::prefix('pets')->group(function () {
 
     Route::get('/birth', 'PetsController@autoBirth');           //  宠物自动出生
 
-    Route::post('/details', 'PetsController@getDetails');       //  获取宠物详情
+    Route::get('/details/{id}', 'PetsController@getDetails')
+        ->where('type', '[0-9]+');                       //  获取宠物详情
 
     Route::post('/auction', 'PetsController@auction');          //  宠物拍卖
 
