@@ -30,7 +30,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
     ];
 
     public function getJWTIdentifier()
@@ -43,8 +43,6 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-
-
     /**
      * 通过用户ID获取用户信息
      * @param string $userId 用户ID
@@ -53,18 +51,6 @@ class User extends Authenticatable implements JWTSubject
     function getUserByUserId($userId = '') {
         if (!$userId) return array();
         $res = User::where('id', '=', $userId)->first();
-        if (!$res || !is_object($res)) return array();
-        return $res->toArray();
-    }
-
-    /**
-     * 通过手机号获取用户信息
-     * @param string $mobile
-     * @return array
-     */
-    function getUserByMobile($mobile = '') {
-        if (!$mobile) return array();
-        $res = User::where('mobile', '=', $mobile)->first();
         if (!$res || !is_object($res)) return array();
         return $res->toArray();
     }

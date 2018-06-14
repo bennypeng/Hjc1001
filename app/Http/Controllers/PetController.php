@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\HelperContract;
+use App\User;
 use App\Pet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,10 +16,12 @@ class PetController extends Controller
 
     protected $helper;
     protected $petModel;
+    protected $userModel;
 
     public function __construct(HelperContract $helper)
     {
         $this->helper     = $helper;
+        $this->userModel  = new User;
         $this->petModel   = new Pet;
     }
 
@@ -112,6 +115,8 @@ class PetController extends Controller
         $petId    = $req->get('petId');
         $attr     = $req->get('attr');
         $idx      = $req->get('idx', 0);
+        $update   = [];
+        $cost     = 0;
 
         //  缺少必填字段
         if (!$petId || !$attr) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
@@ -132,58 +137,49 @@ class PetController extends Controller
         //  升级属性
         switch ($attr) {
             case 1:
-                //  属性1
-                //  属性达到上限
-                if ($petDetails['strength']['maxLevel'] <= $petDetails['strength']['current']['level'])
-                    return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
-
-                //  余额不足
-                //if ($wallet < $petDetails['strength']['next']['cost'])
-                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
-
-                //$ret = $this->petModel->updatePet($userId, $petId, []);
-                ;
-                break;
             case 2:
-                //  属性2
+                $flag = $attr == 1 ? 'strength' : 'attribute';
+
                 //  属性达到上限
-                if ($petDetails['attribute']['maxLevel'] <= $petDetails['attribute']['current']['level'])
+                if ($petDetails[$flag]['maxLevel'] <= $petDetails[$flag]['current']['level'])
                     return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
-
                 //  余额不足
-                //if ($wallet < $petDetails['attribute']['next']['cost'])
-                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+                if ($wallet < $petDetails[$flag]['next']['cost'])
+                    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
 
-                //$ret = $this->petModel->updatePet($userId, $petId, []);
-                ;
+                //  变更属性
+                $nextLevel = $petDetails[$flag]['next']['level'];
+                $update    = ['attr' . $attr => $nextLevel];
+                $cost      = $petDetails[$flag]['next']['cost'];
                 break;
             case 3:
-                //  属性3
-                if ($petDetails['attribute']['maxLevel'] <= $petDetails['attribute']['current']['level'])
-                    return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
+                $binArr = $this->helper->parseBools2Nums($petDetails['decoration']);
+
+                //  参数验证错误
+                if (!isset($binArr[$idx])) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
+
+                //  重复升级
+                if ($binArr[$idx] == 1) return response()->json(Config::get('constants.PETS_ATTR_RE_ERROR'));
 
                 //  余额不足
-                //if ($wallet < $petDetails['attribute']['next']['cost'])
-                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+                if ($wallet < Config::get('constants.PETS_DECORATION_COST'))
+                    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
 
-                //$ret = $this->petModel->updatePet($userId, $petId, []);
-                ;
+                //  更改属性
+                $binArr[$idx] = 1;
+                $cost         = Config::get('constants.PETS_DECORATION_COST');
+                $update       = ['attr3' => bindec(implode("", $binArr))];
                 break;
             default:
                 return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
         }
 
-        //$res = $this->petModel->updatePet($userInfo['id'], $petId, []);
-
-        //  升级属性失败
-        //if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
-
-        //  删除宠物缓存信息
-        //$this->helper->delPetInfo($petId);
-
-        //return response()->json(Config::get('constants.PETS_ATTR_ERROR'));
-
-      //  return "";
+        if ($this->petModel->updatePet($userId, $petId, $update)) {
+            //  花钱
+            $this->userModel->updateUser($userId, ['wallet' => $wallet - $cost]);
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
+        return response()->json(Config::get('constants.HANDLE_ERROR'));
     }
 
     /**

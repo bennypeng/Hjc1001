@@ -39,7 +39,7 @@ class HelperService implements HelperContract
     }
 
     /**
-     * 转换成布尔型输出
+     * 转换成包含布尔型的数组输出
      * @param array $numbers    包含0|1的数组
      * @return array
      */
@@ -49,6 +49,19 @@ class HelperService implements HelperContract
         }
         return $numbers;
     }
+
+    /**
+     * 转换成包含0|1的数组输出
+     * @param array $bools    包含true|false的数组
+     * @return array
+     */
+    public function parseBools2Nums(array $bools) {
+        foreach ($bools as &$v) {
+            $v = $v ? 1 : 0;
+        }
+        return $bools;
+    }
+
 
     /*** 用户相关 ***/
     public function setUserInfo(string $userId, array $data) {

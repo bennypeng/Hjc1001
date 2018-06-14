@@ -43,7 +43,8 @@ return [
 
     'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 10050],
     'PETS_ATTR_MAX_ERROR'      => ['message' => '该属性已达上限',               'code' => 10051],
-    'PETS_OWNER_ERROR'         => ['message' => '不是宠物的主人',               'code' => 10052],
+    'PETS_ATTR_RE_ERROR'       => ['message' => '重复升级',                     'code' => 10052],
+    'PETS_OWNER_ERROR'         => ['message' => '不是宠物的主人',               'code' => 10053],
 
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
     'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],

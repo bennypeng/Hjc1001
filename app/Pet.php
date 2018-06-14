@@ -86,9 +86,14 @@ class Pet extends Model
      */
     function updatePet($userId = '', $petId = '', $data = []) {
         if (strlen(trim($userId)) == 0 || strlen(trim($petId)) == 0 || count($data) == 0) return false;
-        return User::where('id', '=', $petId)
+        $res = Pet::where('id', '=', $petId)
             ->where('ownerId', '=', $userId)
             ->update($data);
+        if ($res) {
+            $helper = new HelperService();
+            $helper->delPetInfo($petId);
+        }
+        return $res;
     }
 
     /**
