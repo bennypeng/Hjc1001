@@ -92,8 +92,6 @@ class PetController extends Controller
         //  更新冷却时间
         $this->helper->setCoolTime(time() + 15 * 60);
 
-        Log::info("debug-" . __FUNCTION__, array('message' => "SUCCESS GENERATE THE ". $this->helper->getAmount() . "th PET!"));
-
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
