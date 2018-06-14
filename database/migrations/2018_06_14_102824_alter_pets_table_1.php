@@ -14,7 +14,7 @@ class AlterPetsTable1 extends Migration
     public function up()
     {
         Schema::table('pets', function (Blueprint $table) {
-            $table->integer('ownerId')->default(0)->comment('主人ID')->change();
+            DB::statement("ALTER TABLE `pets` AUTO_INCREMENT=10000");
         });
     }
 

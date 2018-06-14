@@ -24,7 +24,7 @@ class Pet extends Model
 
     /**
      * 获取宠物列表
-     * @param int $type 列表类型
+     * @param int $type 1诞生列表 2拍卖列表
      * @return array
      */
     public function getPetLists($type = 1) {
@@ -44,13 +44,25 @@ class Pet extends Model
     }
 
     /**
-     * 获取宠物信息
-     * @param string $id 宠物ID
+     * 获取用户宠物列表
+     * @param string $userId 用户ID
      * @return array
      */
-    public function getPetDetails($id = '') {
-        if (!$id) return array();
-        $res = Pet::where('id', '=', $id)
+    public function getUserPetLists($userId = '') {
+        if (!$userId) return array();
+        $res = Pet::where('ownerId', '=', $userId)->get();
+        if (!$res || !is_object($res)) return array();
+        return $res->toArray();
+    }
+
+    /**
+     * 获取宠物信息
+     * @param string $petId 宠物ID
+     * @return array
+     */
+    public function getPetDetails($petId = '') {
+        if (!$petId) return array();
+        $res = Pet::where('id', '=', $petId)
             ->first();
         if (!$res || !is_object($res)) return array();
         return $res->toArray();

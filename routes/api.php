@@ -17,15 +17,10 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
-Route::prefix('user')->group(function($router) {
-
-    Route::post('login', 'UserController@login');             //  登录
-
-    Route::post('register', 'UserController@regist');         //  注册
-
-});
-
-//  需要在header带上Authorization参数
+/**
+ * 需要登录权限的接口
+ * 需要在header带上Authorization参数
+ */
 Route::middleware('jwt.auth')->group(function($router) {
 
     Route::prefix('user')->group(function($router) {
@@ -33,6 +28,8 @@ Route::middleware('jwt.auth')->group(function($router) {
         Route::post('logout', 'UserController@logout');           //  登出
 
         Route::post('nickname', 'UserController@changName');      //  修改昵称
+
+        Route::post('profile', 'UserController@profile');         //  个人中心
 
         Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
@@ -43,6 +40,15 @@ Route::middleware('jwt.auth')->group(function($router) {
 
 });
 
+
+//  用户路由
+Route::prefix('user')->group(function($router) {
+
+    Route::post('login', 'UserController@login');             //  登录
+
+    Route::post('register', 'UserController@regist');         //  注册
+
+});
 
 //  宠物路由
 Route::prefix('pet')->group(function () {

@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\HelperContract;
 use App\User;
+use App\Pet;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Redis;
 
 class UserController extends Controller
 {
 
+    protected $helper;
     protected $userModel;
+    protected $petModel;
 
-    public function __construct() {
+    public function __construct(HelperContract $helper) {
+        $this->helper    = $helper;
         $this->userModel = new User;
+        $this->petModel  = new Pet;
     }
 
     /**
@@ -33,13 +38,12 @@ class UserController extends Controller
         if (!$mobile || !$verfyCode || !$password) return response()->json(Config::get('constants.EMPTY_ERROR'));
 
         //  手机号已被注册
-        //if ($this->_checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
+        if ($this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
 
         //  校验验证码
         if ($verfyCode != "111") return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
 
         //  注册用户
-
         $userId = $this->userModel->registerUser(
             array(
                 'mobile' => $mobile,
@@ -54,7 +58,7 @@ class UserController extends Controller
         //  获取用户信息，并写入缓存
         $res = $this->userModel->getUserByUserId($userId);
         if ($res) {
-            $this->_setUserInfo($userId, $res);
+            $this->helper->setMobile($mobile);
             return response()->json(Config::get('constants.REGIST_SUCCESS'));
         }
         return response()->json(Config::get('constants.DATA_MATCHING_ERROR'));
@@ -80,11 +84,9 @@ class UserController extends Controller
         //  登录成功
         if ($token = Auth::guard('api')->attempt($params)) {
 
-            $userInfo = Auth::guard('api')->user()->toArray();
-
             return response()->json(array_merge(
-                ['token' => 'bearer ' . $token, 'userInfo' => $userInfo],
-                Config::get('constants.LOGIN_SUCCESS'))
+                    ['token' => 'bearer ' . $token],
+                    Config::get('constants.LOGIN_SUCCESS'))
             );
         } else {
             return response()->json(Config::get('constants.LOGIN_ERROR'));
@@ -116,36 +118,46 @@ class UserController extends Controller
         $userInfo = Auth::guard('api')->user()->toArray();
 
         $res = $this->userModel->updateUser($userInfo['id'], ['nickname' => $nickname]);
-        if ($res) {
-            $this->_delUserKey($userInfo['id']);
-            $this->_setUserInfo($userInfo['id'], $userInfo);
-            return response()->json(Config::get('constants.UPDATE_SUCCESS'));
-        }
-        return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        //  修改昵称失败
+        if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+
     }
 
-    private function _setUserInfo($userId = '', $data = []) {
-        $key = $this->_getUserKey($userId);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        Redis::hmset($key, $data);
-    }
-    private function _delUserKey($userId = '') {
-        $key = $this->_getUserKey($userId);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        Redis::del($key);
-    }
-    private function _getUserInfoByUserId($userId = '') {
-        $key = $this->_getUserKey($userId);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        return Redis::hgetall($key);
-    }
-    private function _checkUserExist($userId = '') {
-        $key = $this->_getUserKey($userId);
-        Redis::select(Config::get('constants.USERS_INDEX'));
-        return Redis::exists($key);
-    }
-    private function _getUserKey($userId = '') {
-        return 'U:' . $userId;
+    /**
+     * 个人中心
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function profile() {
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        //  验证token错误
+        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
+
+        $userPetLists = $this->petModel->getUserPetLists($userInfo['id']);
+
+        $myAutionList = $myPetList = array();
+        if ($userPetLists) {
+            $petInfoLists = $this->helper->parsePetDetails($userPetLists);
+            foreach($petInfoLists as $k => $v) {
+                if ($v['on_sale'] == 2) {
+                    $myAutionList[] = $v;
+                } else {
+                    $myPetList[] = $v;
+                }
+            }
+        }
+        return response()->json(array_merge(
+            [
+                'userInfo'   => $userInfo,
+                'petList'    => $myPetList,
+                'autionList' => $myAutionList
+            ],
+            Config::get('constants.HANDLE_SUCCESS'))
+        );
     }
 
 }

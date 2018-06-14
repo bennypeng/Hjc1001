@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterUsersTable3 extends Migration
+class AlterUsersTable1 extends Migration
 {
     /**
      * Run the migrations.
@@ -15,8 +15,6 @@ class AlterUsersTable3 extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             DB::statement("ALTER TABLE `users` AUTO_INCREMENT=10000");
-            $table->unique('mobile');
-            $table->index(['mobile', 'pwd']);
         });
     }
 

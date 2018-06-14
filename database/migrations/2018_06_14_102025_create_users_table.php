@@ -16,10 +16,13 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id')->comment('用户自增ID');
             $table->char('mobile', 20)->comment('手机号码');
-            $table->string('nickname', 10)->comment('昵称');
-            $table->string('pwd', 16)->comment('密码');
-            $table->char('address',42)->comment('钱包地址');
+            $table->string('nickname', 20)->comment('昵称');
+            $table->string('password', 100)->comment('密码');
+            $table->integer('wallet')->default(0)->comment('钱包余额');
+            $table->char('address',42)->nullable()->comment('钱包地址');
             $table->timestamps();
+            $table->unique('mobile');
+            $table->index(['mobile', 'password']);
         });
     }
 
