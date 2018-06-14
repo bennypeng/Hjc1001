@@ -80,7 +80,8 @@ class PetController extends Controller
                 'type'       => $petType,
                 'expired_at' => Carbon::now()->addDay(),
                 'on_sale'    => 2,
-                'price'      => 0.15
+                'price'      => 0.15,
+                'attr4'      => rand(1, 10)
             )
         );
 

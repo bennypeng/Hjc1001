@@ -44,7 +44,7 @@ class HelperService implements HelperContract
 
     /*** 宠物相关 ***/
     public function calcRarity(array $petInfo) {
-        //  稀有值=[角色体力值(体力*成长系数)+属性值（萌力/形体/肌肉）]*装饰完整度
+        //  稀有值 = (体力值+属性值+装饰完整度) * 成长系数 + 随机系数
         list($petOptions, $petStrengthOptions, $petAttributeOptions) = array_values(Config::getMany(
             ['constants.PETS_OPTIONS', 'constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS']
         ));
@@ -52,9 +52,9 @@ class HelperService implements HelperContract
         return round(
             (
                 $petStrengthOptions[$petInfo['attr1']][0]
-                * $petOptions[$petInfo['type']][2]
                 + $petAttributeOptions[$petInfo['attr2']][0]
-            ) * $petInfo['attr3']
+                + $petInfo['attr3']
+            ) * $petOptions[$petInfo['type']][2] + $petInfo['attr4']
         );
     }
     public function parsePetDetails(array $data, bool $fullData = false) {
