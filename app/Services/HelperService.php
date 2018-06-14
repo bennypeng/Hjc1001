@@ -43,12 +43,22 @@ class HelperService implements HelperContract
     }
 
     /*** 宠物相关 ***/
+    public function setPetInfo(string $petId, array $data) {
+        $key = $this->getPetKey($petId);
+        Redis::select(Config::get('constants.PETS_INDEX'));
+        Redis::del($key);
+        Redis::hmset($key, $data);
+    }
+    public function getPetInfo(string $petId) {
+        $key = $this->getPetKey($petId);
+        Redis::select(Config::get('constants.PETS_INDEX'));
+        return Redis::hgetall($key);
+    }
     public function calcRarity(array $petInfo) {
         //  稀有值 = (体力值+属性值+装饰完整度) * 成长系数 + 随机系数
         list($petOptions, $petStrengthOptions, $petAttributeOptions) = array_values(Config::getMany(
             ['constants.PETS_OPTIONS', 'constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS']
         ));
-
         return round(
             (
                 $petStrengthOptions[$petInfo['attr1']][0]
@@ -61,15 +71,17 @@ class HelperService implements HelperContract
         $res = array();
         foreach($data as $k => $v) {
             $res[$v['id']] = array(
-                'id' => $v['id'],
-                'ownerId' => $v['ownerId'],
-                'petType' => $v['type'],
-                'price' => $v['price'],
-                'on_sale' => $v['on_sale'],
-                'rarity' => $this->calcRarity($v)
+                'id'        => $v['id'],
+                'ownerId'   => $v['ownerId'],
+                'petType'   => $v['type'],
+                'price'     => $v['price'],
+                'on_sale'   => $v['on_sale'],
+                'rarity'    => $this->calcRarity($v)
             );
             if ($fullData) {
-
+                /**
+                 * @todo 获取宠物全量数据
+                 */
             }
         }
         krsort($res);
@@ -131,5 +143,8 @@ class HelperService implements HelperContract
     }
     public function getCoolTimeKey() {
         return 'PET:COOLTIME';
+    }
+    public function getPetKey(string $petId) {
+        return 'P:' . $petId;
     }
 }

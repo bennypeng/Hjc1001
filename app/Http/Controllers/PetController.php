@@ -30,23 +30,26 @@ class PetController extends Controller
         $id = $req->route('id');
 
         //  缺少必填字段
-        if (!$id) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$id) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  获取宠物信息
-        if (false) {
-            /**
-             * @todo 缓存查询
-             */
-        } else {
+        $petInfo = $this->helper->getPetInfo($id);
+        if (!$petInfo) {
             $petInfo = $this->petModel->getPetDetails($id);
+
+            //  没有找到该宠物
+            if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+            //  写入缓存
+            $this->helper->setPetInfo($id, $petInfo);
         }
 
         return response()->json(
             array_merge(
-                Config::get('constants.HANDLE_SUCCESS'),
-                array(
+                [
                     'detail' => $this->helper->parsePetDetails(array($petInfo), true)
-                )
+                ],
+                Config::get('constants.HANDLE_SUCCESS')
             )
         );
     }
@@ -65,8 +68,8 @@ class PetController extends Controller
         if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
 
         //  出生数量已达上限
-        //if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->helper->getAmount())
-        //    return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
+        if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->helper->getAmount())
+            return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
 
         //  随机抽取宠物
         $petType = $this->helper->generatePet();
@@ -90,7 +93,7 @@ class PetController extends Controller
 
         //  更新冷却时间及出生数量
         $this->helper->setCoolTime(time() + 15 * 60);
-        $this->helper->setAmount(1);
+        //$this->helper->setAmount(1);
 
         Log::info("debug-" . __FUNCTION__, array('message' => "SUCCESS GENERATE THE ". $this->helper->getAmount() . "th PET!"));
 
@@ -124,31 +127,28 @@ class PetController extends Controller
         $type = $req->route('type');   //  列表类型| 1诞生列表，2拍卖列表
 
         //  缺少必填字段
-        if (!$type) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$type) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  获取宠物列表
-        if (false) {
-            /**
-             * @todo 缓存查询
-             */
-        } else {
-            $petLists = $this->petModel->getPetLists($type);
-        }
-
-        //  空的列表
-        if (empty($petLists)) return response()->json(Config::get('constants.LIST_EMPTY'));
+        $petLists = $this->petModel->getPetLists($type);
 
         //  对宠物数据进行解析
-        $petPraseLists = $this->helper->parsePetDetails($petLists);
+        if ($petLists) {
 
-        return response()->json(
-            array_merge(
-                Config::get('constants.HANDLE_SUCCESS'),
-                array(
-                    'lists' => $petPraseLists
+            $petPraseLists = $this->helper->parsePetDetails($petLists);
+
+            return response()->json(
+                array_merge(
+                    [
+                        'lists' => $petPraseLists
+                    ],
+                    Config::get('constants.HANDLE_SUCCESS')
                 )
-            )
-        );
+            );
+        } else {
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
+
 
     }
 

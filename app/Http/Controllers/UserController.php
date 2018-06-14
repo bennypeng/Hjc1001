@@ -35,7 +35,7 @@ class UserController extends Controller
         $password  = $req->get('password');
 
         //  缺少必填字段
-        if (!$mobile || !$verfyCode || !$password) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$mobile || !$verfyCode || !$password) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  手机号已被注册
         if ($this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
@@ -113,7 +113,7 @@ class UserController extends Controller
         $nickname    = $req->get('nickname');
 
         //  缺少必填字段
-        if (!$nickname) return response()->json(Config::get('constants.EMPTY_ERROR'));
+        if (!$nickname) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         $userInfo = Auth::guard('api')->user()->toArray();
 

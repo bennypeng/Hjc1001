@@ -22,29 +22,37 @@ return [
     /**
      * 操作返回码相关
      */
-    'LOGIN_SUCCESS'            => ['message' => '登录成功',                     'code' => 1000],
-    'LOGIN_ERROR'              => ['message' => '登录失败',                     'code' => 1001],
-    'LOGIN_OUT'                => ['message' => '登出成功',                     'code' => 1002],
-    'LOGIN_OUT_ERROR'          => ['message' => '登出失败',                     'code' => 1003],
-    'REGIST_ERROR'             => ['message' => '注册失败',                     'code' => 1004],
-    'REGIST_SUCCESS'           => ['message' => '注册成功',                     'code' => 1005],
-    'UPDATE_SUCCESS'           => ['message' => '修改成功',                     'code' => 1006],
-    'UPDATE_ERROR'             => ['message' => '修改失败',                     'code' => 1007],
-    'EMPTY_ERROR'              => ['message' => '必要信息不能为空',             'code' => 1008],
-    'NOT_FOUND_USER'           => ['message' => '未找到该账号，请注册',         'code' => 1009],
-    'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 1010],
-    'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 1011],
-    'VERFY_TOKEN_ERROR'        => ['message' => 'token验证错误',                'code' => 1012],
-    'VERFY_ARGS_ERROR'         => ['message' => '参数验证错误',                 'code' => 1013],
-    'PETS_AMOUNT_ERROR'        => ['message' => '出生数量已达上限',             'code' => 1014],
-    'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 1015],
-    'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 1016],
-    'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 1017],
-    'DATA_MATCHING_ERROR'      => ['message' => '数据匹配失败',                 'code' => 1018],
-    'DATA_INSERT_ERROR'        => ['message' => '数据入库失败',                 'code' => 1019],
-    'LIST_EMPTY'               => ['message' => '空列表',                       'code' => 1020],
-    'ALREADY_EXIST_MOBILE'     => ['message' => '该手机号已被注册，请直接登录', 'code' => 1021],
-    'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 1022],
+    'LOGIN_SUCCESS'            => ['message' => '登录成功',                     'code' => 10000],
+    'LOGIN_ERROR'              => ['message' => '登录失败',                     'code' => 10001],
+    'LOGIN_OUT'                => ['message' => '登出成功',                     'code' => 10002],
+    'LOGIN_OUT_ERROR'          => ['message' => '登出失败',                     'code' => 10003],
+
+    'REGIST_ERROR'             => ['message' => '注册失败',                     'code' => 10010],
+    'REGIST_SUCCESS'           => ['message' => '注册成功',                     'code' => 10011],
+
+    'UPDATE_SUCCESS'           => ['message' => '修改成功',                     'code' => 10020],
+    'UPDATE_ERROR'             => ['message' => '修改失败',                     'code' => 10021],
+
+    'NOT_FOUND_USER'           => ['message' => '未找到该账号，请注册',         'code' => 10030],
+    'NOT_FOUND_PET'            => ['message' => '未找到该宠物',                 'code' => 10031],
+
+    'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 10041],
+    'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
+    'VERFY_TOKEN_ERROR'        => ['message' => 'token验证错误',                'code' => 10043],
+    'VERFY_ARGS_ERROR'         => ['message' => '参数验证错误',                 'code' => 10044],
+
+    //'PETS_AMOUNT_ERROR'        => ['message' => '出生数量已达上限',             'code' => 10050],
+    'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 10051],
+
+    'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
+    'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],
+
+    'DATA_MATCHING_ERROR'      => ['message' => '数据匹配失败',                 'code' => 10070],
+    'DATA_INSERT_ERROR'        => ['message' => '数据入库失败',                 'code' => 10071],
+    'DATA_EMPTY_ERROR'         => ['message' => '必要信息不能为空',             'code' => 10072],
+
+    'ALREADY_EXIST_MOBILE'     => ['message' => '该手机号已被注册，请直接登录', 'code' => 10080],
+    'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 10081],
 
     /**
      * 宠物参数设置

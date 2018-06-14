@@ -29,7 +29,7 @@ Route::middleware('jwt.auth')->group(function($router) {
 
         Route::post('nickname', 'UserController@changName');      //  修改昵称
 
-        Route::post('profile', 'UserController@profile');         //  个人中心
+        Route::get('profile', 'UserController@profile');          //  个人中心
 
         Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
@@ -38,7 +38,20 @@ Route::middleware('jwt.auth')->group(function($router) {
         });
     });
 
+    //  宠物路由
+    Route::prefix('pet')->group(function () {
+
+        Route::post('/auction', 'PetController@auction');          //  宠物拍卖
+
+        Route::post('/levelup', 'PetController@levelup');          //  宠物属性升级
+
+    });
+
+
+
 });
+
+
 
 
 //  用户路由
@@ -60,10 +73,6 @@ Route::prefix('pet')->group(function () {
 
     Route::get('/details/{id}', 'PetController@getDetails')
         ->where('id', '[0-9]+');                        //  获取宠物详情
-
-    Route::post('/auction', 'PetController@auction');          //  宠物拍卖
-
-    Route::post('/levelup', 'PetController@levelup');          //  宠物属性升级
 
 });
 

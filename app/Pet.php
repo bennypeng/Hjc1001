@@ -68,5 +68,29 @@ class Pet extends Model
         return $res->toArray();
     }
 
+    /**
+     * 更新宠物信息
+     * @param string $userId
+     * @param string $petId
+     * @param array $data
+     * @return bool
+     */
+    function updateUser($userId = '', $petId = '', $data = []) {
+        if (strlen(trim($userId)) == 0 || strlen(trim($petId)) == 0 || count($data) == 0) return false;
+        return User::where('id', '=', $petId)
+            ->where('ownerId', '=', $userId)
+            ->update($data);
+    }
+
+    /**
+     * 获取没有过期的宠物数量
+     * @return int
+     */
+    function getInExpPetsCounts() {
+        return Pet::where('ownerId', '=', 0)
+            ->where('expired_at', '>', Carbon::now())
+            ->count();
+    }
+
 
 }
