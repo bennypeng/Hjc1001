@@ -2,15 +2,18 @@
 
 namespace App;
 
+use App\Services\HelperService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Pet extends Model
 {
+    protected $helper;
     protected $table      = 'pets';
     protected $primaryKey = 'id';
     public    $timestamps = false;
     //protected $dateFormat = 'U';
+
 
     /**
      * 创建一只宠物
@@ -62,10 +65,16 @@ class Pet extends Model
      */
     public function getPetDetails($petId = '') {
         if (!$petId) return array();
-        $res = Pet::where('id', '=', $petId)
-            ->first();
-        if (!$res || !is_object($res)) return array();
-        return $res->toArray();
+        $helper = new HelperService();
+        $res = $helper->getPetInfo($petId);
+        if (!$res) {
+            $res = Pet::where('id', '=', $petId)
+                ->first();
+            if (!$res || !is_object($res)) return array();
+            $res = $res->toArray();
+            $helper->setPetInfo($petId, $res);
+        }
+        return $res;
     }
 
     /**
@@ -75,7 +84,7 @@ class Pet extends Model
      * @param array $data
      * @return bool
      */
-    function updateUser($userId = '', $petId = '', $data = []) {
+    function updatePet($userId = '', $petId = '', $data = []) {
         if (strlen(trim($userId)) == 0 || strlen(trim($petId)) == 0 || count($data) == 0) return false;
         return User::where('id', '=', $petId)
             ->where('ownerId', '=', $userId)

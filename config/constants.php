@@ -41,8 +41,9 @@ return [
     'VERFY_TOKEN_ERROR'        => ['message' => 'token验证错误',                'code' => 10043],
     'VERFY_ARGS_ERROR'         => ['message' => '参数验证错误',                 'code' => 10044],
 
-    //'PETS_AMOUNT_ERROR'        => ['message' => '出生数量已达上限',             'code' => 10050],
-    'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 10051],
+    'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 10050],
+    'PETS_ATTR_MAX_ERROR'      => ['message' => '该属性已达上限',               'code' => 10051],
+    'PETS_OWNER_ERROR'         => ['message' => '不是宠物的主人',               'code' => 10052],
 
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
     'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],
@@ -53,6 +54,8 @@ return [
 
     'ALREADY_EXIST_MOBILE'     => ['message' => '该手机号已被注册，请直接登录', 'code' => 10080],
     'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 10081],
+
+    'WALLET_AMOUNT_ERROR'      => ['message' => '余额不足',                     'code' => 10090],
 
     /**
      * 宠物参数设置
@@ -97,6 +100,11 @@ return [
         5 => [50, 2000],
         6 => [60, 2500],
     ],
+
+    /**
+     * 宠物装饰消耗的代币数量
+     */
+    'PETS_DECORATION_COST'   => 60,
 
 
 

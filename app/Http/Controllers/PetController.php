@@ -6,6 +6,7 @@ use App\Contracts\HelperContract;
 use App\Pet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
@@ -33,16 +34,10 @@ class PetController extends Controller
         if (!$id) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  获取宠物信息
-        $petInfo = $this->helper->getPetInfo($id);
-        if (!$petInfo) {
-            $petInfo = $this->petModel->getPetDetails($id);
+        $petInfo = $this->petModel->getPetDetails($id);
 
-            //  没有找到该宠物
-            if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
-
-            //  写入缓存
-            $this->helper->setPetInfo($id, $petInfo);
-        }
+        //  没有找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
         return response()->json(
             array_merge(
@@ -68,7 +63,7 @@ class PetController extends Controller
         if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
 
         //  出生数量已达上限
-        if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->helper->getAmount())
+        if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->petModel->getInExpPetsCounts())
             return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
 
         //  随机抽取宠物
@@ -91,9 +86,8 @@ class PetController extends Controller
         //  入库失败
         if (!$petId) return response()->json(Config::get('constants.DATA_INSERT_ERROR'));
 
-        //  更新冷却时间及出生数量
+        //  更新冷却时间
         $this->helper->setCoolTime(time() + 15 * 60);
-        //$this->helper->setAmount(1);
 
         Log::info("debug-" . __FUNCTION__, array('message' => "SUCCESS GENERATE THE ". $this->helper->getAmount() . "th PET!"));
 
@@ -115,7 +109,81 @@ class PetController extends Controller
      * @return JsonResponse
      */
     public function levelup(Request $req) {
-        return "";
+        $petId    = $req->get('petId');
+        $attr     = $req->get('attr');
+        $idx      = $req->get('idx', 0);
+
+        //  缺少必填字段
+        if (!$petId || !$attr) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $petInfo  = $this->petModel->getPetDetails($petId);
+
+        //  未找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        list($petDetails) = $this->helper->parsePetDetails([$petInfo], true);
+        $userInfo = Auth::guard('api')->user()->toArray();
+        $userId   = $userInfo['id'];
+        $wallet   = $userInfo['wallet'];
+
+        //  不是宠物的主人
+        if ($userId != $petDetails['ownerId']) return response()->json(Config::get('constants.PETS_OWNER_ERROR'));
+
+        //  升级属性
+        switch ($attr) {
+            case 1:
+                //  属性1
+                //  属性达到上限
+                if ($petDetails['strength']['maxLevel'] <= $petDetails['strength']['current']['level'])
+                    return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
+
+                //  余额不足
+                //if ($wallet < $petDetails['strength']['next']['cost'])
+                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+                //$ret = $this->petModel->updatePet($userId, $petId, []);
+                ;
+                break;
+            case 2:
+                //  属性2
+                //  属性达到上限
+                if ($petDetails['attribute']['maxLevel'] <= $petDetails['attribute']['current']['level'])
+                    return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
+
+                //  余额不足
+                //if ($wallet < $petDetails['attribute']['next']['cost'])
+                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+                //$ret = $this->petModel->updatePet($userId, $petId, []);
+                ;
+                break;
+            case 3:
+                //  属性3
+                if ($petDetails['attribute']['maxLevel'] <= $petDetails['attribute']['current']['level'])
+                    return response()->json(Config::get('constants.PETS_ATTR_MAX_ERROR'));
+
+                //  余额不足
+                //if ($wallet < $petDetails['attribute']['next']['cost'])
+                //    return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+                //$ret = $this->petModel->updatePet($userId, $petId, []);
+                ;
+                break;
+            default:
+                return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
+        }
+
+        //$res = $this->petModel->updatePet($userInfo['id'], $petId, []);
+
+        //  升级属性失败
+        //if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        //  删除宠物缓存信息
+        //$this->helper->delPetInfo($petId);
+
+        //return response()->json(Config::get('constants.PETS_ATTR_ERROR'));
+
+      //  return "";
     }
 
     /**

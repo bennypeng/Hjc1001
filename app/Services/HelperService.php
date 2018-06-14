@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 class HelperService implements HelperContract
 {
     /**
-     * 根据权重随机获取
+     * 通过权重获取随机数
      * @param array $weightValuesArr
      * @return int|string
      */
@@ -22,6 +22,32 @@ class HelperService implements HelperContract
                 return $key;
             }
         }
+    }
+
+    /**
+     * 十进制转二进制，并按指定格式输出
+     * @param int $number   十进制数
+     * @param int $minLen  输出的最小长度
+     * @return array
+     */
+    public function parseNum2Bit(int $number, int $minLen = 6) {
+        $binData = decbin($number);
+        $binLen  = strlen($binData);
+        if ($binLen < $minLen)
+            $binData = sprintf('%0' . $minLen . 's', $binData);
+        return str_split($binData);
+    }
+
+    /**
+     * 转换成布尔型输出
+     * @param array $numbers    包含0|1的数组
+     * @return array
+     */
+    public function parseNums2Bool(array $numbers) {
+        foreach ($numbers as &$v) {
+            $v = $v == 1 ? true : false;
+        }
+        return $numbers;
     }
 
     /*** 用户相关 ***/
@@ -49,6 +75,11 @@ class HelperService implements HelperContract
         Redis::del($key);
         Redis::hmset($key, $data);
     }
+    public function delPetInfo(string $petId) {
+        $key = $this->getPetKey($petId);
+        Redis::select(Config::get('constants.PETS_INDEX'));
+        Redis::del($key);
+    }
     public function getPetInfo(string $petId) {
         $key = $this->getPetKey($petId);
         Redis::select(Config::get('constants.PETS_INDEX'));
@@ -69,6 +100,11 @@ class HelperService implements HelperContract
     }
     public function parsePetDetails(array $data, bool $fullData = false) {
         $res = array();
+        if ($fullData) {
+            list($petStrengthOptions, $petAttributeOptions) = array_values(Config::getMany(
+                ['constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS']
+            ));
+        }
         foreach($data as $k => $v) {
             $res[$v['id']] = array(
                 'id'        => $v['id'],
@@ -79,8 +115,47 @@ class HelperService implements HelperContract
                 'rarity'    => $this->calcRarity($v)
             );
             if ($fullData) {
+                $petStrengthVal       = isset($petStrengthOptions[$v['attr1']][0]) ? $petStrengthOptions[$v['attr1']][0] : 0;
+                $petAttributeVal      = isset($petAttributeOptions[$v['attr2']][0]) ? $petAttributeOptions[$v['attr2']][0] : 0;
+                $petStrengthCost      = isset($petStrengthOptions[$v['attr1']][1]) ? $petStrengthOptions[$v['attr1']][1] : 999;
+                $petAttributeCost     = isset($petAttributeOptions[$v['attr2']][1]) ? $petAttributeOptions[$v['attr2']][1] : 999;
+
+
+                $petStrengthNextVal   = isset($petStrengthOptions[$v['attr1'] + 1][0]) ? $petStrengthOptions[$v['attr1'] + 1][0] : 0;
+                $petAttributeNextVal  = isset($petAttributeOptions[$v['attr2'] + 1][0]) ? $petAttributeOptions[$v['attr2'] + 1][0] : 0;
+                $petStrengthNextCost  = isset($petStrengthOptions[$v['attr1'] + 1][1]) ? $petStrengthOptions[$v['attr1'] + 1][1] : 999;
+                $petAttributeNextCost = isset($petAttributeOptions[$v['attr2'] + 1][1]) ? $petAttributeOptions[$v['attr2'] + 1][1] : 999;
+
+                $res[$v['id']]['strength'] = [
+                    'maxLevel' => max(array_keys($petStrengthOptions)),
+                    'current' => [
+                        'level' => (int)$v['attr1'],
+                        'value' => $petStrengthVal,
+                        'cost'  => $petStrengthCost
+                    ],
+                    'next' => [
+                        'level' => (int)$v['attr1'],
+                        'value' => $petStrengthNextVal,
+                        'cost'  => $petStrengthNextCost
+                    ],
+
+                ];
+                $res[$v['id']]['attribute'] = [
+                    'maxLevel' => max(array_keys($petAttributeOptions)),
+                    'current' => [
+                        'level' => (int)$v['attr2'],
+                        'value' => $petAttributeVal,
+                        'cost'  => $petAttributeCost
+                    ],
+                    'next' => [
+                        'level' => (int)$v['attr1'],
+                        'value' => $petAttributeNextVal,
+                        'cost'  => $petAttributeNextCost
+                    ],
+                ];
+                $res[$v['id']]['decoration'] = $this->parseNums2Bool($this->parseNum2Bit($v['attr3']));
                 /**
-                 * @todo 获取宠物全量数据
+                 * @todo 起价 终价
                  */
             }
         }
@@ -115,21 +190,6 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.PETS_INDEX'));
         Redis::set($key, $ts);
     }
-    public function getAmount() {
-        $key = $this->getAmountKey();
-        Redis::select(Config::get('constants.PETS_INDEX'));
-        $num = Redis::get($key);
-        if (is_null($num)) {
-            $num = 0;
-            $this->setAmount($num);
-        }
-        return $num;
-    }
-    public function setAmount(int $num) {
-        $key = $this->getAmountKey();
-        Redis::select(Config::get('constants.PETS_INDEX'));
-        Redis::incrby($key, $num);
-    }
 
     /*** KEY ***/
     public function getUserKey(string $userId) {
@@ -137,9 +197,6 @@ class HelperService implements HelperContract
     }
     public function getMobileKey(string $mobile) {
         return 'M:' . $mobile;
-    }
-    public function getAmountKey() {
-        return 'PET:AMOUNT';
     }
     public function getCoolTimeKey() {
         return 'PET:COOLTIME';
