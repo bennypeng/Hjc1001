@@ -120,12 +120,16 @@ class HelperService implements HelperContract
         }
         foreach($data as $k => $v) {
             $res[$v['id']] = array(
-                'id'        => $v['id'],
-                'ownerId'   => $v['ownerId'],
-                'petType'   => $v['type'],
-                'price'     => $v['price'],
-                'on_sale'   => $v['on_sale'],
-                'rarity'    => $this->calcRarity($v)
+                'id'         => $v['id'],
+                'ownerId'    => $v['ownerId'],
+                'petType'    => $v['type'],
+                'on_sale'    => $v['on_sale'],
+                'rarity'     => $this->calcRarity($v),
+                /**
+                 * @todo 计算当前价格
+                 */
+                'price'      => 18,                //   当前价格，需要根据拍卖时长来计算
+                'exp'        => strtotime($v['expired_at'])
             );
             if ($fullData) {
                 $petStrengthVal       = isset($petStrengthOptions[$v['attr1']][0]) ? $petStrengthOptions[$v['attr1']][0] : 0;
@@ -139,6 +143,8 @@ class HelperService implements HelperContract
                 $petStrengthNextCost  = isset($petStrengthOptions[$v['attr1'] + 1][1]) ? $petStrengthOptions[$v['attr1'] + 1][1] : 999;
                 $petAttributeNextCost = isset($petAttributeOptions[$v['attr2'] + 1][1]) ? $petAttributeOptions[$v['attr2'] + 1][1] : 999;
 
+                $res[$v['id']]['startPrice'] = $v['sp'];             //   起价
+                $res[$v['id']]['finalPrice'] = $v['fp'];             //   终价
                 $res[$v['id']]['strength'] = [
                     'maxLevel' => max(array_keys($petStrengthOptions)),
                     'current' => [
@@ -167,9 +173,6 @@ class HelperService implements HelperContract
                     ],
                 ];
                 $res[$v['id']]['decoration'] = $this->parseNums2Bool($this->parseNum2Bit($v['attr3']));
-                /**
-                 * @todo 起价 终价
-                 */
             }
         }
         krsort($res);

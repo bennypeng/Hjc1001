@@ -8,6 +8,8 @@ return [
     'SERVER_IP'                => '192.168.10.1',           //  服务器IP
     'PUBLISH_TIME'             => '2018-05-01 00:00:00',    //  发布时间
     'PET_BIRTH_LIMIT'          => 12,                       //  宠物出生数量限制
+    'PET_START_PRICE'          => 30,                       //  宠物起始价格
+    'PET_FINAL_PRICE'          => 15,                       //  宠物终止价格
 
     /**
      * Redis数据库相关
@@ -52,6 +54,7 @@ return [
     'DATA_MATCHING_ERROR'      => ['message' => '数据匹配失败',                 'code' => 10070],
     'DATA_INSERT_ERROR'        => ['message' => '数据入库失败',                 'code' => 10071],
     'DATA_EMPTY_ERROR'         => ['message' => '必要信息不能为空',             'code' => 10072],
+    'DATA_FORMAT_ERROR'        => ['message' => '数据格式错误',                 'code' => 10073],
 
     'ALREADY_EXIST_MOBILE'     => ['message' => '该手机号已被注册，请直接登录', 'code' => 10080],
     'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 10081],

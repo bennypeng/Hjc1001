@@ -81,7 +81,8 @@ class PetController extends Controller
                 'type'       => $petType,
                 'expired_at' => Carbon::now()->addDay(),
                 'on_sale'    => 2,
-                'price'      => 0.15,
+                'sp'         => Config::get('constants.PET_START_PRICE'),
+                'fp'         => Config::get('constants.PET_FINAL_PRICE'),
                 'attr4'      => rand(1, 5)
             )
         );
@@ -101,7 +102,30 @@ class PetController extends Controller
      * @return JsonResponse
      */
     public function auction(Request $req) {
-        return "";
+        $petId    = $req->get('petId');
+        $sp       = $req->get('sp');
+        $fp       = $req->get('fp');
+        $days     = $req->get('days', 0);
+        $hours    = $req->get('hours', 24);
+
+        //  缺少必填字段
+        if (!$petId || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  数据格式错误
+        if (!is_integer($sp) || !is_integer($sp)) return response()->json(Config::get('constants.DATA_FORMAT_ERROR'));
+
+        //  未找到该宠物
+        if (!$this->petModel->getPetDetails($petId)) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+        //$userId   = $userInfo['id'];
+        //$wallet   = $userInfo['wallet'];
+
+
+
+
+
+
     }
 
     /**
@@ -195,23 +219,16 @@ class PetController extends Controller
         $petLists = $this->petModel->getPetLists($type);
 
         //  对宠物数据进行解析
-        if ($petLists) {
+        $petPraseLists = $this->helper->parsePetDetails($petLists);
 
-            $petPraseLists = $this->helper->parsePetDetails($petLists);
-
-            return response()->json(
-                array_merge(
-                    [
-                        'lists' => $petPraseLists
-                    ],
-                    Config::get('constants.HANDLE_SUCCESS')
-                )
-            );
-        } else {
-            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
-        }
-
-
+        return response()->json(
+            array_merge(
+                [
+                    'lists' => $petPraseLists
+                ],
+                Config::get('constants.HANDLE_SUCCESS')
+            )
+        );
     }
 
 }

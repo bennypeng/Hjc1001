@@ -29,7 +29,14 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public function regist(Request $req) {
+/*
+        //echo env('MESSAGE_ACCESSKEY');
 
+        $client = new \GuzzleHttp\Client(['base_url' => env('MESSAGE_SEND_URL')]);
+        $res = $client->request('POST')
+
+        exit;
+*/
         $mobile    = $req->get('mobile');
         $verfyCode = $req->get('verfyCode');
         $password  = $req->get('password');
@@ -163,9 +170,10 @@ class UserController extends Controller
 
         $myAutionList = $myPetList = array();
         if ($userPetLists) {
+            $now = time();
             $petInfoLists = $this->helper->parsePetDetails($userPetLists);
             foreach($petInfoLists as $k => $v) {
-                if ($v['on_sale'] == 2) {
+                if ($v['on_sale'] == 2 && $now < $v['exp']) {
                     $myAutionList[] = $v;
                 } else {
                     $myPetList[] = $v;

@@ -33,11 +33,11 @@ Route::middleware('jwt.auth')->group(function($router) {
 
         Route::get('profile', 'UserController@profile');          //  个人中心
 
-        Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
+        //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
-        Route::get('qrcode/{id}', function ($address) {
-            return view('QrCode')->with('address', $address);           //  生成二维码
-        });
+        //Route::get('qrcode/{id}', function ($address) {
+        //    return view('QrCode')->with('address', $address);           //  生成二维码
+        //});
     });
 
     //  宠物路由
@@ -46,6 +46,15 @@ Route::middleware('jwt.auth')->group(function($router) {
         Route::post('/auction', 'PetController@auction');          //  宠物拍卖
 
         Route::post('/levelup', 'PetController@levelup');          //  宠物属性升级
+
+        //Route::post('/okLevelup', 'PetController@oneKeylevelup');  //  宠物属性一键升级
+
+    });
+
+    //  比赛路由
+    Route::prefix('match')->group(function () {
+
+        Route::post('/vote', 'MatchController@vote');             //  比赛投票
 
     });
 
@@ -82,8 +91,6 @@ Route::prefix('match')->group(function () {
     Route::post('/', 'MatchController@generateMatch');        //  生成一场比赛
 
     Route::post('/status', 'MatchController@checkStatus');    //  获取比赛状态
-
-    Route::post('/vote', 'MatchController@vote');             //  比赛投票
 
     Route::post('/ranking', 'MatchController@getRanking');    //  获取排行榜信息
 
