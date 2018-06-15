@@ -127,6 +127,28 @@ class UserController extends Controller
     }
 
     /**
+     * 修改头像
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function changIcon(Request $req) {
+        $icon    = $req->get('icon');
+
+        //  缺少必填字段
+        if (!$icon) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        $res = $this->userModel->updateUser($userInfo['id'], ['icon' => $icon]);
+
+        //  修改头像失败
+        if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+
+    }
+
+    /**
      * 个人中心
      * @return \Illuminate\Http\JsonResponse
      */

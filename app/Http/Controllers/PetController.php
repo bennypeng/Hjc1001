@@ -82,7 +82,7 @@ class PetController extends Controller
                 'expired_at' => Carbon::now()->addDay(),
                 'on_sale'    => 2,
                 'price'      => 0.15,
-                'attr4'      => rand(1, 10)
+                'attr4'      => rand(1, 5)
             )
         );
 

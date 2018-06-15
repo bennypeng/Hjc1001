@@ -29,6 +29,8 @@ Route::middleware('jwt.auth')->group(function($router) {
 
         Route::post('nickname', 'UserController@changName');      //  修改昵称
 
+        Route::post('icon', 'UserController@changIcon');          //  修改头像
+
         Route::get('profile', 'UserController@profile');          //  个人中心
 
         Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
