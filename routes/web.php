@@ -13,4 +13,3 @@
 
 //  日志查询
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
-

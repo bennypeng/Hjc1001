@@ -153,7 +153,7 @@ class HelperService implements HelperContract
                         'cost'  => $petStrengthCost
                     ],
                     'next' => [
-                        'level' => (int)$v['attr1'],
+                        'level' => (int)$v['attr1'] + 1,
                         'value' => $petStrengthNextVal,
                         'cost'  => $petStrengthNextCost
                     ],
@@ -167,7 +167,7 @@ class HelperService implements HelperContract
                         'cost'  => $petAttributeCost
                     ],
                     'next' => [
-                        'level' => (int)$v['attr1'],
+                        'level' => (int)$v['attr1'] + 1,
                         'value' => $petAttributeNextVal,
                         'cost'  => $petAttributeNextCost
                     ],
