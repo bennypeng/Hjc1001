@@ -97,35 +97,104 @@ class PetController extends Controller
     }
 
     /**
-     * 宠物拍卖
+     * 宠物拍卖（上架）
      * @param Request $req
      * @return JsonResponse
      */
     public function auction(Request $req) {
+
         $petId    = $req->get('petId');
         $sp       = $req->get('sp');
         $fp       = $req->get('fp');
-        $days     = $req->get('days', 0);
-        $hours    = $req->get('hours', 24);
 
         //  缺少必填字段
         if (!$petId || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
-        //  数据格式错误
-        if (!is_integer($sp) || !is_integer($sp)) return response()->json(Config::get('constants.DATA_FORMAT_ERROR'));
+        //  未找到该宠物
+        if (!$this->petModel->getPetDetails($petId)) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        //  更新操作
+        $userInfo = Auth::guard('api')->user()->toArray();
+        $userId   = $userInfo['id'];
+        $update = [
+            'sp' => $sp,
+            'fp' => $fp,
+            'on_sale' => 2,
+            'expired_at' => Carbon::createFromTimestamp(time() + Config::get('constants.PET_SALE_EXP_SEC'))->toDateTimeString()
+        ];
+        if ($this->petModel->updatePet($userId, $petId, $update))
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        return response()->json(Config::get('constants.HANDLE_ERROR'));
+    }
+
+    /**
+     * 宠物拍卖（下架）
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function backout(Request $req) {
+
+        $petId    = $req->get('petId');
+
+        //  缺少必填字段
+        if (!$petId) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  未找到该宠物
         if (!$this->petModel->getPetDetails($petId)) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
+        //  更新操作
         $userInfo = Auth::guard('api')->user()->toArray();
-        //$userId   = $userInfo['id'];
-        //$wallet   = $userInfo['wallet'];
+        $userId   = $userInfo['id'];
+        $update = [
+            'on_sale' => 1,
+            'expired_at' => Carbon::now()
+        ];
+        if ($this->petModel->updatePet($userId, $petId, $update))
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        return response()->json(Config::get('constants.HANDLE_ERROR'));
+    }
 
+    /**
+     * 宠物拍卖（购买）
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function purchase(Request $req) {
 
+        $petId    = $req->get('petId');
 
+        //  缺少必填字段
+        if (!$petId) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
+        $petInfo  = $this->petModel->getPetDetails($petId);
 
+        //  未找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
+        list($petDetails) = $this->helper->parsePetDetails([$petInfo], true);
+        $userInfo = Auth::guard('api')->user()->toArray();
+        $userId   = $userInfo['id'];
+        $wallet   = $userInfo['wallet'];
+
+        //  主人和购买者相同
+        if ($petDetails['ownerId'] == $userId) return response()->json(Config::get('constants.PETS_OWNER_BUY_ERROR'));
+
+        //  宠物未上架
+        if ($petDetails['exp'] <= time()) return response()->json(Config::get('constants.PETS_OUT_EXP_ERROR'));
+
+        //  余额不足
+        if ($petDetails['price'] > $wallet) return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        $update = [
+            'ownerId' => $userId,
+            'on_sale' => 1,
+            'expired_at' => Carbon::now()
+        ];
+        if ($this->petModel->updatePet($petDetails['ownerId'], $petId, $update)) {
+            $this->userModel->updateUser($userId, ['wallet' => $wallet - $petDetails['price']]);
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
+        return response()->json(Config::get('constants.HANDLE_ERROR'));
     }
 
     /**

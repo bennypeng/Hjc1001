@@ -43,7 +43,11 @@ Route::middleware('jwt.auth')->group(function($router) {
     //  宠物路由
     Route::prefix('pet')->group(function () {
 
-        Route::post('/auction', 'PetController@auction');          //  宠物拍卖
+        Route::post('/purchase', 'PetController@purchase');        //  宠物拍卖（购买）
+
+        Route::post('/backout', 'PetController@backout');          //  宠物拍卖（下架）
+
+        Route::post('/auction', 'PetController@auction');          //  宠物拍卖（上架）
 
         Route::post('/levelup', 'PetController@levelup');          //  宠物属性升级
 

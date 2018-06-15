@@ -10,6 +10,7 @@ return [
     'PET_BIRTH_LIMIT'          => 12,                       //  宠物出生数量限制
     'PET_START_PRICE'          => 30,                       //  宠物起始价格
     'PET_FINAL_PRICE'          => 15,                       //  宠物终止价格
+    'PET_SALE_EXP_SEC'         => 86400,                    //  宠物拍卖时长
 
     /**
      * Redis数据库相关
@@ -47,6 +48,8 @@ return [
     'PETS_ATTR_MAX_ERROR'      => ['message' => '该属性已达上限',               'code' => 10051],
     'PETS_ATTR_RE_ERROR'       => ['message' => '重复升级',                     'code' => 10052],
     'PETS_OWNER_ERROR'         => ['message' => '不是宠物的主人',               'code' => 10053],
+    'PETS_OWNER_BUY_ERROR'     => ['message' => '你就是该宠物的主人啦',         'code' => 10054],
+    'PETS_OUT_EXP_ERROR'       => ['message' => '宠物已下架',                   'code' => 10055],
 
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
     'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],
