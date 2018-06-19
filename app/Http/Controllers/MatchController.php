@@ -72,21 +72,10 @@ class MatchController extends Controller
         //  没有找到比赛
         if (!$matchOptions) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
 
-        $res = array();
-        foreach ($matchOptions as $k => $v) {
-            $res[] = [
-                'matchType'  => $k,
-                'allowTypes' => $v[0],
-                'cost'       => $v[1]
-            ];
-        }
         return response()->json(
             array_merge(
                 [
-                    'macthesInfo' => [
-                        'lists'   => $res,
-                        'rewards' => Config::get('constants.MATCHES_REWARDS')
-                    ],
+                    'macthesInfo' => $this->helper->parseMatchDetails($matchOptions),
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )

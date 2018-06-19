@@ -114,8 +114,8 @@ class HelperService implements HelperContract
     public function parsePetDetails(array $data, bool $fullData = false) {
         $res = array();
         if ($fullData) {
-            list($petStrengthOptions, $petAttributeOptions) = array_values(Config::getMany(
-                ['constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS']
+            list($petStrengthOptions, $petAttributeOptions, $decorationCost) = array_values(Config::getMany(
+                ['constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS', 'constants.PETS_DECORATION_COST']
             ));
         }
         foreach($data as $k => $v) {
@@ -173,6 +173,7 @@ class HelperService implements HelperContract
                     ],
                 ];
                 $res[$v['id']]['decoration'] = $this->parseNums2Bool($this->parseNum2Bit($v['attr3']));
+                $res[$v['id']]['decorationCost'] = $decorationCost;
             }
         }
         krsort($res);
@@ -210,11 +211,27 @@ class HelperService implements HelperContract
     /*** 比赛相关 ***/
     /*
     public function getMatchInfo(int $matchType) {
-        $key = $this->getMatchKey($$matchType);
+        $key = $this->getMatchKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::hgetall($key);
     }
     */
+    public function parseMatchDetails(array $data, bool $fullData = false) {
+        $res = array();
+        foreach ($data as $k => $v) {
+            $res['lists'][] = [
+                'matchType'  => $k,
+                'allowTypes' => $v[0],
+                'cost'       => $v[1]
+            ];
+        }
+        $res['rewards'] = Config::get('constants.MATCHES_REWARDS');
+        if ($fullData) {
+
+
+        }
+        return $res;
+    }
 
     /*** KEY ***/
     public function getUserKey(string $userId) {

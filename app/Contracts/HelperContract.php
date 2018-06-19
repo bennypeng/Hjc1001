@@ -24,6 +24,7 @@ interface HelperContract
     public function getPetInfo(string $petId);                                          //  从缓存获取宠物信息
 
     //public function getMatchInfo(int $matchType);                                       //  从缓存获取比赛信息
+    public function parseMatchDetails(array $data, bool $fullData = false);             //  解析比赛列表
 
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
