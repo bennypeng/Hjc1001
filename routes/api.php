@@ -84,7 +84,7 @@ Route::prefix('pet')->group(function () {
 
     Route::get('/birth', 'PetController@autoBirth');           //  宠物自动出生
 
-    Route::get('/details/{id}/{offset}', 'PetController@getDetails')
+    Route::get('/details/{id}', 'PetController@getDetails')
         ->where('id', '[0-9]+');                        //  获取宠物详情
 
 });
