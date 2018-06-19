@@ -92,7 +92,7 @@ Route::prefix('pet')->group(function () {
 //  比赛路由
 Route::prefix('match')->group(function () {
 
-    //Route::post('/', 'MatchController@autoMatch');            //  生成一场比赛
+    Route::get('/', 'MatchController@autoMatch');             //  生成一场比赛
 
     Route::get('/lists', 'MatchController@getLists');         //  获取比赛列表
 

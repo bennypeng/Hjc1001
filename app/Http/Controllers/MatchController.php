@@ -19,12 +19,48 @@ class MatchController extends Controller
         $this->matchModel   = new Match;
     }
 
+    /**
+     * 自动生成一场比赛
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function autoMatch(Request $req) {
 
         //  请求不是来自服务器
         if (Config::get('constants.SERVER_IP') != $req->getClientIp())
             return response()->json(Config::get('constants.VERFY_IP_ERROR'));
 
+        $matchOptions = Config::get('constants.MATCHES_OPTIONS');
+
+        //  没有找到比赛
+        if (!$matchOptions) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
+
+        $macthesInfo = $this->helper->parseMatchOptions($matchOptions, true);
+
+        $curTs = time();
+        foreach($macthesInfo['lists'] as $k => $v) {
+            //  如果没有设置冷却值，先给它设置
+            $coolTime = $this->helper->getMatchCoolTime($v['matchType']);
+            if (!$coolTime) {
+                //  每周两场， 需要判断当前该开那一场
+                foreach($v['openTime'] as $idx => $val) {
+                    if (!($curTs > $val[0] && $curTs < $val[1]))
+                        continue;
+                    $coolTime = $val[1];
+                }
+                $this->helper->setMatchCoolTime($v['matchType'], !isset($coolTime) ? time() : $coolTime);
+            }
+
+            //  如果还没有到冷却值
+            if ($curTs < $coolTime) continue;
+
+            //  生成新的比赛ID
+            $matchId = $this->helper->getMatchId($v['matchType']);
+            if (!$matchId) {
+                $matchId = $this->helper->setMatchId($v['matchType']);
+            }
+        }
+        //dd($macthesInfo);
         /*
         //  出生冷却时间未达到
         //if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
@@ -75,7 +111,7 @@ class MatchController extends Controller
         return response()->json(
             array_merge(
                 [
-                    'macthesInfo' => $this->helper->parseMatchDetails($matchOptions, true),
+                    'macthesInfo' => $this->helper->parseMatchOptions($matchOptions),
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )

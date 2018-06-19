@@ -222,14 +222,7 @@ class HelperService implements HelperContract
     }
 
     /*** 比赛相关 ***/
-    /*
-    public function getMatchInfo(int $matchType) {
-        $key = $this->getMatchKey($matchType);
-        Redis::select(Config::get('constants.MATCHES_INDEX'));
-        return Redis::hgetall($key);
-    }
-    */
-    public function parseMatchDetails(array $data, bool $fullData = false) {
+    public function parseMatchOptions(array $data, bool $fullData = false) {
 
         $res = array();
 
@@ -261,6 +254,40 @@ class HelperService implements HelperContract
         $res['rewards'] = Config::get('constants.MATCHES_REWARDS');
         return $res;
     }
+    public function setMatchId(int $matchType) {
+        $key = $this->getMatchCurIdKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        Redis::incrby($key, 1);
+    }
+    public function setMatchCoolTime(int $matchType, int $ts) {
+        $key = $this->getMatchCoolTimeKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        Redis::set($key, $ts);
+        Redis::expireat($key, $ts);
+    }
+    public function getMatchCoolTime(int $matchType) {
+        $key = $this->getMatchCoolTimeKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::get($key);
+    }
+    public function getMatchId(int $matchType) {
+        $key = $this->getMatchCurIdKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::get($key);
+    }
+    public function generateMatch() {
+
+    }
+    /*
+    public function getMatchInfo(int $matchId) {
+        $key = $this->getMatchKey($matchId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::hgetall($key);
+    }
+    */
+
+
+
 
     /*** KEY ***/
     public function getUserKey(string $userId) {
@@ -275,7 +302,16 @@ class HelperService implements HelperContract
     public function getPetKey(string $petId) {
         return 'P:' . $petId;
     }
-    public function getMatchKey(int $matchType) {
-        return 'MATCH:' . $matchType;
+    public function getMatchKey(int $matchId) {
+        return 'MATCH:' . $matchId;
+    }
+    public function getMatchCoolTimeKey(int $matchType) {
+        return 'MATCH:COOLTIME:' . $matchType;
+    }
+    public function getMatchHisIdsKey(int $matchType) {
+        return 'MATCH:HISTORY:' . $matchType;
+    }
+    public function getMatchCurIdKey(int $matchType) {
+        return 'MATCH:CURRENT:' . $matchType;
     }
 }
