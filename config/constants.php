@@ -38,6 +38,7 @@ return [
 
     'NOT_FOUND_USER'           => ['message' => '未找到该账号，请注册',         'code' => 10030],
     'NOT_FOUND_PET'            => ['message' => '未找到该宠物',                 'code' => 10031],
+    'NOT_FOUND_MATCH'          => ['message' => '未找到比赛',                   'code' => 10032],
 
     'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 10041],
     'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
@@ -122,7 +123,9 @@ return [
         2 => [[1, 9], 30],
         3 => [[3, 5, 6], 30],
         4 => [[7, 8], 60]
-    ]
+    ],
+
+    'MATCHES_REWARDS'         => "一等奖：电影广告植入（需审核）、正品公仔1、电影票3张、表情包1套\n二等奖：正品公仔1、电影票3张、表情包1套\n三等奖：电影票3张，表情包1套",
 
 
 

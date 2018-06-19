@@ -27,4 +27,5 @@ interface HelperContract
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
     public function getPetKey(string $petId);                                           //  宠物信息KEY
+    public function getMatchKey(int $matchType);                                        //  比赛信息KEY
 }

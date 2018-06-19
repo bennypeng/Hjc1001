@@ -220,4 +220,7 @@ class HelperService implements HelperContract
     public function getPetKey(string $petId) {
         return 'P:' . $petId;
     }
+    public function getMatchKey(int $matchType) {
+        return 'MATCH:' . $matchType;
+    }
 }
