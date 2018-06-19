@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\HelperContract;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 
@@ -62,6 +63,19 @@ class HelperService implements HelperContract
         return $bools;
     }
 
+    /**
+     * 获取指定范围内的所有时间戳
+     * @param Carbon $start_date
+     * @param Carbon $end_date
+     * @return array
+     */
+    public function generateDateRange(Carbon $start_date, Carbon $end_date) {
+        $dates = [];
+        for($date = $start_date; $date->lte($end_date); $date->addDay()) {
+            $dates[] = $date->timestamp;
+        }
+        return $dates;
+    }
 
     /*** 用户相关 ***/
     public function setUserInfo(string $userId, array $data) {
@@ -136,7 +150,6 @@ class HelperService implements HelperContract
                 $petAttributeVal      = isset($petAttributeOptions[$v['attr2']][0]) ? $petAttributeOptions[$v['attr2']][0] : 0;
                 $petStrengthCost      = isset($petStrengthOptions[$v['attr1']][1]) ? $petStrengthOptions[$v['attr1']][1] : 999;
                 $petAttributeCost     = isset($petAttributeOptions[$v['attr2']][1]) ? $petAttributeOptions[$v['attr2']][1] : 999;
-
 
                 $petStrengthNextVal   = isset($petStrengthOptions[$v['attr1'] + 1][0]) ? $petStrengthOptions[$v['attr1'] + 1][0] : 0;
                 $petAttributeNextVal  = isset($petAttributeOptions[$v['attr2'] + 1][0]) ? $petAttributeOptions[$v['attr2'] + 1][0] : 0;
@@ -217,19 +230,35 @@ class HelperService implements HelperContract
     }
     */
     public function parseMatchDetails(array $data, bool $fullData = false) {
+
         $res = array();
+
+        //  获取一周的时间戳
+        if ($fullData) {
+            $from = Carbon::now()->startOfWeek();
+            $to = Carbon::now()->endOfWeek();
+            $tsArr = $this->generateDateRange($from, $to);
+        }
+
         foreach ($data as $k => $v) {
-            $res['lists'][] = [
+            $res['lists'][$k] = [
                 'matchType'  => $k,
                 'allowTypes' => $v[0],
                 'cost'       => $v[1]
             ];
+            if ($fullData) {
+                $timeArr = array();
+                foreach($v[4] as $j => $idxArr) {
+                    $timeArr[$j][] = $tsArr[$idxArr[0] - 1];
+                    $timeArr[$j][] = $tsArr[$idxArr[1] - 1] + 86400 - 1;
+                }
+                $res['lists'][$k]['openTime'] = $timeArr;
+                $res['lists'][$k]['voteLimit'] = $v[2];
+                $res['lists'][$k]['voteCost'] = $v[3];
+            }
         }
+        $res['lists']   = array_values($res['lists']);
         $res['rewards'] = Config::get('constants.MATCHES_REWARDS');
-        if ($fullData) {
-
-
-        }
         return $res;
     }
 

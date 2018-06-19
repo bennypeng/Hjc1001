@@ -75,7 +75,7 @@ class MatchController extends Controller
         return response()->json(
             array_merge(
                 [
-                    'macthesInfo' => $this->helper->parseMatchDetails($matchOptions),
+                    'macthesInfo' => $this->helper->parseMatchDetails($matchOptions, true),
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )
