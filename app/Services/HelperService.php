@@ -167,7 +167,7 @@ class HelperService implements HelperContract
                         'cost'  => $petAttributeCost
                     ],
                     'next' => [
-                        'level' => (int)$v['attr1'] + 1,
+                        'level' => (int)$v['attr2'] + 1,
                         'value' => $petAttributeNextVal,
                         'cost'  => $petAttributeNextCost
                     ],
@@ -206,6 +206,15 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.PETS_INDEX'));
         Redis::set($key, $ts);
     }
+
+    /*** 比赛相关 ***/
+    /*
+    public function getMatchInfo(int $matchType) {
+        $key = $this->getMatchKey($$matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::hgetall($key);
+    }
+    */
 
     /*** KEY ***/
     public function getUserKey(string $userId) {

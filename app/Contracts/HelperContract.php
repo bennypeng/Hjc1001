@@ -23,6 +23,8 @@ interface HelperContract
     public function delPetInfo(string $petId);                                          //  从缓存删除宠物信息
     public function getPetInfo(string $petId);                                          //  从缓存获取宠物信息
 
+    //public function getMatchInfo(int $matchType);                                       //  从缓存获取比赛信息
+
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY

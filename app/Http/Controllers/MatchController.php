@@ -92,4 +92,27 @@ class MatchController extends Controller
             )
         );
     }
+
+    public function getDetails(Request $req) {
+        $id = $req->route('id');
+
+        //  缺少必填字段
+        if (!$id) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  获取比赛信息
+        $matchInfo = $this->matchModel->getMatchDetails($id);
+/*
+        //  没有找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        return response()->json(
+            array_merge(
+                [
+                    'detail' => $this->helper->parsePetDetails(array($petInfo), true)
+                ],
+                Config::get('constants.HANDLE_SUCCESS')
+            )
+        );
+*/
+    }
 }

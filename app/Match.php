@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Match extends Model
 {
 
-    public function getMatchLists() {
+    public function getMatchDetails($matchType = '') {
         $helper = new HelperService();
-        $res = $helper->getPetInfo($petId);
+        $res = $helper->getPetInfo($matchType);
         if (!$res) {
             $res = Pet::where('id', '=', $petId)
                 ->first();
