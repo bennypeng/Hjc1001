@@ -110,8 +110,13 @@ class PetController extends Controller
         //  缺少必填字段
         if (!$petId || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
+        $petInfo = $this->petModel->getPetDetails($petId);
+
         //  未找到该宠物
-        if (!$this->petModel->getPetDetails($petId)) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        //  宠物正在参加比赛
+        if ($petInfo['on_match'] == 2) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
         //  更新操作
         $userInfo = Auth::guard('api')->user()->toArray();

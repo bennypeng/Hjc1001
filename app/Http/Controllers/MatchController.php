@@ -21,10 +21,9 @@ class MatchController extends Controller
 
     /**
      * 自动生成一场比赛
-     * @param Request $req
      * @return \Illuminate\Http\JsonResponse
      */
-    public function autoMatch(Request $req) {
+    public function autoMatch() {
 
         //  请求不是来自服务器
         if (Config::get('constants.SERVER_IP') != $req->getClientIp())
@@ -39,9 +38,10 @@ class MatchController extends Controller
 
         $curTs = time();
         foreach($macthesInfo['lists'] as $k => $v) {
-            //  如果没有设置冷却值，先给它设置
+            //  如果没有设置冷却值，先给它设置;
+            //  如果当前时间大于冷却时间，则再开一场
             $coolTime = $this->helper->getMatchCoolTime($v['matchType']);
-            if (!$coolTime) {
+            if (!$coolTime || $curTs > $coolTime) {
                 //  每周两场， 需要判断当前该开那一场
                 foreach($v['openTime'] as $idx => $val) {
                     if (!($curTs > $val[0] && $curTs < $val[1]))
@@ -49,52 +49,15 @@ class MatchController extends Controller
                     $coolTime = $val[1];
                 }
                 $this->helper->setMatchCoolTime($v['matchType'], !isset($coolTime) ? time() : $coolTime);
-            }
 
-            //  如果还没有到冷却值
-            if ($curTs < $coolTime) continue;
-
-            //  生成新的比赛ID
-            $matchId = $this->helper->getMatchId($v['matchType']);
-            if (!$matchId) {
+                //  生成新的比赛ID
                 $matchId = $this->helper->setMatchId($v['matchType']);
+
+                //  设置往期比赛ID
+                $this->helper->setMatchHisIds($v['matchType'], $matchId);
             }
         }
-        //dd($macthesInfo);
-        /*
-        //  出生冷却时间未达到
-        //if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
-
-        //  出生数量已达上限
-        //if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->petModel->getInExpPetsCounts())
-        //    return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
-
-        //  随机抽取宠物
-        //$petType = $this->helper->generatePet();
-
-        //  匹配数据失败
-        //if (!$petType) return response()->json(Config::get('constants.DATA_MATCHING_ERROR'));
-
-        //  入库处理
-        $petId = $this->petModel->createPet(
-            array(
-                'type'       => $petType,
-                'expired_at' => Carbon::now()->addDay(),
-                'on_sale'    => 2,
-                'sp'         => Config::get('constants.PET_START_PRICE'),
-                'fp'         => Config::get('constants.PET_FINAL_PRICE'),
-                'attr4'      => rand(1, 5)
-            )
-        );
-
-        //  入库失败
-        if (!$petId) return response()->json(Config::get('constants.DATA_INSERT_ERROR'));
-
-        //  更新冷却时间
-        $this->helper->setCoolTime(time() + 15 * 60);
-
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
-        */
     }
 
     /**
@@ -111,33 +74,54 @@ class MatchController extends Controller
         return response()->json(
             array_merge(
                 [
-                    'macthesInfo' => $this->helper->parseMatchOptions($matchOptions),
+                    'macthesInfo' => $this->helper->parseMatchOptions($matchOptions, true),
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )
         );
     }
 
+    /**
+     * 获取比赛详情
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDetails(Request $req) {
-        $id = $req->route('id');
+        $matchType = $req->route('matchType');
 
         //  缺少必填字段
-        if (!$id) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+        if (!$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
-        //  获取比赛信息
-        $matchInfo = $this->matchModel->getMatchDetails($id);
-/*
-        //  没有找到该宠物
-        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+        //  获取当前比赛ID
+        $matchId = $this->helper->getMatchId($matchType);
+
+        //  没有找到该比赛
+        if (!$matchId) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
+
+        //  获取排行榜信息
+        $ranking = $this->helper->getMatchRanking($matchType, $matchId, 0, 99);
+
+        /**
+         * @todo 需要根据获取的排行榜列表，获取用户的头像及昵称信息
+         */
+
+        $residueSec = $this->helper->getMatchCoolTime($matchType) - time();
+
+        $residueSec = $residueSec > 0 ? $residueSec : -1;
 
         return response()->json(
             array_merge(
                 [
-                    'detail' => $this->helper->parsePetDetails(array($petInfo), true)
+                    'residueSec' => $residueSec,
+                    'ranking'    => $ranking
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )
         );
-*/
+
+    }
+
+    public function joinIn(Request $req) {
+
     }
 }

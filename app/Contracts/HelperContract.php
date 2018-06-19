@@ -28,19 +28,26 @@ interface HelperContract
 
     //public function getMatchInfo(int $matchType);                                       //  从缓存获取比赛信息
     public function parseMatchOptions(array $data, bool $fullData = false);             //  解析比赛配置
-    public function generateMatch();                                                    //  生成比赛
     public function setMatchCoolTime(int $matchType, int $ts);                          //  设置比赛冷却时间
     public function getMatchCoolTime(int $matchType);                                   //  获取比赛冷却时间
     public function setMatchId(int $matchType);                                         //  设置当前比赛ID
     public function getMatchId(int $matchType);                                         //  获取当前比赛ID
+    public function setMatchHisIds(int $matchType, int $matchId);                       //  设置往期比赛ID
+    public function getMatchHisIds(int $matchType);                                     //  获取往期比赛ID集合
+    public function setMatchRanking(
+        int $matchType, int $matchId, int $userId, int $voteNums);                      //  设置比赛排行榜
+    public function getMatchRanking(
+        int $matchType, int $matchId, int $min, int $max);                              //  获取比赛排行榜
+
 
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
     public function getPetKey(string $petId);                                           //  宠物信息KEY
 
-    public function getMatchKey(int $matchId);                                          //  比赛信息KEY
+    public function getMatchKey(int $matchType, int $matchId);                          //  比赛信息KEY
     public function getMatchCoolTimeKey(int $matchType);                                //  比赛冷却时间KEY
     public function getMatchHisIdsKey(int $matchType);                                  //  比赛往期ID集合KEY
     public function getMatchCurIdKey(int $matchType);                                   //  比赛当前ID KEY
+    public function getMatchRankingKey(int $matchType, int $matchId);                   //  比赛排行榜 KEY
 }

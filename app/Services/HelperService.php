@@ -138,6 +138,7 @@ class HelperService implements HelperContract
                 'ownerId'    => $v['ownerId'],
                 'petType'    => $v['type'],
                 'on_sale'    => $v['on_sale'],
+                'on_match'    => $v['on_match'],
                 'rarity'     => $this->calcRarity($v),
                 /**
                  * @todo 计算当前价格
@@ -241,13 +242,14 @@ class HelperService implements HelperContract
             ];
             if ($fullData) {
                 $timeArr = array();
-                foreach($v[4] as $j => $idxArr) {
+                foreach($v[5] as $j => $idxArr) {
                     $timeArr[$j][] = $tsArr[$idxArr[0] - 1];
                     $timeArr[$j][] = $tsArr[$idxArr[1] - 1] + 86400 - 1;
                 }
                 $res['lists'][$k]['openTime'] = $timeArr;
-                $res['lists'][$k]['voteLimit'] = $v[2];
-                $res['lists'][$k]['voteCost'] = $v[3];
+                $res['lists'][$k]['joinLimit'] = $v[2];
+                $res['lists'][$k]['voteLimit'] = $v[3];
+                $res['lists'][$k]['voteCost'] = $v[4];
             }
         }
         $res['lists']   = array_values($res['lists']);
@@ -257,13 +259,18 @@ class HelperService implements HelperContract
     public function setMatchId(int $matchType) {
         $key = $this->getMatchCurIdKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
-        Redis::incrby($key, 1);
+        return Redis::incrby($key, 1);
     }
     public function setMatchCoolTime(int $matchType, int $ts) {
         $key = $this->getMatchCoolTimeKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         Redis::set($key, $ts);
         Redis::expireat($key, $ts);
+    }
+    public function setMatchHisIds(int $matchType, int $matchId) {
+        $key = $this->getMatchHisIdsKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        Redis::hset($key, $matchId, 1);
     }
     public function getMatchCoolTime(int $matchType) {
         $key = $this->getMatchCoolTimeKey($matchType);
@@ -275,9 +282,22 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::get($key);
     }
-    public function generateMatch() {
-
+    public function getMatchHisIds(int $matchType) {
+        $key = $this->getMatchHisIdsKey($matchType);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::hkeys($key);
     }
+    public function setMatchRanking(int $matchType, int $matchId, int $userId, int $voteNums) {
+        $key = $this->getMatchRankingKey($matchType, $matchId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        Redis::zincrby($key, $voteNums, $userId);
+    }
+    public function getMatchRanking(int $matchType, int $matchId, int $min, int $max) {
+        $key = $this->getMatchRankingKey($matchType, $matchId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::zrevrangebyscore($key, $min, $max);
+    }
+
     /*
     public function getMatchInfo(int $matchId) {
         $key = $this->getMatchKey($matchId);
@@ -302,8 +322,8 @@ class HelperService implements HelperContract
     public function getPetKey(string $petId) {
         return 'P:' . $petId;
     }
-    public function getMatchKey(int $matchId) {
-        return 'MATCH:' . $matchId;
+    public function getMatchKey(int $matchType, int $matchId) {
+        return 'MATCH:' . $matchType . ":" . $matchId;
     }
     public function getMatchCoolTimeKey(int $matchType) {
         return 'MATCH:COOLTIME:' . $matchType;
@@ -313,5 +333,8 @@ class HelperService implements HelperContract
     }
     public function getMatchCurIdKey(int $matchType) {
         return 'MATCH:CURRENT:' . $matchType;
+    }
+    public function getMatchRankingKey(int $matchType, int $matchId) {
+        return 'MATCH:RANKING:' . $matchType . ":" . $matchId;
     }
 }
