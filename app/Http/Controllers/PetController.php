@@ -115,8 +115,14 @@ class PetController extends Controller
         //  未找到该宠物
         if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
+        //  获取当前宠物可参加的比赛类型
+        $matchType = $this->helper->getMatchTypeByPetId($petId);
+
+        //  比赛类型错误
+        if (!$matchType) return response()->json(Config::get('constants.MATCH_TYPE_ERROR'));
+
         //  宠物正在参加比赛
-        if ($petInfo['on_match'] == 2) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+        if ($petInfo['matchId'] == $this->helper->getMatchId($matchType)) return response()->json(Config::get('constants.PETS_ON_MATCH_ERROR'));
 
         //  更新操作
         $userInfo = Auth::guard('api')->user()->toArray();

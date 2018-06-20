@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Contracts\HelperContract;
 use App\Match;
+use App\Pet;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 
 class MatchController extends Controller
@@ -12,18 +15,22 @@ class MatchController extends Controller
 
     protected $helper;
     protected $matchModel;
+    protected $petModel;
+    protected $userModel;
 
     public function __construct(HelperContract $helper)
     {
         $this->helper       = $helper;
+        $this->petModel     = new Pet;
         $this->matchModel   = new Match;
+        $this->userModel    = new User;
     }
 
     /**
      * 自动生成一场比赛
      * @return \Illuminate\Http\JsonResponse
      */
-    public function autoMatch() {
+    public function autoMatch(Request $req) {
 
         //  请求不是来自服务器
         if (Config::get('constants.SERVER_IP') != $req->getClientIp())
@@ -101,10 +108,6 @@ class MatchController extends Controller
         //  获取排行榜信息
         $ranking = $this->helper->getMatchRanking($matchType, $matchId, 0, 99);
 
-        /**
-         * @todo 需要根据获取的排行榜列表，获取用户的头像及昵称信息
-         */
-
         $residueSec = $this->helper->getMatchCoolTime($matchType) - time();
 
         $residueSec = $residueSec > 0 ? $residueSec : -1;
@@ -113,7 +116,7 @@ class MatchController extends Controller
             array_merge(
                 [
                     'residueSec' => $residueSec,
-                    'ranking'    => $ranking
+                    'lists'      => $ranking
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )
@@ -121,7 +124,128 @@ class MatchController extends Controller
 
     }
 
+    /**
+     * 参加比赛
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function joinIn(Request $req) {
+        $petIds     = $req->get('petIds');
+        $matchType  = $req->get('matchType');
 
+        //  缺少必填字段
+        if (!$petIds || !$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $matchOptions = Config::get('constants.MATCHES_OPTIONS');
+
+        //  没有找到比赛
+        if (!$matchOptions) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
+
+        $matchOptions = $this->helper->parseMatchOptions($matchOptions, true);
+
+        $matchInfo = array();
+        foreach($matchOptions['lists'] as $v) {
+            if ($v['matchType'] != $matchType) continue;
+            $matchInfo = $v;
+            break;
+        }
+
+        //  输入的参数错误，未匹配到相应的比赛
+        if (!$matchInfo) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
+
+        $matchId  = $this->helper->getMatchId($matchType);
+        $matchLen = $this->helper->getMatchRankingLen($matchType, $matchId);
+
+        //  该比赛人数已达上限
+        if ($matchLen >= $matchInfo['joinLimit']) return response()->json(Config::get('constants.MATCH_LEN_ERROR'));
+
+        $userInfo  = Auth::guard('api')->user()->toArray();
+        $userId    = $userInfo['id'];
+        $wallet    = $userInfo['wallet'];
+        $petIdsArr = explode(',', $petIds);
+        $curTs     = time();
+        $cost      = 0;
+
+        foreach($petIdsArr as $v) {
+            $petInfo  = $this->petModel->getPetDetails($v);
+            //  未找到该宠物
+            if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+            list($petDetails) = $this->helper->parsePetDetails([$petInfo]);
+            //  该宠物不能参加该类比赛
+            if (!in_array($petDetails['petType'], $matchInfo['allowTypes'])) return response()->json(Config::get('constants.PETS_MATCH_TYPE_ERROR'));
+            //  不是宠物的主人
+            if ($userId != $petDetails['ownerId']) return response()->json(Config::get('constants.PETS_OWNER_ERROR'));
+            //  宠物正在出售状态
+            if ($petDetails['on_sale'] == 2 && $curTs < $petDetails['exp']) return response()->json(Config::get('constants.PETS_ON_SALE_ERROR'));
+            //  宠物正在参加比赛中
+            if ($petDetails['matchId'] == $matchId) return response()->json(Config::get('constants.PETS_ON_MATCH_ERROR'));
+            $cost += $matchInfo['cost'];
+        }
+
+        $balance = $wallet - $cost;
+
+        //  余额不足
+        if ($balance < 0) return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        //  参赛
+        foreach($petIdsArr as $pet) {
+            if ($this->petModel->updatePet($userId, $pet, ['matchId' => $matchId])) {
+                $this->userModel->updateUser($userId, ['wallet' => $balance]);
+                $this->helper->setMatchRanking($matchType, $matchId, $pet, 0);
+            } else {
+                return response()->json(Config::get('constants.HANDLE_ERROR'));
+            }
+        }
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+    }
+
+    public function vote() {
+
+    }
+
+    public function getRanking(Request $req) {
+        $matchType  = $req->route('matchType');
+        $sp         = $req->route('sp');        //  从哪开始取
+        $row        = $req->route('row');       //  取多少条
+        $rankingArr = array();
+
+        //  缺少必填字段
+
+        if (!$matchType || !$sp || !$row) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  获取往期比赛ID
+        $matchIds = $this->helper->getMatchHisIds($matchType);
+
+        rsort($matchIds);
+
+        unset($matchIds[0]);
+
+        $matchIds = array_slice($matchIds, $sp - 1, $row);
+
+        $periodsArr = $this->helper->getPeriods($matchType, $matchIds);
+
+        //  没有找到历史比赛
+        if (!$matchIds) return response()->json(Config::get('constants.NOT_FOUND_HIS_MATCH'));
+
+        //  获取排行榜信息
+        foreach ($matchIds as $v) {
+            $list = $this->helper->getMatchRanking($matchType, $v, 0, 2);
+            $period = isset($periodsArr[$v]['period']) ? $periodsArr[$v]['period'] : 1;
+            $flag = isset($periodsArr[$v]['flag']) ? $periodsArr[$v]['flag'] : 1;
+            $rankingArr[] = [
+                'matchId' => $v,
+                'period'  => $period,
+                'flag'    => $flag,
+                'ranking' => $list ? $list : []
+            ];
+        }
+        return response()->json(
+            array_merge(
+                [
+                    'rankInfo' => $rankingArr
+                ],
+                Config::get('constants.HANDLE_SUCCESS')
+            )
+        );
     }
 }

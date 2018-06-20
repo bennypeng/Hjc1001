@@ -39,6 +39,7 @@ return [
     'NOT_FOUND_USER'           => ['message' => '未找到该账号，请注册',         'code' => 10030],
     'NOT_FOUND_PET'            => ['message' => '未找到该宠物',                 'code' => 10031],
     'NOT_FOUND_MATCH'          => ['message' => '未找到比赛',                   'code' => 10032],
+    'NOT_FOUND_HIS_MATCH'      => ['message' => '未找到历史比赛',               'code' => 10033],
 
     'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 10041],
     'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
@@ -52,6 +53,9 @@ return [
     'PETS_OWNER_BUY_ERROR'     => ['message' => '你就是该宠物的主人啦',         'code' => 10054],
     'PETS_OUT_EXP_ERROR'       => ['message' => '宠物已下架',                   'code' => 10055],
     'PETS_ON_MATCH_ERROR'      => ['message' => '宠物正在参加比赛',             'code' => 10056],
+    'PETS_ON_SALE_ERROR'       => ['message' => '宠物正在出售',                 'code' => 10057],
+    'PETS_MATCH_TYPE_ERROR'    => ['message' => '参赛宠物类型错误',             'code' => 10058],
+
 
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
     'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],
@@ -65,6 +69,9 @@ return [
     'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 10081],
 
     'WALLET_AMOUNT_ERROR'      => ['message' => '余额不足',                     'code' => 10090],
+
+    'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
+    'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
 
     /**
      * 宠物参数设置

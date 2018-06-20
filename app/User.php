@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Services\HelperService;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -44,9 +45,15 @@ class User extends Authenticatable implements JWTSubject
      */
     function getUserByUserId($userId = '') {
         if (!$userId) return array();
-        $res = User::where('id', '=', $userId)->first();
-        if (!$res || !is_object($res)) return array();
-        return $res->toArray();
+        $helper = new HelperService();
+        $res = $helper->getUserInfo($userId);
+        if (!$res) {
+            $res = User::where('id', '=', $userId)->first();
+            if (!$res || !is_object($res)) return array();
+            $res = $res->toArray();
+            $helper->setUserInfo($userId, $res);
+        }
+        return $res;
     }
 
     /**
@@ -67,8 +74,13 @@ class User extends Authenticatable implements JWTSubject
      */
     function updateUser($userId = '', $data = []) {
         if (strlen(trim($userId)) == 0 || count($data) == 0) return false;
-        return User::where('id', '=', $userId)
+        $res = User::where('id', '=', $userId)
             ->update($data);
+        if ($res) {
+            $helper = new HelperService();
+            $helper->delUserInfo($userId);
+        }
+        return $res;
     }
 
 

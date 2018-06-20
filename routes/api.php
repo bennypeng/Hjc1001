@@ -21,9 +21,9 @@ use Illuminate\Http\Request;
  * 需要登录权限的接口
  * 需要在header带上Authorization参数
  */
-Route::middleware('jwt.auth')->group(function($router) {
+Route::middleware('jwt.auth')->group(function() {
 
-    Route::prefix('user')->group(function($router) {
+    Route::prefix('user')->group(function() {
 
         Route::post('logout', 'UserController@logout');           //  登出
 
@@ -67,10 +67,8 @@ Route::middleware('jwt.auth')->group(function($router) {
 });
 
 
-
-
 //  用户路由
-Route::prefix('user')->group(function($router) {
+Route::prefix('user')->group(function() {
 
     Route::post('login', 'UserController@login');             //  登录
 
@@ -98,13 +96,13 @@ Route::prefix('match')->group(function () {
 
     Route::get('/lists', 'MatchController@getLists');         //  获取比赛列表
 
-    Route::get('/details/{matchType}', 'MatchController@getDetails')
-        ->where('matchType', '[0-9]+');                //  获取比赛详情
+    Route::get('/details/{matchType}/{sp}/{fp}', 'MatchController@getDetails')
+        ->where('matchType', '[1-4]');                 //  获取比赛详情
 
-    //Route::post('/status', 'MatchController@checkStatus');    //  获取比赛状态
-
-    //Route::post('/ranking', 'MatchController@getRanking');    //  获取排行榜信息
-
+    Route::get('/ranking/{matchType}/{sp}/{row}', 'MatchController@getRanking')
+        ->where('matchType', '[1-4]')
+        ->where('sp', '[0-9]+')
+        ->where('row', '[0-9]+');                      //  获取排行榜信息
 
 });
 
