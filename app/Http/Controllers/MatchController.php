@@ -199,10 +199,67 @@ class MatchController extends Controller
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
-    public function vote() {
+    /**
+     * 比赛投票
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function vote(Request $req) {
+        $petId     = $req->get('petId');
+        $matchType = $req->get('matchType');
+        $poll      = $req->get('poll');
 
+        //  缺少必填字段
+        if (!$petId || !$poll || !$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $matchOptions = Config::get('constants.MATCHES_OPTIONS');
+
+        //  没有找到比赛
+        if (!$matchOptions) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
+
+        $matchOptions = $this->helper->parseMatchOptions($matchOptions, true);
+        $matchInfo = array();
+        foreach($matchOptions['lists'] as $v) {
+            if ($v['matchType'] != $matchType) continue;
+            $matchInfo = $v;
+            break;
+        }
+
+        //  输入的参数错误，未匹配到相应的比赛
+        if (!$matchInfo) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
+
+        $matchId  = $this->helper->getMatchId($matchType);
+
+        //  宠物未参赛
+        if (!$this->helper->checkRankingMemExist($matchType, $matchId, $petId))
+            return response()->json(Config::get('constants.PETS_OUT_MATCH_ERROR'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+        $userId   = $userInfo['id'];
+        $wallet   = $userInfo['wallet'];
+
+        //  投票次数已达上限
+        if ($this->helper->getMatchVote($matchType, $userId) >= $matchInfo['voteLimit'])
+            return response()->json(Config::get('constants.MATCH_VOTE_ERROR'));
+
+        //  余额不足
+        if ($wallet < $matchInfo['voteCost'] + $poll)
+            return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        //  设置投票次数
+        $this->helper->setMatchVote($matchType, $userId);
+
+        //  投票
+        $this->helper->setMatchRanking($matchType, $matchId, $petId, $poll);
+
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
+    /**
+     * 获取历史排行榜
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getRanking(Request $req) {
         $matchType  = $req->route('matchType');
         $sp         = $req->route('sp');        //  从哪开始取

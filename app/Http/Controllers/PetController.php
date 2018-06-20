@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
 
 class PetController extends Controller
 {
@@ -119,10 +118,10 @@ class PetController extends Controller
         $matchType = $this->helper->getMatchTypeByPetId($petId);
 
         //  比赛类型错误
-        if (!$matchType) return response()->json(Config::get('constants.MATCH_TYPE_ERROR'));
+        //if (!$matchType) return response()->json(Config::get('constants.MATCH_TYPE_ERROR'));
 
         //  宠物正在参加比赛
-        if ($petInfo['matchId'] == $this->helper->getMatchId($matchType)) return response()->json(Config::get('constants.PETS_ON_MATCH_ERROR'));
+        if ($matchType && $petInfo['matchId'] == $this->helper->getMatchId($matchType)) return response()->json(Config::get('constants.PETS_ON_MATCH_ERROR'));
 
         //  更新操作
         $userInfo = Auth::guard('api')->user()->toArray();

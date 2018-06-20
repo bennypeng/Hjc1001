@@ -58,9 +58,9 @@ Route::middleware('jwt.auth')->group(function() {
     //  比赛路由
     Route::prefix('match')->group(function () {
 
-        Route::post('/join', 'MatchController@joinIn');             //  比赛投票
+        Route::post('/join', 'MatchController@joinIn');             //  参加比赛
 
-        //Route::post('/vote', 'MatchController@vote');             //  比赛投票
+        Route::post('/vote', 'MatchController@vote');               //  比赛投票
 
     });
 
@@ -96,7 +96,7 @@ Route::prefix('match')->group(function () {
 
     Route::get('/lists', 'MatchController@getLists');         //  获取比赛列表
 
-    Route::get('/details/{matchType}/{sp}/{fp}', 'MatchController@getDetails')
+    Route::get('/details/{matchType}', 'MatchController@getDetails')
         ->where('matchType', '[1-4]');                 //  获取比赛详情
 
     Route::get('/ranking/{matchType}/{sp}/{row}', 'MatchController@getRanking')

@@ -55,6 +55,7 @@ return [
     'PETS_ON_MATCH_ERROR'      => ['message' => '宠物正在参加比赛',             'code' => 10056],
     'PETS_ON_SALE_ERROR'       => ['message' => '宠物正在出售',                 'code' => 10057],
     'PETS_MATCH_TYPE_ERROR'    => ['message' => '参赛宠物类型错误',             'code' => 10058],
+    'PETS_OUT_MATCH_ERROR'     => ['message' => '宠物未参赛',                   'code' => 10059],
 
 
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
@@ -72,6 +73,7 @@ return [
 
     'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
+    'MATCH_VOTE_ERROR'         => ['message' => '比赛次数上限',                 'code' => 10102],
 
     /**
      * 宠物参数设置

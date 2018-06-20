@@ -367,6 +367,26 @@ class HelperService implements HelperContract
         return $ret;
 
     }
+    public function checkRankingMemExist(int $matchType, string $matchId, $petId) {
+        $key = $this->getMatchRankingKey($matchType, $matchId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return is_null(Redis::zscore($key, $petId)) ? false : true;
+    }
+    public function getMatchVote(int $matchType, string $userId) {
+        $key = $this->getMatchVoteKey($matchType, $userId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        if (!Redis::exists($key)) {
+            Redis::set($key, 0);
+            Redis::expireat($key, $this->getMatchCoolTime($matchType));
+            return 0;
+        }
+        return Redis::get($key);
+    }
+    public function setMatchVote(int $matchType, string $userId) {
+        $key = $this->getMatchVoteKey($matchType, $userId);
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        Redis::incr($key);
+    }
 
 
     /*** KEY ***/
@@ -396,5 +416,8 @@ class HelperService implements HelperContract
     }
     public function getMatchRankingKey(int $matchType, string $matchId) {
         return 'MATCH:RANKING:' . $matchType . ":" . $matchId;
+    }
+    public function getMatchVoteKey(int $matchType, string $userId) {
+        return 'MATCH:VOTE:' . $matchType . ":" . $userId;
     }
 }

@@ -33,24 +33,28 @@ interface HelperContract
     public function getMatchCoolTime(int $matchType);                                   //  获取比赛冷却时间
     public function setMatchId(int $matchType);                                         //  设置当前比赛ID
     public function getMatchId(int $matchType);                                         //  获取当前比赛ID
-    public function setMatchHisIds(int $matchType, string $matchId);                       //  设置往期比赛ID
+    public function setMatchHisIds(int $matchType, string $matchId);                    //  设置往期比赛ID
     public function getMatchHisIds(int $matchType);                                     //  获取往期比赛ID集合
     public function setMatchRanking(
-        int $matchType, string $matchId, int $petId, int $voteNums);                       //  设置比赛排行榜
+        int $matchType, string $matchId, int $petId, int $voteNums);                    //  设置比赛排行榜
     public function getMatchRanking(
-        int $matchType, string $matchId, int $min, int $max);                              //  获取比赛排行榜
-    public function getMatchRankingLen(int $matchType, string $matchId);                   //  获取比赛参赛人数
+        int $matchType, string $matchId, int $min, int $max);                           //  获取比赛排行榜
+    public function getMatchRankingLen(int $matchType, string $matchId);                //  获取比赛参赛人数
     public function getMatchTypeByPetId(int $petId);                                    //  通过宠物ID获取比赛类型
     public function getPeriods(int $matchType, array $matchIds);                        //  获取比赛期数
+    public function checkRankingMemExist(int $matchType, string $matchId, $petId);      //  检验宠物是否在排行榜内
+    public function getMatchVote(int $matchType, string $userId);                       //  获取比赛已投票次数
+    public function setMatchVote(int $matchType, string $userId);                       //  设置比赛投票次数
 
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
     public function getPetKey(string $petId);                                           //  宠物信息KEY
 
-    public function getMatchKey(int $matchType, string $matchId);                          //  比赛信息KEY
+    public function getMatchKey(int $matchType, string $matchId);                       //  比赛信息KEY
     public function getMatchCoolTimeKey(int $matchType);                                //  比赛冷却时间KEY
     public function getMatchHisIdsKey(int $matchType);                                  //  比赛往期ID集合KEY
     public function getMatchCurIdKey(int $matchType);                                   //  比赛当前ID KEY
-    public function getMatchRankingKey(int $matchType, string $matchId);                   //  比赛排行榜 KEY
+    public function getMatchRankingKey(int $matchType, string $matchId);                //  比赛排行榜 KEY
+    public function getMatchVoteKey(int $matchType, string $userId);                    //  比赛投票 KEY
 }
