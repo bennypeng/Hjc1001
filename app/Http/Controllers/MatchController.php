@@ -9,6 +9,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class MatchController extends Controller
 {
@@ -28,7 +29,6 @@ class MatchController extends Controller
 
     /**
      * 自动生成一场比赛
-     * @return \Illuminate\Http\JsonResponse
      */
     public function autoMatch(Request $req) {
 
@@ -43,6 +43,7 @@ class MatchController extends Controller
 
         $macthesInfo = $this->helper->parseMatchOptions($matchOptions, true);
 
+        $newMatchIds = array();
         $curTs = time();
         foreach($macthesInfo['lists'] as $k => $v) {
             //  如果没有设置冷却值，先给它设置;
@@ -62,9 +63,16 @@ class MatchController extends Controller
 
                 //  设置往期比赛ID
                 $this->helper->setMatchHisIds($v['matchType'], $matchId);
+
+                $newMatchIds[] = $matchId;
             }
         }
-        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+
+        if ($newMatchIds) {
+            Log::info('generate match success!', $newMatchIds);
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
+
     }
 
     /**
@@ -81,7 +89,7 @@ class MatchController extends Controller
         return response()->json(
             array_merge(
                 [
-                    'macthesInfo' => $this->helper->parseMatchOptions($matchOptions, true),
+                    'matchesInfo' => $this->helper->parseMatchOptions($matchOptions, true),
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )

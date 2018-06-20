@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class PetController extends Controller
 {
@@ -91,6 +92,8 @@ class PetController extends Controller
 
         //  更新冷却时间
         $this->helper->setCoolTime(time() + 15 * 60);
+
+        Log::info('generate pet ' . $petId . 'success!');
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
