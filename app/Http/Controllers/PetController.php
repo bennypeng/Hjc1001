@@ -93,7 +93,7 @@ class PetController extends Controller
         //  更新冷却时间
         $this->helper->setCoolTime(time() + 15 * 60);
 
-        Log::info('generate pet ' . $petId . 'success!');
+        Log::info('generate pet ' . $petId . ' success!');
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
