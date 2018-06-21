@@ -13,3 +13,6 @@
 
 //  日志查询
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+
+//  文件下载
+Route::get('download/{file}', 'DownloadController@index');
