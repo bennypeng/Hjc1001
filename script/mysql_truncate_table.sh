@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-mysql Hjc1001 -u Hjc1001 -pZaKx68Qk <<EOF
+mysqlUser=$1
+mysqlPassword=$2
+mysql Hjc1001 -u $mysqlUser -p$mysqlPassword <<EOF
 truncate table users;
 truncate table pets;
 alter table users auto_increment=10000;
