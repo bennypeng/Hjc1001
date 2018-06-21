@@ -182,6 +182,7 @@ return [
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Torann\GeoIP\GeoIPServiceProvider::class,
 
         /**
          * Helper Service Providers
@@ -239,6 +240,7 @@ return [
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
         //'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         //'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'GeoIP' => Torann\GeoIP\GeoIP::class,
 
     ],
 

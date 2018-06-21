@@ -9,7 +9,6 @@ use App\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use GuzzleHttp\Client;
 
 class UserController extends Controller
 {

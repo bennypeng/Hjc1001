@@ -253,9 +253,14 @@ class MatchController extends Controller
         if ($this->helper->getMatchVote($matchType, $userId) >= $matchInfo['voteLimit'])
             return response()->json(Config::get('constants.MATCH_VOTE_ERROR'));
 
+        $cost = $matchInfo['voteCost'] + $poll;
+
         //  余额不足
-        if ($wallet < $matchInfo['voteCost'] + $poll)
+        if ($wallet < $cost)
             return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        //  花钱
+        $this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $cost]);
 
         //  设置投票次数
         $this->helper->setMatchVote($matchType, $userId);
