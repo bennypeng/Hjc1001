@@ -11,6 +11,7 @@ interface HelperContract
     public function parseNums2Bool(array $numbers);                                     //  包含0|1的数组转换成布尔数组输出
     public function parseBools2Nums(array $bools);                                      //  包含true|false的数组转换成数组输出
     public function generateDateRange(Carbon $start_date, Carbon $end_date);            //  获取指定范围内的所有时间戳
+    public function generateRandomCode(int $len);                                       //  生成指定长度的随机数
 
     public function setMobile(string $mobile);                                          //  设置手机到缓存
     public function checkMobileExist(string $mobile);                                   //  检查手机是否已存在
@@ -46,6 +47,12 @@ interface HelperContract
     public function getMatchVote(int $matchType, string $userId);                       //  获取比赛已投票次数
     public function setMatchVote(int $matchType, string $userId);                       //  设置比赛投票次数
 
+    public function reqVerfyCode(string $mobile);                                       //  发送验证码
+    public function getVerfyCode(string $mobile);                                       //  获取验证码
+    public function setVerfyCode(string $mobile, string $code);                         //  设置验证码
+    public function getVerfyCodeLimit(string $ip);                                      //  获取当前IP地址请求验证码次数
+    public function setVerfyCodeLimit(string $ip);                                      //  设置当前IP地址请求验证码次数
+
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
@@ -57,4 +64,7 @@ interface HelperContract
     public function getMatchCurIdKey(int $matchType);                                   //  比赛当前ID KEY
     public function getMatchRankingKey(int $matchType, string $matchId);                //  比赛排行榜 KEY
     public function getMatchVoteKey(int $matchType, string $userId);                    //  比赛投票 KEY
+
+    public function getVerfyCodeKey(string $mobile);                                    //  获取验证码KEY
+    public function getVerfyCodeLimitKey(string $ip);                                   //  获取当前IP地址请求验证码次数KEY
 }

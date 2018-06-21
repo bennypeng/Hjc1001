@@ -66,13 +66,14 @@ Route::middleware('jwt.auth')->group(function() {
 
 });
 
-
 //  用户路由
 Route::prefix('user')->group(function() {
 
     Route::post('login', 'UserController@login');             //  登录
 
     Route::post('register', 'UserController@regist');         //  注册
+
+    Route::post('code', 'UserController@sendCode');           //  发送验证码
 
 });
 

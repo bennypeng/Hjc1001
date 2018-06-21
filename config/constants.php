@@ -11,6 +11,7 @@ return [
     'PET_START_PRICE'          => 30,                       //  宠物起始价格
     'PET_FINAL_PRICE'          => 15,                       //  宠物终止价格
     'PET_SALE_EXP_SEC'         => 86400,                    //  宠物拍卖时长
+    'VERFY_CODE_LIMIT'         => 5,                        //  每日最多发送验证码次数
 
     /**
      * Redis数据库相关
@@ -21,6 +22,7 @@ return [
     'MATCHES_INDEX'            => 3,    //  比赛信息
     'RANKING_INDEX'            => 4,    //  排行榜信息
     'MOBILES_INDEX'            => 5,    //  手机信息
+    'VERFY_CODE_INDEX'         => 6,    //  验证码信息
 
     /**
      * 操作返回码相关
@@ -45,6 +47,7 @@ return [
     'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
     'VERFY_TOKEN_ERROR'        => ['message' => 'token验证错误',                'code' => 10043],
     'VERFY_ARGS_ERROR'         => ['message' => '参数验证错误',                 'code' => 10044],
+    'VERFY_CODE_LIMIT_ERROR'   => ['message' => '验证码发送次数上限',           'code' => 10045],
 
     'PETS_COOLTIME_ERROR'      => ['message' => '出生冷却时间未到',             'code' => 10050],
     'PETS_ATTR_MAX_ERROR'      => ['message' => '该属性已达上限',               'code' => 10051],
@@ -135,7 +138,7 @@ return [
         4 => [[7, 8],    100, 100, 5, 10, [[1, 3], [4, 6]]]
     ],
 
-    'MATCHES_REWARDS'         => "一等奖：电影广告植入（需审核）、正品公仔1、电影票3张、表情包1套#二等奖：正品公仔1、电影票3张、表情包1套#三等奖：电影票3张，表情包1套",
+    'MATCHES_REWARDS'         => "周冠军、亚军、季军奖励分别为：5ETH、3ETH、2ETH#月冠军、亚军、季军奖励分别为：12ETH、8ETH、3ETH#年度总冠军、亚军、季军奖励分别:玛莎拉蒂总裁1辆、88ETH、30ETH",
 
 
 

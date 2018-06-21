@@ -9,6 +9,7 @@ use App\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use GuzzleHttp\Client;
 
 class UserController extends Controller
 {
@@ -29,14 +30,7 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public function regist(Request $req) {
-/*
-        //echo env('MESSAGE_ACCESSKEY');
 
-        $client = new \GuzzleHttp\Client(['base_url' => env('MESSAGE_SEND_URL')]);
-        $res = $client->request('POST')
-
-        exit;
-*/
         $mobile    = $req->get('mobile');
         $verfyCode = $req->get('verfyCode');
         $password  = $req->get('password');
@@ -48,7 +42,7 @@ class UserController extends Controller
         if ($this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
 
         //  校验验证码
-        if ($verfyCode != "111") return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
+        if ($verfyCode != $this->helper->getVerfyCode($mobile)) return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
 
         //  注册用户
         $userId = $this->userModel->registerUser(
@@ -188,6 +182,49 @@ class UserController extends Controller
             ],
             Config::get('constants.HANDLE_SUCCESS'))
         );
+    }
+
+    /**
+     * 发送验证码
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendCode(Request $req) {
+
+        $mobile    = $req->get('mobile');
+
+        //  缺少必填字段
+        if (!$mobile) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  手机号已被注册
+        if ($this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
+
+        $randomCode = $this->helper->getVerfyCode($mobile);
+        if ($randomCode)
+            return response()->json(array_merge(
+                ['verfyCode' => $randomCode],
+                Config::get('constants.HANDLE_SUCCESS')
+            ));
+
+        //  验证码发送次数上限
+        if ($this->helper->getVerfyCodeLimit($req->getClientIp()) >= Config::get('constants.VERFY_CODE_LIMIT'))
+            return response()->json(Config::get('constants.VERFY_CODE_LIMIT_ERROR'));
+
+        //  发送验证码
+        $randomCode = $this->helper->reqVerfyCode($mobile);
+        $this->helper->setVerfyCodeLimit($req->getClientIp());
+
+        if (!$randomCode)
+            return response()->json(array_merge(
+                ['verfyCode' => ''],
+                Config::get('constants.HANDLE_ERROR')
+            ));
+
+        return response()->json(array_merge(
+            ['verfyCode' => $randomCode],
+            Config::get('constants.HANDLE_SUCCESS')
+        ));
+
     }
 
 }

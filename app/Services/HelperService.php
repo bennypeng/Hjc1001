@@ -8,6 +8,7 @@ use App\User;
 use App\Pet;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
+use GuzzleHttp\Client;
 
 class HelperService implements HelperContract
 {
@@ -77,6 +78,15 @@ class HelperService implements HelperContract
             $dates[] = $date->timestamp;
         }
         return $dates;
+    }
+
+    /**
+     * 获取指定长度随机码，最大4
+     * @param int $len 长度
+     * @return bool|string
+     */
+    public function generateRandomCode(int $len) {
+        return substr(strval(rand(10000,19999)),1,$len);
     }
 
     /*** 用户相关 ***/
@@ -327,7 +337,6 @@ class HelperService implements HelperContract
                 'nickname' => $userInfo['nickname']
             ];
         }
-
         return $ret;
     }
     public function getMatchRankingLen(int $matchType, string $matchId) {
@@ -365,7 +374,6 @@ class HelperService implements HelperContract
             ];
         }
         return $ret;
-
     }
     public function checkRankingMemExist(int $matchType, string $matchId, $petId) {
         $key = $this->getMatchRankingKey($matchType, $matchId);
@@ -388,6 +396,58 @@ class HelperService implements HelperContract
         Redis::incr($key);
     }
 
+    /*** 验证码相关 ***/
+    public function reqVerfyCode(string $mobile) {
+        $client = new Client;
+        $randomCode = $this->generateRandomCode(4);
+        $resp = $client->request('POST', env('MESSAGE_SEND_URL'), [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8'
+            ],
+            'form_params' => [
+                'accesskey' => env('MESSAGE_ACCESSKEY'),
+                'secret' => env('MESSAGE_ACCESSSECRET'),
+                'sign' => env('MESSAGE_HLW_SIGN'),
+                'templateId' => env('MESSAGE_HLW_TEMPID'),
+                'mobile' => '86'. $mobile,
+                'content' => $randomCode
+            ]
+        ]);
+        /**
+         * @todo 手机区号
+         */
+        $ret = json_decode($resp->getBody()->getContents(), true);
+        if ($ret['msg'] == 'SUCCESS') {
+            $this->setVerfyCode($mobile, $randomCode);
+            return $randomCode;
+        }
+        return false;
+    }
+    public function getVerfyCode(string $mobile) {
+        $key = $this->getVerfyCodeKey($mobile);
+        Redis::select(Config::get('constants.VERFY_CODE_INDEX'));
+        return Redis::get($key);
+    }
+    public function setVerfyCode(string $mobile, string $code){
+        $key = $this->getVerfyCodeKey($mobile);
+        Redis::select(Config::get('constants.VERFY_CODE_INDEX'));
+        Redis::set($key, $code);
+        Redis::expireat($key, Carbon::now()->addMinute(1)->timestamp);
+    }
+    public function getVerfyCodeLimit(string $ip) {
+        $key = $this->getVerfyCodeLimitKey($ip);
+        Redis::select(Config::get('constants.VERFY_CODE_INDEX'));
+        if (!Redis::exists($key)) {
+            Redis::set($key, 0);
+            Redis::expireat($key, Carbon::now()->endOfDay()->timestamp);
+        }
+        return Redis::get($key);
+    }
+    public function setVerfyCodeLimit(string $ip) {
+        $key = $this->getVerfyCodeLimitKey($ip);
+        Redis::select(Config::get('constants.VERFY_CODE_INDEX'));
+        Redis::incr($key);
+    }
 
     /*** KEY ***/
     public function getUserKey(string $userId) {
@@ -419,5 +479,11 @@ class HelperService implements HelperContract
     }
     public function getMatchVoteKey(int $matchType, string $userId) {
         return 'MATCH:VOTE:' . $matchType . ":" . $userId;
+    }
+    public function getVerfyCodeKey(string $mobile) {
+        return 'VERFYCODE:' . $mobile;
+    }
+    public function getVerfyCodeLimitKey(string $ip) {
+        return 'VERFYLIMIT:' . $ip;
     }
 }
