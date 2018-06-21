@@ -183,6 +183,7 @@ return [
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
+        Jenssegers\Agent\AgentServiceProvider::class,
 
         /**
          * Helper Service Providers
@@ -241,6 +242,7 @@ return [
         //'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         //'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'GeoIP' => Torann\GeoIP\GeoIP::class,
+        'Agent' => Jenssegers\Agent\Facades\Agent::class,
 
     ],
 

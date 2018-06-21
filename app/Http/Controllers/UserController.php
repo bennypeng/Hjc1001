@@ -71,6 +71,9 @@ class UserController extends Controller
      */
     public function login(Request $req) {
 
+        $mobile    = $req->get('mobile');
+        $password  = $req->get('password');
+        /*
         $rules = [
             'mobile'   => [
                 'required',
@@ -80,10 +83,13 @@ class UserController extends Controller
         ];
 
         $params = $this->validate($req, $rules);
+        */
+
+        //  手机号还没注册
+        if (!$this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.NOT_FOUND_USER'));
 
         //  登录成功
-        if ($token = Auth::guard('api')->attempt($params)) {
-
+        if ($token = Auth::guard('api')->attempt(['mobile' => $mobile, 'password' => $password])) {
             return response()->json(array_merge(
                     ['token' => 'bearer ' . $token],
                     Config::get('constants.LOGIN_SUCCESS'))
