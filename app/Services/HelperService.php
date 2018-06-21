@@ -147,6 +147,16 @@ class HelperService implements HelperContract
             ) * $petOptions[$petInfo['type']][2] + $petInfo['attr4']
         );
     }
+    public function calcPrice(float $sp, float $fp, $expTimestamp) {
+        $ts = time();
+        if ($ts >= $expTimestamp)
+            return $fp;
+        $bal = $sp - $fp;   //  起止价差额
+        $perHourBal = $bal / 24;    //  每小时降价多少
+        $inHours = ceil(($ts - ($expTimestamp - 86400)) / 3600); //  过了多少小时
+        $price = $perHourBal == 0 ? $fp : $sp - $perHourBal * $inHours;
+        return round($price, 6);
+    }
     public function parsePetDetails(array $data, bool $fullData = false) {
         $res = array();
         if ($fullData) {
@@ -154,7 +164,14 @@ class HelperService implements HelperContract
                 ['constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS', 'constants.PETS_DECORATION_COST']
             ));
         }
+
         foreach($data as $k => $v) {
+            $expTs = strtotime($v['expired_at']);
+            //if ($v['ownerId'] == 0) {
+            //    $price = $v['sp'];  //  系统诞生的，当前价不变
+            //} else {
+            $price = $this->calcPrice($v['sp'], $v['fp'], $expTs);
+            //}
             $res[$v['id']] = array(
                 'id'         => $v['id'],
                 'ownerId'    => $v['ownerId'],
@@ -162,11 +179,8 @@ class HelperService implements HelperContract
                 'on_sale'    => $v['on_sale'],
                 'matchId'    => $v['matchId'],
                 'rarity'     => $this->calcRarity($v),
-                /**
-                 * @todo 计算当前价格
-                 */
-                'price'      => 18,                //   当前价格，需要根据拍卖时长来计算
-                'exp'        => strtotime($v['expired_at'])
+                'price'      => $price,                //   当前价格，需要根据拍卖时长来计算
+                'exp'        => $expTs
             );
             if ($fullData) {
                 $petStrengthVal       = isset($petStrengthOptions[$v['attr1']][0]) ? $petStrengthOptions[$v['attr1']][0] : 0;

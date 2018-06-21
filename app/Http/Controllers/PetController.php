@@ -112,6 +112,9 @@ class PetController extends Controller
         //  缺少必填字段
         if (!$petId || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
+        //  缺少必填字段
+        if ($sp < $fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
         $petInfo = $this->petModel->getPetDetails($petId);
 
         //  未找到该宠物
@@ -187,7 +190,7 @@ class PetController extends Controller
         list($petDetails) = $this->helper->parsePetDetails([$petInfo], true);
         $userInfo = Auth::guard('api')->user()->toArray();
         $userId   = $userInfo['id'];
-        $wallet   = $userInfo['wallet'];
+        $wallet   = $userInfo['eth_wallet'];
 
         //  主人和购买者相同
         if ($petDetails['ownerId'] == $userId) return response()->json(Config::get('constants.PETS_OWNER_BUY_ERROR'));
@@ -204,7 +207,7 @@ class PetController extends Controller
             'expired_at' => Carbon::now()
         ];
         if ($this->petModel->updatePet($petDetails['ownerId'], $petId, $update)) {
-            $this->userModel->updateUser($userId, ['wallet' => $wallet - $petDetails['price']]);
+            $this->userModel->updateUser($userId, ['eth_wallet' => $wallet - $petDetails['price']]);
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
         }
         return response()->json(Config::get('constants.HANDLE_ERROR'));
@@ -233,7 +236,7 @@ class PetController extends Controller
         list($petDetails) = $this->helper->parsePetDetails([$petInfo], true);
         $userInfo = Auth::guard('api')->user()->toArray();
         $userId   = $userInfo['id'];
-        $wallet   = $userInfo['wallet'];
+        $wallet   = $userInfo['hlw_wallet'];
 
         //  不是宠物的主人
         if ($userId != $petDetails['ownerId']) return response()->json(Config::get('constants.PETS_OWNER_ERROR'));
@@ -280,7 +283,7 @@ class PetController extends Controller
 
         if ($this->petModel->updatePet($userId, $petId, $update)) {
             //  花钱
-            $this->userModel->updateUser($userId, ['wallet' => $wallet - $cost]);
+            $this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $cost]);
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
         }
         return response()->json(Config::get('constants.HANDLE_ERROR'));

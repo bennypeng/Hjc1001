@@ -103,9 +103,11 @@ class MatchController extends Controller
      */
     public function getDetails(Request $req) {
         $matchType = $req->route('matchType');
+        $sp        = $req->route('sp');
+        $fp        = $req->route('fp');
 
         //  缺少必填字段
-        if (!$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+        if (!$matchType || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  获取当前比赛ID
         $matchId = $this->helper->getMatchId($matchType);
@@ -114,7 +116,7 @@ class MatchController extends Controller
         if (!$matchId) return response()->json(Config::get('constants.NOT_FOUND_MATCH'));
 
         //  获取排行榜信息
-        $ranking = $this->helper->getMatchRanking($matchType, $matchId, 0, 99);
+        $ranking = $this->helper->getMatchRanking($matchType, $matchId, $sp - 1, $fp - 1);
 
         $residueSec = $this->helper->getMatchCoolTime($matchType) - time();
 
@@ -123,6 +125,7 @@ class MatchController extends Controller
         return response()->json(
             array_merge(
                 [
+                    'total'      => $this->helper->getMatchRankingLen($matchType, $matchId),
                     'residueSec' => $residueSec,
                     'lists'      => $ranking
                 ],
@@ -169,7 +172,7 @@ class MatchController extends Controller
 
         $userInfo  = Auth::guard('api')->user()->toArray();
         $userId    = $userInfo['id'];
-        $wallet    = $userInfo['wallet'];
+        $wallet    = $userInfo['hlw_wallet'];
         $petIdsArr = explode(',', $petIds);
         $curTs     = time();
         $cost      = 0;
@@ -198,7 +201,7 @@ class MatchController extends Controller
         //  参赛
         foreach($petIdsArr as $pet) {
             if ($this->petModel->updatePet($userId, $pet, ['matchId' => $matchId])) {
-                $this->userModel->updateUser($userId, ['wallet' => $balance]);
+                $this->userModel->updateUser($userId, ['hlw_wallet' => $balance]);
                 $this->helper->setMatchRanking($matchType, $matchId, $pet, 0);
             } else {
                 return response()->json(Config::get('constants.HANDLE_ERROR'));
@@ -244,7 +247,7 @@ class MatchController extends Controller
 
         $userInfo = Auth::guard('api')->user()->toArray();
         $userId   = $userInfo['id'];
-        $wallet   = $userInfo['wallet'];
+        $wallet   = $userInfo['hlw_wallet'];
 
         //  投票次数已达上限
         if ($this->helper->getMatchVote($matchType, $userId) >= $matchInfo['voteLimit'])
