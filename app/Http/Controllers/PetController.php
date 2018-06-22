@@ -138,8 +138,10 @@ class PetController extends Controller
             'on_sale' => 2,
             'expired_at' => Carbon::createFromTimestamp(time() + Config::get('constants.PET_SALE_EXP_SEC'))->toDateTimeString()
         ];
-        if ($this->petModel->updatePet($userId, $petId, $update))
+        if ($this->petModel->updatePet($userId, $petId, $update)) {
+            Log::info('auction pet ' . $petId . ', sp ' . $sp . ', fp '. $fp . ' success!');
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
         return response()->json(Config::get('constants.HANDLE_ERROR'));
     }
 
@@ -165,8 +167,10 @@ class PetController extends Controller
             'on_sale' => 1,
             'expired_at' => Carbon::now()
         ];
-        if ($this->petModel->updatePet($userId, $petId, $update))
+        if ($this->petModel->updatePet($userId, $petId, $update)) {
+            Log::info('backout pet ' . $petId . ' success!');
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
         return response()->json(Config::get('constants.HANDLE_ERROR'));
     }
 
@@ -208,6 +212,7 @@ class PetController extends Controller
         ];
         if ($this->petModel->updatePet($petDetails['ownerId'], $petId, $update)) {
             $this->userModel->updateUser($userId, ['eth_wallet' => $wallet - $petDetails['price']]);
+            Log::info('purchase pet ' . $petId . ', from' . $petDetails['ownerId'] . ' to ' . $userId . ' success!');
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
         }
         return response()->json(Config::get('constants.HANDLE_ERROR'));
@@ -284,6 +289,7 @@ class PetController extends Controller
         if ($this->petModel->updatePet($userId, $petId, $update)) {
             //  花钱
             $this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $cost]);
+            Log::info('levelup pet ' . $petId . ' success! update ', $update);
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
         }
         return response()->json(Config::get('constants.HANDLE_ERROR'));

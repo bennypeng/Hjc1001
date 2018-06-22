@@ -131,6 +131,8 @@ class UserController extends Controller
         //  修改昵称失败
         if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
 
+        Log::info('user ' . $userInfo['id'] . ' change nickname ' . $nickname . ' success');
+
         return response()->json(Config::get('constants.UPDATE_SUCCESS'));
 
     }
@@ -152,6 +154,8 @@ class UserController extends Controller
 
         //  修改头像失败
         if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        Log::info('user ' . $userInfo['id'] . ' change icon ' . $icon . ' success');
 
         return response()->json(Config::get('constants.UPDATE_SUCCESS'));
 

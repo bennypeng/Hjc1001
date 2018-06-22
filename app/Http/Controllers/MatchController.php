@@ -207,6 +207,7 @@ class MatchController extends Controller
                 return response()->json(Config::get('constants.HANDLE_ERROR'));
             }
         }
+        Log::info('join match userId ' . $userId . ', matchType ' . $matchType . ', matchId' . $matchId . ', petIds ', $petIds);
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
@@ -267,6 +268,8 @@ class MatchController extends Controller
 
         //  投票
         $this->helper->setMatchRanking($matchType, $matchId, $petId, $poll);
+
+        Log::info('vote match userId ' . $userId . ', matchType ' . $matchType . ', matchId' . $matchId . ', petId ' . $petId . ', poll ' . $poll);
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
