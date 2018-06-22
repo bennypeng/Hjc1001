@@ -9,6 +9,7 @@ use App\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -59,6 +60,7 @@ class UserController extends Controller
         $res = $this->userModel->getUserByUserId($userId);
         if ($res) {
             $this->helper->setMobile($mobile);
+            Log::info($mobile . ' regist success');
             return response()->json(Config::get('constants.REGIST_SUCCESS'));
         }
         return response()->json(Config::get('constants.DATA_MATCHING_ERROR'));
@@ -90,6 +92,7 @@ class UserController extends Controller
 
         //  登录成功
         if ($token = Auth::guard('api')->attempt(['mobile' => $mobile, 'password' => $password])) {
+            Log::info($mobile . ' login success');
             return response()->json(array_merge(
                     ['token' => 'bearer ' . $token],
                     Config::get('constants.LOGIN_SUCCESS'))
@@ -218,6 +221,8 @@ class UserController extends Controller
         //  发送验证码
         $randomCode = $this->helper->reqVerfyCode($mobile);
         $this->helper->setVerfyCodeLimit($req->getClientIp());
+
+        Log::info('ip ' . $req->getClientIp() . ' request random code success');
 
         if (!$randomCode)
             return response()->json(array_merge(
