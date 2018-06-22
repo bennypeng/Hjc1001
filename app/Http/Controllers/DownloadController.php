@@ -12,11 +12,11 @@ class DownloadController extends Controller
 
         $filePath = storage_path('download/'.$file);
 
-        $fp = fopen($filePath, "r");
-        header("Content-type: application/pdf");
-        fpassthru($fp);
-        fclose($fp);
-
-        //return file_get_contents($filePath);
+        if (file_exists($filePath)) {
+            $fp = fopen($filePath, "r");
+            header("Content-type: application/pdf");
+            fpassthru($fp);
+            fclose($fp);
+        }
     }
 }
