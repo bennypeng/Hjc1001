@@ -228,7 +228,7 @@ class MatchController extends Controller
         $poll      = $req->get('poll');
 
         //  缺少必填字段
-        if (!$petId || !$poll || !$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+        if (!$petId || !$poll || !$matchType || $poll <= 0) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
 

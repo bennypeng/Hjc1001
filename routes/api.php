@@ -25,17 +25,18 @@ Route::middleware('jwt.auth')->group(function() {
 
     Route::prefix('user')->group(function() {
 
-        Route::post('logout', 'UserController@logout');           //  登出
+        Route::post('logout', 'UserController@logout');                  //  登出
 
-        Route::post('nickname', 'UserController@changName');      //  修改昵称
+        Route::post('nickname', 'UserController@changName');             //  修改昵称
 
-        Route::post('icon', 'UserController@changIcon');          //  修改头像
+        Route::post('icon', 'UserController@changIcon');                 //  修改头像
 
-        Route::get('profile', 'UserController@profile');          //  个人中心
+        Route::get('profile', 'UserController@profile');                 //  个人中心
 
-        Route::post('binding', 'UserController@bindingAddress');  //  绑定钱包
+        Route::post('binding', 'UserController@bindingAddress');         //  绑定钱包
 
-        Route::post('extract', 'UserController@extractMoney');    //  发起提现请求
+        Route::post('extract/{type}', 'UserController@extractMoney')
+            ->where('type', '[1-2]');                             //  发起提现请求
 
         //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 

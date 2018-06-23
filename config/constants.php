@@ -79,7 +79,7 @@ return [
 
     'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
-    'MATCH_VOTE_ERROR'         => ['message' => '比赛次数上限',                 'code' => 10102],
+    'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
 
     /**
      * 宠物参数设置

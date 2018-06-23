@@ -113,7 +113,7 @@ class PetController extends Controller
         if (!$petId || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
         //  缺少必填字段
-        if ($sp < $fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+        if ($sp < $fp || $fp <= 0 || $sp <= 0) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
 
         $petInfo = $this->petModel->getPetDetails($petId);
 

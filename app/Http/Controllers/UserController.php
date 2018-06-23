@@ -175,6 +175,39 @@ class UserController extends Controller
     }
 
     /**
+     * 提现操作
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function extractMoney(Request $req) {
+        $money    = $req->get('money');
+        $type     = $req->route('type');
+
+        //  缺少必填字段
+        if (!$money) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        $wallet = $type == 1 ? $userInfo['hlw_wallet'] : $userInfo['eth_wallet'];
+
+        //  提现超出余额
+        if ($money > $wallet) return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        /**
+         * @todo 发送提现请求
+         */
+
+        //  修改用户余额
+        //$res = $this->userModel->updateUser($userInfo['id'], ['address' => $addr]);
+
+        //  修改失败
+        //if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+
+    }
+
+    /**
      * 个人中心
      * @return \Illuminate\Http\JsonResponse
      */
