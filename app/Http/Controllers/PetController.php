@@ -127,7 +127,7 @@ class PetController extends Controller
         if ($petDetails['on_sale'] == 2 && time() < $petDetails['exp']) return response()->json(Config::get('constants.PETS_ON_SALE_ERROR'));
 
         //  获取当前宠物可参加的比赛类型
-        $matchType = $this->helper->getMatchTypeByPetId($petInfo['type']);
+        $matchType = $this->helper->getMatchTypeByPetType($petInfo['type']);
 
         //  比赛类型错误
         if (!$matchType) return response()->json(Config::get('constants.MATCH_TYPE_ERROR'));
