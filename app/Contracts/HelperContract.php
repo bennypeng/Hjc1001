@@ -42,7 +42,7 @@ interface HelperContract
     public function getMatchRanking(
         int $matchType, string $matchId, int $min, int $max);                           //  获取比赛排行榜
     public function getMatchRankingLen(int $matchType, string $matchId);                //  获取比赛参赛人数
-    public function getMatchTypeByPetId(int $petId);                                    //  通过宠物ID获取比赛类型
+    public function getMatchTypeByPetType(int $petType);                                //  通过宠物ID获取比赛类型
     public function getPeriods(int $matchType, array $matchIds);                        //  获取比赛期数
     public function checkRankingMemExist(int $matchType, string $matchId, $petId);      //  检验宠物是否在排行榜内
     public function getMatchVote(int $matchType, string $userId);                       //  获取比赛已投票次数

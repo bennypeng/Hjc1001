@@ -358,11 +358,11 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::zcard($key);
     }
-    public function getMatchTypeByPetId(int $petId) {
+    public function getMatchTypeByPetType(int $petType) {
         $matchType = false;
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
         foreach($matchOptions as $k => $v) {
-            if (in_array($petId, $v[0])) {
+            if (in_array($petType, $v[0])) {
                 $matchType = $k;
                 break;
             }
