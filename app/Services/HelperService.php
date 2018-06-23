@@ -318,7 +318,7 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::get($key);
     }
-    public function getMatchId(int $matchType) {
+    public function getMatchId1(int $matchType) {
         $key = $this->getMatchCurIdKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::get($key);

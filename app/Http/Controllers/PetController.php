@@ -120,6 +120,12 @@ class PetController extends Controller
         //  未找到该宠物
         if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+        list($petDetails) = $this->helper->parsePetDetails([$petInfo]);
+
+        //  宠物正在出售
+        if ($petDetails['on_sale'] == 2 && time() < $petDetails['exp']) return response()->json(Config::get('constants.PETS_ON_SALE_ERROR'));
+
         //  获取当前宠物可参加的比赛类型
         $matchType = $this->helper->getMatchTypeByPetId($petId);
 
