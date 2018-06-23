@@ -75,17 +75,6 @@ class UserController extends Controller
 
         $mobile    = $req->get('mobile');
         $password  = $req->get('password');
-        /*
-        $rules = [
-            'mobile'   => [
-                'required',
-                'exists:users',
-            ],
-            'password' => 'required|string|min:6|max:20',
-        ];
-
-        $params = $this->validate($req, $rules);
-        */
 
         //  手机号还没注册
         if (!$this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.NOT_FOUND_USER'));
@@ -156,6 +145,30 @@ class UserController extends Controller
         if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
 
         Log::info('user ' . $userInfo['id'] . ' change icon ' . $icon . ' success');
+
+        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+
+    }
+
+    /**
+     * 绑定地址
+     * @param Request $req
+     * @return JsonResponse
+     */
+    public function bindingAddress(Request $req) {
+        $addr    = $req->get('addr');
+
+        //  缺少必填字段
+        if (!$addr) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        $res = $this->userModel->updateUser($userInfo['id'], ['address' => $addr]);
+
+        //  绑定钱包失败
+        if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+
+        Log::info('user ' . $userInfo['id'] . ' binding address ' . $addr . ' success');
 
         return response()->json(Config::get('constants.UPDATE_SUCCESS'));
 

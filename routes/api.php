@@ -33,6 +33,10 @@ Route::middleware('jwt.auth')->group(function() {
 
         Route::get('profile', 'UserController@profile');          //  个人中心
 
+        Route::post('binding', 'UserController@bindingAddress');  //  绑定钱包
+
+        Route::post('extract', 'UserController@extractMoney');    //  发起提现请求
+
         //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
         //Route::get('qrcode/{id}', function ($address) {
@@ -106,6 +110,15 @@ Route::prefix('match')->group(function () {
         ->where('matchType', '[1-4]')
         ->where('sp', '[0-9]+')
         ->where('row', '[0-9]+');                      //  获取排行榜信息
+
+});
+
+//  以太坊路由
+Route::prefix('eth')->group(function () {
+
+    Route::get('/sync/{action}/{address}', 'DownloadController@syncEthTransaction');                 //  同步以太坊交易记录
+
+    Route::get('/txstatus/{txhash}', 'DownloadController@getEthTransactionStatus');                  //  获取订单状态
 
 });
 

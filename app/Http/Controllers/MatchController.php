@@ -122,9 +122,15 @@ class MatchController extends Controller
 
         $residueSec = $residueSec > 0 ? $residueSec : -1;
 
+        $periodsArr = $this->helper->getPeriods($matchType, [$matchId]);
+        $period = isset($periodsArr[$matchId]['period']) ? $periodsArr[$matchId]['period'] : 1;
+        $flag = isset($periodsArr[$matchId]['flag']) ? $periodsArr[$matchId]['flag'] : 1;
+
         return response()->json(
             array_merge(
                 [
+                    'period'     => $period,
+                    'flag'       => $flag,
                     'total'      => $this->helper->getMatchRankingLen($matchType, $matchId),
                     'residueSec' => $residueSec,
                     'lists'      => $ranking

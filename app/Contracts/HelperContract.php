@@ -54,6 +54,17 @@ interface HelperContract
     public function getVerfyCodeLimit(string $ip);                                      //  获取当前IP地址请求验证码次数
     public function setVerfyCodeLimit(string $ip);                                      //  设置当前IP地址请求验证码次数
 
+    public function setEthTransaction(string $action, array $data);                     //  设置以太坊交易信息
+    public function getEthTransaction(string $action);                                  //  获取以太坊交易信息
+    public function setEthToAddress(string $address, string $tx, array $data);          //  设置指定地址以太坊交易信息（转入）
+    public function getEthToAddress(string $address);                                   //  获取指定地址以太坊交易信息（转入）
+    public function setEthFromAddress(string $address, string $tx, array $data);        //  设置指定地址以太坊交易信息（提现）
+    public function getEthFromAddress(string $address);                                 //  获取指定地址以太坊交易信息（提现）
+    public function getEthHandle(string $tx);                                           //  获取该tx的状态
+    public function setEthHandle(string $tx, int $status);                              //  设置该tx的状态
+    public function getEthMd5(string $action);                                          //  获取以太坊MD5
+    public function setEthMd5(string $action, string $mdstr);                           //  设置以太坊MD5
+
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
@@ -68,4 +79,10 @@ interface HelperContract
 
     public function getVerfyCodeKey(string $mobile);                                    //  获取验证码KEY
     public function getVerfyCodeLimitKey(string $ip);                                   //  获取当前IP地址请求验证码次数KEY
+
+    public function getEthTransactionKey(string $action);                               //  获取以太坊交易记录KEY
+    public function getEthToAddressKey(string $address);                                //  获取以太坊发送到XXX地址KEY
+    public function getEthFromAddressKey(string $address);                              //  获取以太坊从XXX地址转出KEY
+    public function getEthHandleKey(string $tx);                                        //  获取管理后台操作KEY
+    public function getEthMd5Key(string $action);                                       //  获取以太坊MD5 KEY
 }

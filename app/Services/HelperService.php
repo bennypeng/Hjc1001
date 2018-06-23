@@ -463,6 +463,58 @@ class HelperService implements HelperContract
         Redis::incr($key);
     }
 
+    /*** 以太坊接口相关 ***/
+    public function setEthTransaction(string $action, array $data) {
+        $key = $this->getEthTransactionKey($action);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::hmset($key, $data);
+    }
+    public function getEthTransaction(string $action) {
+        $key = $this->getEthTransactionKey($action);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::hgetall($key);
+    }
+    public function setEthToAddress(string $address, string $tx, array $data) {
+        $key = $this->getEthToAddressKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::hset($key, $tx, $data);
+    }
+    public function getEthToAddress(string $address) {
+        $key = $this->getEthToAddressKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::hgetall($key);
+    }
+    public function setEthFromAddress(string $address, string $tx, array $data) {
+        $key = $this->getEthFromAddressKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::hset($key, $tx, $data);
+    }
+    public function getEthFromAddress(string $address) {
+        $key = $this->getEthFromAddressKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::hgetall($key);
+    }
+    public function getEthHandle(string $tx) {
+        $key = $this->getEthHandleKey($tx);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::hget($key, $tx);
+    }
+    public function setEthHandle(string $tx, int $status) {
+        $key = $this->getEthHandleKey($tx);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::hset($key, $tx, $status);
+    }
+    public function getEthMd5(string $action) {
+        $key = $this->getEthMd5Key($action);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::get($key);
+    }
+    public function setEthMd5(string $action, string $mdstr) {
+        $key = $this->getEthMd5Key($action);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::set($key, $mdstr);
+    }
+
     /*** KEY ***/
     public function getUserKey(string $userId) {
         return 'U:' . $userId;
@@ -499,5 +551,20 @@ class HelperService implements HelperContract
     }
     public function getVerfyCodeLimitKey(string $ip) {
         return 'VERFYLIMIT:' . $ip;
+    }
+    public function getEthTransactionKey(string $action) {
+        return strtoupper('ETH:' . $action);
+    }
+    public function getEthToAddressKey(string $address) {
+        return 'ETH:TO' . $address;
+    }
+    public function getEthFromAddressKey(string $address) {
+        return 'ETH:FROM' . $address;
+    }
+    public function getEthHandleKey(string $tx) {
+        return 'ETH:HANDLE';
+    }
+    public function getEthMd5Key(string $action) {
+        return 'ETH:MD5:' . $action;
     }
 }

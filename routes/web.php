@@ -14,5 +14,13 @@
 //  日志查询
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
-//  文件下载
-Route::get('download/{file}', 'DownloadController@index');
+//  白皮书
+Route::get('download/{file}', function ($file) {
+    $filePath = storage_path('download/'.$file);
+    if (file_exists($filePath)) {
+        $fp = fopen($filePath, "r");
+        header("Content-type: application/pdf");
+        fpassthru($fp);
+        fclose($fp);
+    }
+});
