@@ -123,6 +123,18 @@ Route::prefix('eth')->group(function () {
 
 });
 
+Route::get('/rebuild/mobile', function () {
+    $mobiles = \Illuminate\Support\Facades\DB::select('SELECT mobile FROM Hjc1001.users');
+    if ($mobiles) {
+        foreach($mobiles as $v) {
+            $key = 'M:' .  $v->mobile;
+            \Illuminate\Support\Facades\Redis::select(5);
+            \Illuminate\Support\Facades\Redis::set($key, 1);
+        }
+        return response('rebuild mobiles success');
+    }
+});
+
 //  错误返回
 Route::fallback(function (){
     return response()->json(['message' => 'Not Found!', 'code' => 404], 404);
