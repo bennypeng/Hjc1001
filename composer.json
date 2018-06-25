@@ -9,6 +9,7 @@
         "appstract/laravel-opcache": "^2.0",
         "barryvdh/laravel-ide-helper": "^2.4",
         "doctrine/dbal": "^2.7",
+        "encore/laravel-admin": "^1.5",
         "fideloper/proxy": "~3.3",
         "guzzlehttp/guzzle": "^6.3",
         "jenssegers/agent": "^2.6",

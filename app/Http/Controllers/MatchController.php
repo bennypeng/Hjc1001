@@ -213,7 +213,7 @@ class MatchController extends Controller
                 return response()->json(Config::get('constants.HANDLE_ERROR'));
             }
         }
-        Log::info('join match userId ' . $userId . ', matchType ' . $matchType . ', matchId' . $matchId . ', petIds ', $petIds);
+        Log::info('join match userId ' . $userId . ', matchType ' . $matchType . ', matchId' . $matchId . ', petIds ', is_array($petIds) ? $petIds : []);
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
