@@ -4,25 +4,17 @@ namespace App\Admin\Controllers;
 
 use App\Pet;
 
-use Carbon\Carbon;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
-use App\Contracts\HelperContract;
+use App\Services\HelperService;
 
 class PetController extends Controller
 {
     use ModelForm;
-
-    protected $helper;
-
-    public function __construct(HelperContract $helper)
-    {
-        $this->helper = $helper;
-    }
 
     /**
      * Index interface.
@@ -47,7 +39,9 @@ class PetController extends Controller
                 $grid->attr2('属性等级')->sortable();
 
                 $grid->attr3('装饰完整度')->display(function ($attr3) {
-                    return $attr3;
+                    $helper = new HelperService();
+                    return implode(',', $helper->parseNum2Bit($this->attr3));
+                    //return $attr3;
                 });
 
                 $grid->attr4('随机属性值');

@@ -86,6 +86,8 @@ Route::prefix('user')->group(function() {
 
     Route::post('code', 'UserController@sendCode');           //  发送验证码
 
+    Route::get('code', 'UserController@sendCode');           //  发送验证码
+
 });
 
 //  宠物路由

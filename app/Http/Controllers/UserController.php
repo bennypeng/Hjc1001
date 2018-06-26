@@ -6,6 +6,7 @@ use App\Contracts\HelperContract;
 use App\User;
 use App\Pet;
 use App\Trascation;
+use App\Extraction;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,12 +20,14 @@ class UserController extends Controller
     protected $userModel;
     protected $petModel;
     protected $txModel;
+    protected $extModel;
 
     public function __construct(HelperContract $helper) {
         $this->helper    = $helper;
         $this->userModel = new User;
         $this->petModel  = new Pet;
         $this->txModel   = new Trascation;
+        $this->extModel   = new Extraction;
     }
 
     /**
@@ -173,6 +176,9 @@ class UserController extends Controller
         //  绑定钱包失败
         if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
 
+        //  设置地址userid映射
+        $this->helper->setAddressUserId($userInfo['address'], $userInfo['id']);
+
         Log::info('user ' . $userInfo['id'] . ' binding address ' . $addr . ' success');
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
@@ -228,8 +234,14 @@ class UserController extends Controller
 
         //  写入提现列表
         $flag = $type == 1 ? 'hlw' : 'eth';
-        $this->helper->setExtractList($userInfo['address'], ['money' => $money, 'flag' => $flag, 'status' => 0, 'time' => time()]);
 
+        $this->extModel->setExtract([
+            'address'=> $userInfo['address'],
+            'userid' => $userInfo['id'],
+            'money'  => $money,
+            'flag'   => $flag,
+            'status' => 0]
+        );
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
@@ -257,11 +269,31 @@ class UserController extends Controller
         //  未绑定钱包
         if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
 
+        $extInfo = $this->extModel->getExtract($id);
+
         //  单号不存在
-        if (!$this->helper->checkExtractExist($userInfo['address'], $id))
+        if (!$extInfo)
             return response()->json(Config::get('constants.EXTRA_NOT_FOUND_ERROR'));
 
-        $this->helper->setExtractStatus($userInfo['address'], $id, $status);
+        //  更改状态
+        $this->extModel->updateExtract($userInfo['address'], $id, ['status' => $status]);
+
+        //  钱回到账户
+        if ($extInfo['flag'] == 'hlw') {
+            $update = [
+                'hlw_wallet'      => $userInfo['hlw_wallet'] + $extInfo['money'],
+                'hlw_lock_wallet' => $userInfo['hlw_lock_wallet'] - $extInfo['money']
+            ];
+        } else {
+            $update = [
+                'eth_wallet'      => $userInfo['eth_wallet'] + $extInfo['money'],
+                'eth_lock_wallet' => $userInfo['eth_lock_wallet'] - $extInfo['money']
+            ];
+        }
+        $res = $this->userModel->updateUser($userInfo['id'], $update);
+
+        //  修改失败
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
@@ -290,7 +322,7 @@ class UserController extends Controller
         //  未绑定钱包
         if (!$userInfo['address']) return response()->json(array_merge(['records' => $res], Config::get('constants.HANDLE_SUCCESS')));
 
-        $res['extLists'] = $this->helper->getExtractList($userInfo['address']);
+        $res['extLists'] = $this->extModel->getExtractByAddress($userInfo['address']);
         $lists = $this->txModel->getTrascationsByAddress($userInfo['address']);
         foreach($lists as $v) {
             $info = [

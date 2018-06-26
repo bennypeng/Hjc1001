@@ -14,86 +14,11 @@ use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
 use App\Services\HelperService;
 
-class TxController extends Controller
+class HlwController extends Controller
 {
     use ModelForm;
 
     public function index()
-    {
-
-        return Admin::content(function (Content $content) {
-
-            $content->header('ETH交易订单');
-            //$content->description('description');
-
-            $grid = Admin::grid(Trascation::class, function(Grid $grid) {
-
-                $grid->id('ID')->sortable();
-
-                $grid->column('userId', '用户ID')->display(function () {
-                    $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
-                    } else {
-                        $userId = $helper->getAddressUserId($this->to);
-                    }
-                    return $userId ? $userId : '-';
-                });
-
-                $grid->column('hash', '流水号');
-
-                $grid->column('from', '发送方');
-
-                $grid->column('direction', '去向')->display(function () {
-                    if ($this->from == '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        return '<span class="label label-info rounded">&nbsp; 提现 &nbsp; </span>';
-                    } else {
-                        return '<span class="label label-success rounded">&nbsp; 充值 &nbsp;</span>';
-                    }
-                });
-
-                $grid->column('to', '接收方');
-
-                $grid->value('数量')->display(function ($v) {
-                    return round($v / 1000000000000000000, 4) . " Ether";
-                });
-
-                $grid->status('状态')->display(function ($s) {
-                    $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
-                    } else {
-                        $userId = $helper->getAddressUserId($this->to);
-                    }
-                    if (!$userId)
-                        return '-';
-                    if ($s == 0) {
-                        return '<a href="#">待处理</a>';
-                    } else {
-                        return '已处理';
-                    }
-                });
-
-                $grid->timeStamp('交易时间')->display(function ($ts) {
-                    return Carbon::createFromTimestamp($ts)->toDateTimeString();
-                });
-
-            });
-
-            $grid->model()->where('tokenSymbol', '=', null);
-            $grid->paginate(15);
-            $grid->perPages([10, 20, 30, 40, 50]);
-            //$grid->disableCreateButton();
-            //$grid->disableActions();
-            //$grid->actions(function ($actions) {
-            //    $actions->disableDelete();
-            //    $actions->disableEdit();
-            //});
-            $content->body($grid);
-        });
-    }
-
-    public function getHlwTxList()
     {
         return Admin::content(function (Content $content) {
 
@@ -142,9 +67,13 @@ class TxController extends Controller
                     if (!$userId)
                         return '-';
                     if ($s == 0) {
-                        return '<a href="#">待处理</a>';
+                        if ($this->to == '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
+                            return '<i class="fa fa-clock-o"></i>';
+                        } else {
+                            return '<i class="fa fa-clock-o"></i>';
+                        }
                     } else {
-                        return '已处理';
+                        return '<i class="fa fa-check"></i>';
                     }
                 });
 
@@ -159,8 +88,10 @@ class TxController extends Controller
             $grid->disableCreateButton();
             //$grid->disableActions();
             //$grid->actions(function ($actions) {
-            //    $actions->disableDelete();
-            //    $actions->disableEdit();
+                //$actions->disableDelete();
+                //$actions->disableEdit();
+                //$actions->append('<a href=""><i class="fa fa-check"></i></a>');
+                //$actions->prepend('<a href=""><i class="fa fa-paper-plane"></i></a>');
             //});
 
             $content->body($grid);

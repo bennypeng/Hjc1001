@@ -10,18 +10,11 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
-use App\Contracts\HelperContract;
+use App\Services\HelperService;
 
 class UserController extends Controller
 {
     use ModelForm;
-
-    protected $helper;
-
-    public function __construct(HelperContract $helper)
-    {
-        $this->helper = $helper;
-    }
 
     /**
      * Index interface.

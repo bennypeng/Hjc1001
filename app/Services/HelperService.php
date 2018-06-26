@@ -523,23 +523,28 @@ class HelperService implements HelperContract
         $list = Redis::hgetall($key);
         foreach($list as $k => $v) {
             $arr = json_decode($v, true);
-            //if ($arr['status'] != 0)
-            //    continue;
             $ret[$k] = [
                 'id'     => $k,
+                'userid'  => $arr['userid'],
+                'address'  => $arr['address'],
                 'money'  => $arr['money'],
                 'flag'   => strtoupper($arr['flag']),
-                'time'   => $arr['time'],
+                'time'   => strtotime($arr['created_at']),
                 'status' => $arr['status']
             ];
         }
         ksort($ret);
         return array_values($ret);
     }
-    public function setExtractList(string $address, array $data) {
+    public function setExtract(string $address, array $data) {
         $key = $this->getExtractKey($address);
         Redis::select(Config::get('constants.ETH_TX_INDEX'));
-        Redis::hset($key, Redis::hlen($key) + 1, json_encode($data));
+        Redis::hset($key, $data['id'], json_encode($data));
+    }
+    public function delExtract(string $address) {
+        $key = $this->getExtractKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::del($key);
     }
     public function checkExtractExist(string $address, int $id) {
         $key = $this->getExtractKey($address);
@@ -553,6 +558,26 @@ class HelperService implements HelperContract
         $arr = json_decode($list, true);
         $arr['status'] = $status;
         Redis::hset($key, $id, json_encode($arr));
+    }
+
+
+    /*** 其他 ***/
+    public function setAddressUserId(string $address, string $userId) {
+        $key = $this->getAddressUserIdKey();
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        Redis::hset($key, $address, $userId);
+    }
+    public function getAddressUserId(string $address) {
+        $key = $this->getAddressUserIdKey();
+        Redis::select(Config::get('constants.USERS_INDEX'));
+        $userId = Redis::hget($key, $address);
+        if (!$userId) {
+            $userModel = new User;
+            $userId = $userModel->getUserIdByAddress($address);
+            if ($userId)
+                $this->setAddressUserId($address, $userId);
+        }
+        return $userId;
     }
 
     /*** KEY ***/
@@ -609,5 +634,8 @@ class HelperService implements HelperContract
     }
     public function getExtractKey(string $address) {
         return 'EXTRACT:' . $address;
+    }
+    public function getAddressUserIdKey() {
+        return 'ADDRESS:USERID';
     }
 }
