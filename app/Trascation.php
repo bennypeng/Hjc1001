@@ -2,8 +2,8 @@
 
 namespace App;
 
-use App\Services\HelperService;
-use Carbon\Carbon;
+//use App\Services\HelperService;
+//use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Trascation extends Model
@@ -25,4 +25,7 @@ class Trascation extends Model
         if (!$res || !is_object($res)) return array();
         return $res->toArray();
     }
+
+
+
 }

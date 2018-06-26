@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Trascation;
+use App\User;
 
 use Carbon\Carbon;
 use Encore\Admin\Form;
@@ -11,11 +12,19 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
+use App\Services\HelperService;
 
 class TxController extends Controller
 {
     use ModelForm;
+    protected $helper;
 
+/*
+    public function __construct(HelperContract $helper)
+    {
+        $this->helper = $helper;
+    }
+*/
     public function getEthTxList()
     {
 
@@ -29,7 +38,9 @@ class TxController extends Controller
                 $grid->id('ID')->sortable();
 
                 $grid->column('userId', '用户ID')->display(function () {
-                    return '#1111';
+                    $userModel = new User();
+                    $userId = $userModel->getUserIdByAddress($this->address);
+                    return $userId ? $userId : '-';
                 });
 
                 $grid->column('hash', '流水号');
@@ -67,6 +78,12 @@ class TxController extends Controller
                 });
 
             });
+            $grid->filter(function($filter){
+
+                // 去掉默认的id过滤器
+                $filter->disableIdFilter();
+
+            });
 
             $grid->model()->where('tokenSymbol', '=', null);
             $grid->paginate(15);
@@ -93,7 +110,9 @@ class TxController extends Controller
                 $grid->id('ID')->sortable();
 
                 $grid->column('userId', '用户ID')->display(function () {
-                    return '#1111';
+                    $userModel = new User();
+                    $userId = $userModel->getUserIdByAddress($this->address);
+                    return $userId ? $userId : '-';
                 });
 
                 $grid->column('hash', '流水号');
@@ -208,5 +227,23 @@ class TxController extends Controller
             $form->display('created_at', 'Created At');
             $form->display('updated_at', 'Updated At');
         });
+    }
+
+    // 获取单项数据展示在form中
+    public function findOrFail($id)
+    {
+        $data = file_get_contents("http://api.douban.com/v2/movie/subject/$id");
+
+        $data = json_decode($data, true);
+
+        return static::newFromBuilder($data);
+    }
+
+// 保存提交的form数据
+    public function save(array $options = [])
+    {
+        $attributes = $this->getAttributes();
+
+        // save $attributes
     }
 }

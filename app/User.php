@@ -84,4 +84,20 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+
+
+
+
+
+
+
+
+    function getUserIdByAddress($address = '') {
+        if (!$address) return '';
+        $res = User::where('address', '=', $address)->first();
+        if (!$res || !is_object($res)) return '';
+        return $res->id;
+    }
+
+
 }

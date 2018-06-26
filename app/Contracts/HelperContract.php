@@ -91,4 +91,5 @@ interface HelperContract
     public function getEthHandleKey(string $tx);                                        //  获取管理后台操作KEY
     public function getEthMd5Key(string $action);                                       //  获取以太坊MD5 KEY
     public function getExtractKey(string $address);                                     //  获取提现 KEY
+
 }

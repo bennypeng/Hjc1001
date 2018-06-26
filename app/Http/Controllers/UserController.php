@@ -278,10 +278,6 @@ class UserController extends Controller
         //  验证token错误
         if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
 
-        //  未绑定钱包
-        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
-
-
         $res = array(
             'myAddr' => $userInfo['address'],
             'rechargeAddr' => Config::get('constants.ETH_ADDR'),
@@ -290,12 +286,16 @@ class UserController extends Controller
                 'out' => [], 'in' => [],
             ],
         );
+
+        //  未绑定钱包
+        if (!$userInfo['address']) return response()->json(array_merge(['records' => $res], Config::get('constants.HANDLE_SUCCESS')));
+
         $res['extLists'] = $this->helper->getExtractList($userInfo['address']);
         $lists = $this->txModel->getTrascationsByAddress($userInfo['address']);
         foreach($lists as $v) {
             $info = [
                 'tx'    => $v['hash'],
-                'money' => $v['value'],
+                'money' => $v['tokenSymbol'] ? round($v['value'] / 10000, 4) : round($v['value'] / 1000000000000000000, 4),
                 'time'  => $v['timeStamp'],
                 'flag'  => $v['tokenSymbol'] ? $v['tokenSymbol'] : 'ETH'
             ];

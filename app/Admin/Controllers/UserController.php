@@ -41,9 +41,9 @@ class UserController extends Controller
 
                 $grid->mobile('手机号码');
 
-                $grid->nickname('昵称');
+                $grid->nickname('昵称')->editable();
 
-                $grid->icon('头像');
+                $grid->icon('头像')->editable();
 
                 $grid->hlw_wallet('HLW余额');
 
@@ -51,7 +51,7 @@ class UserController extends Controller
 
                 $grid->address('钱包地址')->display(function ($address) {
                     return $address ? $address : '-';
-                });
+                })->editable();
 
                 $grid->created_at('创建时间');
 
