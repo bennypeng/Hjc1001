@@ -89,10 +89,12 @@ class EthController extends Controller
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
             //$grid->disableActions();
-            //$grid->actions(function ($actions) {
-            //    $actions->disableDelete();
-            //    $actions->disableEdit();
-            //});
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+                $actions->append('<a href=""><i class="fa fa-check"></i></a>&nbsp;&nbsp;|&nbsp;&nbsp;');
+                $actions->append('<a href="" style="color: #ff3c5c;"><i class="fa fa-close"></i></a>');
+            });
             $content->body($grid);
         });
     }

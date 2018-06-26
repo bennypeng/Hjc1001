@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Trascation;
 use App\User;
+use App\Extraction;
 
 use Carbon\Carbon;
 use Encore\Admin\Form;
@@ -22,72 +23,52 @@ class ExtractController extends Controller
     {
         return Admin::content(function (Content $content) {
 
-            $content->header('HLW交易订单');
+            $content->header('提现申请');
             //$content->description('description');
 
-            $grid = Admin::grid(Trascation::class, function(Grid $grid) {
+            $grid = Admin::grid(Extraction::class, function(Grid $grid) {
 
                 $grid->id('ID')->sortable();
 
-                $grid->column('userId', '用户ID')->display(function () {
-                    $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
+                $grid->column('userid', '用户ID');
+
+                $grid->column('address', '钱包地址');
+
+                $grid->column('money', '金额');
+
+                $grid->flag('提现类型')->display(function ($s) {
+                    if ($s == 'hlw') {
+                        return '<span class="label label-info rounded">' . strtoupper($s) . '</span>';
                     } else {
-                        $userId = $helper->getAddressUserId($this->to);
+                        return '<span class="label label-success rounded">' . strtoupper($s) . '</span>';
                     }
-                    return $userId ? $userId : '-';
-                });
-
-                $grid->column('hash', '流水号');
-
-                $grid->column('from', '发送方');
-
-                $grid->column('direction', '去向')->display(function () {
-                    if ($this->from == '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        return '<span class="label label-info rounded">&nbsp; 提现 &nbsp; </span>';
-                    } else {
-                        return '<span class="label label-success rounded">&nbsp; 充值 &nbsp;</span>';
-                    }
-                });
-
-                $grid->column('to', '接收方');
-
-                $grid->value('数量')->display(function ($v) {
-                    return round($v / 10000, 4) . " HLW";
                 });
 
                 $grid->status('状态')->display(function ($s) {
-                    $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
+                    if ($s == '0') {
+                        return '<span class="label label-warning rounded">等待处理</span>';
+                    } else if ($s == '-1'){
+                        return '<span class="label label-default rounded">已撤销</span>';
                     } else {
-                        $userId = $helper->getAddressUserId($this->to);
-                    }
-                    if (!$userId)
-                        return '-';
-                    if ($s == 0) {
-                        return '<a href="#">待处理</a>';
-                    } else {
-                        return '已处理';
+                        return '<span class="label label-success rounded">已处理</span>';
                     }
                 });
 
-                $grid->timeStamp('交易时间')->display(function ($ts) {
-                    return Carbon::createFromTimestamp($ts)->toDateTimeString();
-                });
+                $grid->column('created_at', '申请时间');
+
+
             });
 
-            $grid->model()->where('tokenSymbol', '=', "HLW");
             $grid->paginate(15);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
             //$grid->disableActions();
-            //$grid->actions(function ($actions) {
-            //    $actions->disableDelete();
-            //    $actions->disableEdit();
-            //});
-
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+                $actions->append('<a href=""><i class="fa fa-check"></i></a>&nbsp;&nbsp;|&nbsp;&nbsp;');
+                $actions->append('<a href="" style="color: #ff3c5c;"><i class="fa fa-close"></i></a>');
+            });
             $content->body($grid);
         });
     }
