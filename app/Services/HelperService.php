@@ -515,6 +515,46 @@ class HelperService implements HelperContract
         Redis::set($key, $mdstr);
     }
 
+    /*** 提现充值相关 ***/
+    public function getExtractList(string $address) {
+        $ret = array();
+        $key = $this->getExtractKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        $list = Redis::hgetall($key);
+        foreach($list as $k => $v) {
+            $arr = json_decode($v, true);
+            //if ($arr['status'] != 0)
+            //    continue;
+            $ret[$k] = [
+                'id'     => $k,
+                'money'  => $arr['money'],
+                'flag'   => strtoupper($arr['flag']),
+                'time'   => $arr['time'],
+                'status' => $arr['status']
+            ];
+        }
+        ksort($ret);
+        return array_values($ret);
+    }
+    public function setExtractList(string $address, array $data) {
+        $key = $this->getExtractKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        Redis::hset($key, Redis::hlen($key) + 1, json_encode($data));
+    }
+    public function checkExtractExist(string $address, int $id) {
+        $key = $this->getExtractKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        return Redis::hexists($key, $id);
+    }
+    public function setExtractStatus(string $address, int $id, int $status) {
+        $key = $this->getExtractKey($address);
+        Redis::select(Config::get('constants.ETH_TX_INDEX'));
+        $list = Redis::hget($key, $id);
+        $arr = json_decode($list, true);
+        $arr['status'] = $status;
+        Redis::hset($key, $id, json_encode($arr));
+    }
+
     /*** KEY ***/
     public function getUserKey(string $userId) {
         return 'U:' . $userId;
@@ -566,5 +606,8 @@ class HelperService implements HelperContract
     }
     public function getEthMd5Key(string $action) {
         return 'ETH:MD5:' . $action;
+    }
+    public function getExtractKey(string $address) {
+        return 'EXTRACT:' . $address;
     }
 }

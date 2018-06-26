@@ -11,5 +11,9 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
+    $router->resource('user', UserController::class);
+    $router->resource('pet', PetController::class);
+    $router->get('tx/eth', 'TxController@getEthTxList');
+    $router->get('tx/hlw', 'TxController@getHlwTxList');
 
 });

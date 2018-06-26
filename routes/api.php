@@ -35,8 +35,14 @@ Route::middleware('jwt.auth')->group(function() {
 
         Route::post('binding', 'UserController@bindingAddress');         //  绑定钱包
 
-        Route::post('extract/{type}', 'UserController@extractMoney')
-            ->where('type', '[1-2]');                             //  发起提现请求
+        Route::post('extract', 'UserController@extractMoney');           //  发起提现请求
+
+        //Route::get('extrec', 'UserController@getExtractMoney');          //  查看提现列表
+
+        Route::post('extopt', 'UserController@changeExtractStatus');     //  操作提现请求
+
+        Route::get('record', 'UserController@getTxRecord');              //  查看交易记录
+
 
         //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 

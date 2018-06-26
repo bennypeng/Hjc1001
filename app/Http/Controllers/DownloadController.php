@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\HelperContract;
+use App\Trascation;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -11,10 +12,12 @@ class DownloadController extends Controller
 {
 
     protected $helper;
+    protected $txModel;
 
     public function __construct(HelperContract $helper)
     {
         $this->helper     = $helper;
+        $this->txModel    = new Trascation;
     }
 
 
@@ -47,11 +50,33 @@ class DownloadController extends Controller
             $arr = json_decode($resp->getBody(), true);
             if ($arr['status'] == 1 && $arr['message'] == 'OK' && count($arr['result']) > 0) {
                 foreach ($arr['result'] as $k => $v) {
-                    unset($v['confirmations']);
+                    if ($v['from'] == '0x0000000000000000000000000000000000000000'
+                        || ($action == 'txlist' && $v['value'] == 0)
+                        || ($action == 'tokentx' && isset($v['tokenSymbol']) && $v['tokenSymbol'] && $v['tokenSymbol'] != 'HLW'))
+                        continue;
                     $data[$v['hash']] = json_encode($v);
                 }
                 $md5Str = md5(serialize($data));
                 if ($this->helper->getEthMd5($action) != $md5Str) {
+
+                    $cacheTxs = $this->helper->getEthTransaction($action);
+                    $newData  = count($data) > count($cacheTxs) ? array_diff($data, $cacheTxs) : array_diff($cacheTxs, $data);
+
+                    //  入库
+                    if ($newData) {
+                        foreach($newData as $k => $v) {
+                            $arr = json_decode($v, true);
+                            unset($arr['input']);
+                            $this->txModel->updateOrInsert(['hash' => $k], $arr);
+                        }
+                    } else {
+                        foreach($data as $k => $v) {
+                            $arr = json_decode($v, true);
+                            unset($arr['input']);
+                            $this->txModel->updateOrInsert(['hash' => $k], $arr);
+                        }
+                    }
+
                     $this->helper->setEthTransaction($action, $data);
                     $this->helper->setEthMd5($action, $md5Str);
                 }

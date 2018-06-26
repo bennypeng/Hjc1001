@@ -5,17 +5,17 @@ return [
     /*
      * Laravel-admin name.
      */
-    'name' => 'Go-admin',
+    'name' => 'Go.HLW-admin',
 
     /*
      * Logo in admin panel header.
      */
-    'logo' => '<b>Go</b> admin',
+    'logo' => '<b>Go.HLW</b> admin',
 
     /*
      * Mini-logo in admin panel header.
      */
-    'logo-mini' => '<b>Ga</b>',
+    'logo-mini' => '<b>GO</b>',
 
     /*
      * Route configuration.

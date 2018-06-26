@@ -9,7 +9,7 @@ return [
     'PUBLISH_TIME'             => '2018-06-20 00:00:00',            //  发布时间
     'PET_BIRTH_LIMIT'          => 12,                               //  宠物出生数量限制
     'PET_START_PRICE'          => 0.20,                             //  宠物起始价格
-    'PET_FINAL_PRICE'          => 0.08,                             //  宠物终止价格
+    'PET_FINAL_PRICE'          => 0.10,                             //  宠物终止价格
     'PET_SALE_EXP_SEC'         => 86400,                            //  宠物拍卖时长
     'VERFY_CODE_LIMIT'         => 5,                                //  每日最多发送验证码次数
     'ETH_API_URL'              => 'https://api.etherscan.io/api',   //  以太坊交易查询地址
@@ -25,7 +25,7 @@ return [
     'MOBILES_INDEX'            => 5,    //  手机信息
     'VERFY_CODE_INDEX'         => 6,    //  验证码信息
     'AUCTION_INDEX'            => 7,    //  拍卖信息
-    'ETH_TX_INDEX'             => 8,    //  以太坊交易信息
+    'ETH_TX_INDEX'             => 8,    //  交易信息
 
     /**
      * 操作返回码相关
@@ -76,10 +76,15 @@ return [
     'ALREADY_EXIST_USER'       => ['message' => '该用户已注册，请直接登录',     'code' => 10081],
 
     'WALLET_AMOUNT_ERROR'      => ['message' => '余额不足',                     'code' => 10090],
+    'WALLET_NOT_BIND_ERROR'    => ['message' => '未绑定钱包',                   'code' => 10091],
+    'WALLET_REQ_EXTRA_ERROR'   => ['message' => '未达到提现要求',               'code' => 10092],
+    'EXTRA_NOT_FOUND_ERROR'    => ['message' => '未找到该提现请求',             'code' => 10093],
 
     'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
     'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
+
+    'BIND_REPEAT_ERROR'        => ['message' => '重复绑定',                     'code' => 10200],
 
     /**
      * 宠物参数设置
@@ -146,7 +151,7 @@ return [
         4 => [[12, 13],             100, 100, 5, 10, [[1, 3], [4, 6]]]
     ],
 
-    'MATCHES_REWARDS'         => "周冠军、亚军、季军奖励分别为：5ETH、3ETH、2ETH#月冠军、亚军、季军奖励分别为：12ETH、8ETH、3ETH#年度总冠军、亚军、季军奖励分别:玛莎拉蒂总裁1辆、88ETH、30ETH",
+    'MATCHES_REWARDS'         => "1）参与周比赛获得4-50名均可获得1000个HLW币奖励#2）周冠军、亚军、季军奖励分别为：5ETH、3ETH、2ETH#3) 参与月度比赛获得4-50名均可获得3000个HLW币奖励#4）月冠军、亚军、季军奖励分别为：12ETH、8ETH、3ETH#5）参与年度大赛获得4-50名均可获得8000个HLW币奖励#6）年度总冠军、亚军、季军奖励分别:玛莎拉蒂总裁1辆、88ETH、30ETH",
 
 
 

@@ -65,6 +65,11 @@ interface HelperContract
     public function getEthMd5(string $action);                                          //  获取以太坊MD5
     public function setEthMd5(string $action, string $mdstr);                           //  设置以太坊MD5
 
+    public function getExtractList(string $address);                                    //  获取提现列表
+    public function setExtractList(string $address, array $data);                       //  设置提现列表
+    public function checkExtractExist(string $address, int $id);                        //  检查提现单是否存在
+    public function setExtractStatus(string $address, int $id, int $status);            //  设置提现单的状态
+
     public function getCoolTimeKey();                                                   //  出生冷却时间KEY
     public function getUserKey(string $userId);                                         //  用户信息KEY
     public function getMobileKey(string $mobile);                                       //  手机KEY
@@ -85,4 +90,5 @@ interface HelperContract
     public function getEthFromAddressKey(string $address);                              //  获取以太坊从XXX地址转出KEY
     public function getEthHandleKey(string $tx);                                        //  获取管理后台操作KEY
     public function getEthMd5Key(string $action);                                       //  获取以太坊MD5 KEY
+    public function getExtractKey(string $address);                                     //  获取提现 KEY
 }

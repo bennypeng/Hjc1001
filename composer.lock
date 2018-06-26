@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "404f51f4e91fe4c49a91ce7df4878789",
+    "content-hash": "b80069e861bc59413972d331dc0e34f6",
     "packages": [
         {
             "name": "appstract/laravel-opcache",
@@ -1417,6 +1417,60 @@
                 "useragent"
             ],
             "time": "2017-11-10T10:35:35+00:00"
+        },
+        {
+            "name": "laravel-admin-ext/config",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-admin-extensions/config.git",
+                "reference": "2df0addf47cdd7b710e148e017c7a07075456623"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/laravel-admin-extensions/config/2df0addf47cdd7b710e148e017c7a07075456623.zip",
+                "reference": "2df0addf47cdd7b710e148e017c7a07075456623",
+                "shasum": ""
+            },
+            "require": {
+                "encore/laravel-admin": "~1.5",
+                "laravel/framework": "~5.5",
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "laravel/laravel": "~5.5",
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Encore\\Admin\\Config\\ConfigServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Encore\\Admin\\Config\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "z-song",
+                    "email": "zosong@126.com"
+                }
+            ],
+            "description": "Config extension for laravel-admin",
+            "homepage": "https://github.com/laravel-admin-extensions/config",
+            "keywords": [
+                "laravel-admin",
+                "setting"
+            ],
+            "time": "2018-04-24T11:42:20+00:00"
         },
         {
             "name": "laravel/framework",

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\HelperContract;
 use App\User;
 use App\Pet;
+use App\Trascation;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +18,13 @@ class UserController extends Controller
     protected $helper;
     protected $userModel;
     protected $petModel;
+    protected $txModel;
 
     public function __construct(HelperContract $helper) {
         $this->helper    = $helper;
         $this->userModel = new User;
         $this->petModel  = new Pet;
+        $this->txModel   = new Trascation;
     }
 
     /**
@@ -163,14 +166,16 @@ class UserController extends Controller
 
         $userInfo = Auth::guard('api')->user()->toArray();
 
+        if ($userInfo['address']) return response()->json(Config::get('constants.BIND_REPEAT_ERROR'));
+
         $res = $this->userModel->updateUser($userInfo['id'], ['address' => $addr]);
 
         //  绑定钱包失败
-        if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
 
         Log::info('user ' . $userInfo['id'] . ' binding address ' . $addr . ' success');
 
-        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
 
     }
 
@@ -181,30 +186,155 @@ class UserController extends Controller
      */
     public function extractMoney(Request $req) {
         $money    = $req->get('money');
-        $type     = $req->route('type');
+        $type     = $req->get('type');
+
+        if ($type == 1)
+            $money = floor($money);
 
         //  缺少必填字段
-        if (!$money) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+        if (!$money || !$type) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  提现类型错误
+        if (!in_array($type, [1, 2])) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
 
         $userInfo = Auth::guard('api')->user()->toArray();
 
+        //  未绑定钱包
+        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
+
         $wallet = $type == 1 ? $userInfo['hlw_wallet'] : $userInfo['eth_wallet'];
+
+        //  未达到提现要求
+        if (($type == 1 && $wallet < 2000) || ($type == 2 && $wallet < 1))
+            return response()->json(Config::get('constants.WALLET_REQ_EXTRA_ERROR'));
+
+        //  数据错误
+        if ($money < 0 || ($type == 1 && $money < 1))
+            return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
 
         //  提现超出余额
         if ($money > $wallet) return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
 
-        /**
-         * @todo 发送提现请求
-         */
-
         //  修改用户余额
-        //$res = $this->userModel->updateUser($userInfo['id'], ['address' => $addr]);
+        if ($type == 1) {
+            $update = ['hlw_wallet' => $wallet - $money, 'hlw_lock_wallet' => $userInfo['hlw_lock_wallet'] + $money];
+        } else {
+            $update = ['eth_wallet' => $wallet - $money, 'eth_lock_wallet' => $userInfo['eth_lock_wallet'] + $money];
+        }
+        $res = $this->userModel->updateUser($userInfo['id'], $update);
 
         //  修改失败
-        //if (!$res) return response()->json(Config::get('constants.UPDATE_ERROR'));
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
 
-        return response()->json(Config::get('constants.UPDATE_SUCCESS'));
+        //  写入提现列表
+        $flag = $type == 1 ? 'hlw' : 'eth';
+        $this->helper->setExtractList($userInfo['address'], ['money' => $money, 'flag' => $flag, 'status' => 0, 'time' => time()]);
 
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+    }
+
+    /**
+     * 提现列表
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+/*    public function getExtractMoney(Request $req) {
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        //  验证token错误
+        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
+
+        //  未绑定钱包
+        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
+
+        $list = $this->helper->getExtractList($userInfo['address']);
+
+        return response()->json(array_merge(
+            [
+                'list'   => $list
+            ],
+            Config::get('constants.HANDLE_SUCCESS'))
+        );
+    }
+*/
+
+    public function changeExtractStatus(Request $req) {
+        $id        = $req->get('id');
+        $status    = $req->get('status');
+
+        //  状态类型错误
+        if (!in_array($status, [-1, 1])) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
+
+        //  请求不是来自服务器（允许提现只能有后台进行操作）
+        if ($status == 1) {
+            if (Config::get('constants.SERVER_IP') != $req->getClientIp())
+                return response()->json(Config::get('constants.VERFY_IP_ERROR'));
+        }
+
+        //  缺少必填字段
+        if (!$id || !$status) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        //  验证token错误
+        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
+
+        //  未绑定钱包
+        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
+
+        //  单号不存在
+        if (!$this->helper->checkExtractExist($userInfo['address'], $id))
+            return response()->json(Config::get('constants.EXTRA_NOT_FOUND_ERROR'));
+
+        $this->helper->setExtractStatus($userInfo['address'], $id, $status);
+
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+    }
+
+    /**
+     * 交易记录
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTxRecord(Request $req) {
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        //  验证token错误
+        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
+
+        //  未绑定钱包
+        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
+
+
+        $res = array(
+            'extLists' => [],
+            'txLists' => [
+                'out' => [], 'in' => [],
+            ],
+        );
+        $res['extLists'] = $this->helper->getExtractList($userInfo['address']);
+        $lists = $this->txModel->getTrascationsByAddress($userInfo['address']);
+        foreach($lists as $v) {
+            $info = [
+                'tx'    => $v['hash'],
+                'money' => $v['value'],
+                'time'  => $v['timeStamp'],
+                'flag'  => $v['tokenSymbol'] ? $v['tokenSymbol'] : 'ETH'
+            ];
+            if ($v['from'] == $userInfo['address']) {
+                $res['txLists']['out'][] = $info;
+            } else {
+                $res['txLists']['in'][] = $info;
+            }
+        }
+
+        return response()->json(array_merge(
+                [
+                    'records'   => $res
+                ],
+                Config::get('constants.HANDLE_SUCCESS'))
+        );
     }
 
     /**
