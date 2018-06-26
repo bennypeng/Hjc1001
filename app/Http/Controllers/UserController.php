@@ -233,31 +233,6 @@ class UserController extends Controller
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
-    /**
-     * 提现列表
-     * @param Request $req
-     * @return \Illuminate\Http\JsonResponse
-     */
-/*    public function getExtractMoney(Request $req) {
-        $userInfo = Auth::guard('api')->user()->toArray();
-
-        //  验证token错误
-        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
-
-        //  未绑定钱包
-        if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
-
-        $list = $this->helper->getExtractList($userInfo['address']);
-
-        return response()->json(array_merge(
-            [
-                'list'   => $list
-            ],
-            Config::get('constants.HANDLE_SUCCESS'))
-        );
-    }
-*/
-
     public function changeExtractStatus(Request $req) {
         $id        = $req->get('id');
         $status    = $req->get('status');
@@ -308,6 +283,8 @@ class UserController extends Controller
 
 
         $res = array(
+            'myAddr' => $userInfo['address'],
+            'rechargeAddr' => Config::get('constants.ETH_ADDR'),
             'extLists' => [],
             'txLists' => [
                 'out' => [], 'in' => [],

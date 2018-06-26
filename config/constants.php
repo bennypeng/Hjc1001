@@ -13,6 +13,7 @@ return [
     'PET_SALE_EXP_SEC'         => 86400,                            //  宠物拍卖时长
     'VERFY_CODE_LIMIT'         => 5,                                //  每日最多发送验证码次数
     'ETH_API_URL'              => 'https://api.etherscan.io/api',   //  以太坊交易查询地址
+    'ETH_ADDR'                 => '0x03b8fb0bdc8f73882440f01403d230ff1de91ae9',
 
     /**
      * Redis数据库相关
