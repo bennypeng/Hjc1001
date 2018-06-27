@@ -95,5 +95,17 @@ class User extends Authenticatable implements JWTSubject
         return $res->id;
     }
 
+    /**
+     * 通过邀请码获取userId
+     * @param $inviteCode
+     * @return array
+     */
+    function getUserByInviteCode($inviteCode) {
+        if (!$inviteCode) return array();
+        $res = User::where('invite_code', '=', $inviteCode)->first();
+        if (!$res || !is_object($res)) return array();
+        return $res;
+    }
+
 
 }

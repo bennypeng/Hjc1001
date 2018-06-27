@@ -94,6 +94,8 @@ return [
     'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
 
     'INV_CREATED_ERROR'        => ['message' => '邀请码生成失败',               'code' => 10500],
+    'INV_VERFY_ERROR'          => ['message' => '非法的邀请码',                 'code' => 10501],
+    'INV_RELATE_ERROR'         => ['message' => '邀请人关联失败',               'code' => 10502],
 
 
 

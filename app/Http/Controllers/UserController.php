@@ -37,9 +37,10 @@ class UserController extends Controller
      */
     public function regist(Request $req) {
 
-        $mobile    = $req->get('mobile');
-        $verfyCode = $req->get('verfyCode');
-        $password  = $req->get('password');
+        $mobile     = $req->get('mobile');
+        $verfyCode  = $req->get('verfyCode');
+        $password   = $req->get('password');
+        $inviteCode = $req->get('inviteCode');
 
         //  缺少必填字段
         if (!$mobile || !$verfyCode || !$password) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
@@ -47,16 +48,48 @@ class UserController extends Controller
         //  手机号已被注册
         if ($this->helper->checkMobileExist($mobile)) return response()->json(Config::get('constants.ALREADY_EXIST_MOBILE'));
 
+        //  校验邀请码
+        $uid = '';
+        if ($inviteCode) {
+            $uInfo = $this->userModel->getUserByInviteCode($inviteCode);
+
+            //  邀请码不存在
+            if (!$uInfo) return response()->json(Config::get('constants.INV_VERFY_ERROR'));
+
+            $uid = $uInfo['id'];
+
+            $agentLevel = $uInfo['agent_level'];
+
+            $agentOptions = Config::get('constants.AGENT_OPTIONS');
+
+            //  未找到代理等级
+            if (!isset($agentOptions[$agentLevel])) return response()->json(Config::get('constants.NOT_FOUND_AG_LEVEL'));
+
+            //  给邀请人增加钱
+            $hlwReward = $agentOptions[$agentLevel];
+
+            $re = $this->userModel->updateUser($uInfo['id'], ['hlw_wallet' => $uInfo['hlw_wallet'] + $hlwReward]);
+
+            //  关联邀请人失败
+            if (!$re) return response()->json(Config::get('constants.INV_RELATE_ERROR'));
+        }
+
         //  校验验证码
         if ($verfyCode != $this->helper->getVerfyCode($mobile)) return response()->json(Config::get('constants.VERFY_CODE_ERROR'));
 
+        $update = [
+            'mobile'    => $mobile,
+            'nickname'  => $mobile,
+            'password'  => bcrypt($password),
+        ];
+
+        if ($uid) {
+            $update['invite_id'] = $uid;
+        }
+
         //  注册用户
         $userId = $this->userModel->registerUser(
-            array(
-                'mobile' => $mobile,
-                'nickname' => $mobile,
-                'password' => bcrypt($password)
-            )
+            $update
         );
 
         //  注册失败

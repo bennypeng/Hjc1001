@@ -41,7 +41,7 @@ Route::middleware('jwt.auth')->group(function() {
 
         Route::get('record', 'UserController@getTxRecord');              //  查看交易记录
 
-        Route::get('invite', 'UserController@getInviteInfo');            //  查看邀请码信息
+        Route::get('invite', 'UserController@getInviteInfo');            //  查看邀请码及代理信息
 
         //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
