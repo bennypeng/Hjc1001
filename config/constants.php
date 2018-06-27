@@ -7,7 +7,7 @@ return [
      */
     'SERVER_IP'                => '127.0.0.1',                  //  服务器IP
     'PUBLISH_TIME'             => '2018-06-20 00:00:00',            //  发布时间
-    'PET_BIRTH_LIMIT'          => 12,                               //  宠物出生数量限制
+    'PET_BIRTH_LIMIT'          => 24,                               //  宠物出生数量限制
     'PET_START_PRICE'          => 0.20,                             //  宠物起始价格
     'PET_FINAL_PRICE'          => 0.10,                             //  宠物终止价格
     'PET_SALE_EXP_SEC'         => 86400,                            //  宠物拍卖时长
