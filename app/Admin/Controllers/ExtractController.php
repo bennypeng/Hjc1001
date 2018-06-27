@@ -80,7 +80,7 @@ $('.pass').unbind('click').click(function() {
     function(){
         $.ajax({
             method: 'POST',
-            url: 'http://hjc1001.test/api/user/opt/1',
+            url: 'http://go.hlwchain.com:8088/api/user/opt/1',
             data: {
                 "id": id
             },
@@ -123,7 +123,7 @@ $('.reject').unbind('click').click(function() {
 
         $.ajax({
             method: 'POST',
-            url: 'http://hjc1001.test/api/user/opt/2',
+            url: 'http://go.hlwchain.com:8088/api/user/opt/2',
             data: {
                 "id": id,
                 "remark":inputValue

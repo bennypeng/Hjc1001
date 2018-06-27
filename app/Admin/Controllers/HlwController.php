@@ -88,7 +88,7 @@ $('.pass').unbind('click').click(function() {
     function(){
         $.ajax({
             method: 'POST',
-            url: 'http://hjc1001.test/api/user/send',
+            url: 'http://go.hlwchain.com:8088/api/user/send',
             data: {
                 "id": id
             },
