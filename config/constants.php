@@ -46,6 +46,8 @@ return [
     'NOT_FOUND_PET'            => ['message' => '未找到该宠物',                 'code' => 10031],
     'NOT_FOUND_MATCH'          => ['message' => '未找到比赛',                   'code' => 10032],
     'NOT_FOUND_HIS_MATCH'      => ['message' => '未找到历史比赛',               'code' => 10033],
+    'NOT_FOUND_EXTRA'          => ['message' => '未找到该提现请求',             'code' => 10034],
+    'NOT_FOUND_TX'             => ['message' => '未找到该订单',                 'code' => 10035],
 
     'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 10041],
     'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
@@ -79,13 +81,16 @@ return [
     'WALLET_AMOUNT_ERROR'      => ['message' => '余额不足',                     'code' => 10090],
     'WALLET_NOT_BIND_ERROR'    => ['message' => '未绑定钱包',                   'code' => 10091],
     'WALLET_REQ_EXTRA_ERROR'   => ['message' => '未达到提现要求',               'code' => 10092],
-    'EXTRA_NOT_FOUND_ERROR'    => ['message' => '未找到该提现请求',             'code' => 10093],
 
     'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
     'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
 
     'BIND_REPEAT_ERROR'        => ['message' => '重复绑定',                     'code' => 10200],
+
+    'EXTRA_CANCEL_ERROR'       => ['message' => '提现请求已取消',               'code' => 10300],
+
+    'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
 
     /**
      * 宠物参数设置

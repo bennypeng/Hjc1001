@@ -211,7 +211,7 @@ class UserController extends Controller
         $wallet = $type == 1 ? $userInfo['hlw_wallet'] : $userInfo['eth_wallet'];
 
         //  未达到提现要求
-        if (($type == 1 && $wallet < 2000) || ($type == 2 && $wallet < 1))
+        if (($type == 1 && $wallet < 3000) || ($type == 2 && $wallet < 1))
             return response()->json(Config::get('constants.WALLET_REQ_EXTRA_ERROR'));
 
         //  数据错误
@@ -273,7 +273,7 @@ class UserController extends Controller
 
         //  单号不存在
         if (!$extInfo)
-            return response()->json(Config::get('constants.EXTRA_NOT_FOUND_ERROR'));
+            return response()->json(Config::get('constants.NOT_FOUND_EXTRA'));
 
         //  更改状态
         $this->extModel->updateExtract($userInfo['address'], $id, ['status' => $status]);
@@ -424,6 +424,109 @@ class UserController extends Controller
             Config::get('constants.HANDLE_SUCCESS')
         ));
 
+    }
+
+    /**
+     * 同意提现或拒绝
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendOpt(Request $req) {
+
+        $id   = $req->get('id');
+        $type = $req->route('type');
+        $remark = $req->get('remark');
+
+        //  缺少必填字段
+        if (!$id || !$type) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $extInfo = $this->extModel->getExtract($id);
+
+        //  没有找到该提现请求
+        if (!$extInfo) return response()->json(Config::get('constants.NOT_FOUND_EXTRA'));
+
+        //  请求已被取消
+        if ($extInfo['status'] == -1)  return response()->json(Config::get('constants.EXTRA_CANCEL_ERROR'));
+
+        $userInfo = $this->userModel->getUserByUserId($extInfo['userid']);
+
+        //  没有找到用户信息
+        if (!$userInfo) return response()->json(Config::get('constants.NOT_FOUND_USER'));
+
+        $status = $type == 1 ? 1 : 2;
+
+        //  扣除钱 或 返回钱
+        if ($extInfo['flag'] == 'hlw') {
+            $update = [
+                'hlw_lock_wallet' => $userInfo['hlw_lock_wallet'] - $extInfo['money']
+            ];
+            if ($type != 1)
+                $update['hlw_wallet'] = $userInfo['hlw_wallet'] + $extInfo['money'];
+        } else {
+            $update = [
+                'eth_lock_wallet' => $userInfo['eth_lock_wallet'] - $extInfo['money']
+            ];
+            if ($type != 1)
+                $update['eth_wallet'] = $userInfo['eth_wallet'] + $extInfo['money'];
+        }
+
+        $res = $this->userModel->updateUser($userInfo['id'], $update);
+
+        //  修改失败
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        $res = $this->extModel->updateExtract($userInfo['address'], $id, ['status' => $status, 'remark' => $remark]);
+
+        //  修改成功
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+    }
+
+    public function sendCoin(Request $req) {
+
+        $id   = $req->get('id');
+
+        //  缺少必填字段
+        if (!$id) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $txInfo = $this->txModel->getTrascationById($id);
+
+        //  没有找到该订单
+        if (!$txInfo) return response()->json(Config::get('constants.NOT_FOUND_TX'));
+
+        //  订单状态已被更改
+        if ($txInfo['status'] == 1)  return response()->json(Config::get('constants.TX_STATUS_CHANGE_ERROR'));
+
+        $userId = $this->userModel->getUserIdByAddress($txInfo['from']);
+
+        $userInfo = $this->userModel->getUserByUserId($userId);
+
+        //  没有找到用户信息
+        if (!$userInfo) return response()->json(Config::get('constants.NOT_FOUND_USER'));
+
+        //  下发积分
+        if ($txInfo['tokenSymbol'] == 'HLW') {
+            $update = [
+                'hlw_wallet' => $userInfo['hlw_wallet'] + round($txInfo['value'] / 10000, 0)
+            ];
+        } else {
+            $update = [
+                'eth_wallet' => $userInfo['eth_wallet'] + round($txInfo['value'] / 1000000000000000000, 4)
+            ];
+        }
+
+        $res = $this->userModel->updateUser($userId, $update);
+
+        //  修改失败
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        $res = $this->txModel->updateTrascation($id, ['status' => 1]);
+
+        //  修改成功
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
 }

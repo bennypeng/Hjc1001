@@ -4,6 +4,7 @@ namespace App;
 
 use App\Services\HelperService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Extraction extends Model
 {
@@ -47,8 +48,14 @@ class Extraction extends Model
 
     function updateExtract($address = '', $id = '', $data = []) {
         if (strlen(trim($address)) == 0 || strlen(trim($id)) == 0 || count($data) == 0) return false;
-        $res = Extraction::where('id', '=', $id)
-            ->update($data);
+        $res = false;
+        DB::beginTransaction();
+        $count = DB::table('extractions')->where('id', '=', $id)->lockForUpdate()->count();
+        if ($count <= 1) {
+            $res = DB::table('extractions')->where('id', '=', $id)
+                ->update($data);
+        }
+        DB::commit();
         if ($res) {
             $helper = new HelperService();
             $helper->delExtract($address);

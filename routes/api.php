@@ -37,12 +37,9 @@ Route::middleware('jwt.auth')->group(function() {
 
         Route::post('extract', 'UserController@extractMoney');           //  发起提现请求
 
-        //Route::get('extrec', 'UserController@getExtractMoney');          //  查看提现列表
-
         Route::post('extopt', 'UserController@changeExtractStatus');     //  操作提现请求
 
         Route::get('record', 'UserController@getTxRecord');              //  查看交易记录
-
 
         //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
 
@@ -86,7 +83,10 @@ Route::prefix('user')->group(function() {
 
     Route::post('code', 'UserController@sendCode');           //  发送验证码
 
-    Route::get('code', 'UserController@sendCode');           //  发送验证码
+    Route::post('opt/{type}', 'UserController@sendOpt')
+        ->where('type', '[1-2]');                      //  同意/拒绝提现请求
+
+    Route::post('send', 'UserController@sendCoin');           //  下发eth或hlw
 
 });
 

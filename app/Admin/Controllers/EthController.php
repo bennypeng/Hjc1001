@@ -20,10 +20,9 @@ class EthController extends Controller
 
     public function index()
     {
-
         return Admin::content(function (Content $content) {
 
-            $content->header('ETH交易订单');
+            $content->header('ETH充值订单');
             //$content->description('description');
 
             $grid = Admin::grid(Trascation::class, function(Grid $grid) {
@@ -32,11 +31,7 @@ class EthController extends Controller
 
                 $grid->column('userId', '用户ID')->display(function () {
                     $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
-                    } else {
-                        $userId = $helper->getAddressUserId($this->to);
-                    }
+                    $userId = $helper->getAddressUserId($this->from);
                     return $userId ? $userId : '-';
                 });
 
@@ -45,11 +40,7 @@ class EthController extends Controller
                 $grid->column('from', '发送方');
 
                 $grid->column('direction', '去向')->display(function () {
-                    if ($this->from == '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        return '<span class="label label-info rounded">&nbsp; 提现 &nbsp; </span>';
-                    } else {
-                        return '<span class="label label-success rounded">&nbsp; 充值 &nbsp;</span>';
-                    }
+                    return '<span class="label label-success rounded">&nbsp; 充值 &nbsp;</span>';
                 });
 
                 $grid->column('to', '接收方');
@@ -60,21 +51,17 @@ class EthController extends Controller
 
                 $grid->status('状态')->display(function ($s) {
                     $helper = new HelperService();
-                    if ($this->from != '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                        $userId = $helper->getAddressUserId($this->from);
-                    } else {
-                        $userId = $helper->getAddressUserId($this->to);
-                    }
+                    $userId = $helper->getAddressUserId($this->from);
                     if (!$userId)
                         return '-';
                     if ($s == 0) {
-                        if ($this->to == '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac') {
-                            return '<i class="fa fa-clock-o"></i>';
-                        } else {
-                            return '<i class="fa fa-clock-o"></i>';
-                        }
+                        return '<span class="label label-warning rounded">待处理</span>';
+                    } else if ($s == -1) {
+                        return '<span class="label label-danger rounded">拒绝</span>';
+                    } else if ($s == 1) {
+                        return '<span class="label label-success rounded">已处理</span>';
                     } else {
-                        return '<i class="fa fa-check"></i>';
+                        return '<span class="label label-danger rounded">未知状态</span>';
                     }
                 });
 
@@ -84,7 +71,45 @@ class EthController extends Controller
 
             });
 
-            $grid->model()->where('tokenSymbol', '=', null);
+            $this->script = <<<EOT
+$('.pass').unbind('click').click(function() {
+    var id = $(this).data('id');
+    swal({
+        title: "确认下发积分?",
+        text: "执行此操作前请确保该订单已交易成功！", 
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#AEDEF4",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        showLoaderOnConfirm: true,
+        closeOnConfirm: false
+    },
+    function(){
+        $.ajax({
+            method: 'POST',
+            url: 'http://hjc1001.test/api/user/send',
+            data: {
+                "id": id
+            },
+            success: function (data) {
+                $.pjax.reload('#pjax-container');
+                if (typeof data === 'object') {
+                    if (data.code == 10060) {
+                        swal(data.message, '', 'success');
+                    } else {
+                        swal(data.message, '', 'error');
+                    }
+                }
+            }
+        });
+    });
+});
+EOT;
+            Admin::script($this->script);
+
+            $grid->model()->where('tokenSymbol', '=', null)
+                ->where('from', '!=', '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac');
             $grid->paginate(15);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
@@ -92,8 +117,9 @@ class EthController extends Controller
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 $actions->disableEdit();
-                $actions->append('<a href=""><i class="fa fa-check"></i></a>&nbsp;&nbsp;|&nbsp;&nbsp;');
-                $actions->append('<a href="" style="color: #ff3c5c;"><i class="fa fa-close"></i></a>');
+                $actions->append("<a href='' title='下发积分' class='pass' data-id='{$actions->getKey()}'><i class='fa fa-check'></i></a>");
+                //$actions->append("<a href='' title='通过' class='pass' data-id='{$actions->getKey()}'><i class='fa fa-check'></i></a>&nbsp;&nbsp;|&nbsp;&nbsp;");
+                //$actions->append("<a href='' title='拒绝' class='reject' data-id='{$actions->getKey()}' style='color: #ff3c5c;'><i class='fa fa-close'></i></a>");
             });
             $content->body($grid);
         });
