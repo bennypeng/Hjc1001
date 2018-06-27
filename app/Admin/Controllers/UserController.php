@@ -41,7 +41,7 @@ class UserController extends Controller
 
                 $grid->mobile('手机号码');
 
-                $grid->nickname('昵称');
+                $grid->nickname('昵称')->editable();
 
                 $grid->icon('头像');
 
@@ -51,7 +51,7 @@ class UserController extends Controller
 
                 $grid->address('钱包地址')->display(function ($address) {
                     return $address ? $address : '-';
-                });
+                })->editable();
 
                 $grid->created_at('创建时间');
 
@@ -128,7 +128,7 @@ class UserController extends Controller
 
             $form->display('id', '用户ID');
 
-            $form->text('mobile', '手机号码');
+            $form->text('mobile', '手机号码')->readOnly();
 
             $form->text('nickname', '昵称');
 
