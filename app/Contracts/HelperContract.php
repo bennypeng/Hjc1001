@@ -12,6 +12,7 @@ interface HelperContract
     public function parseBools2Nums(array $bools);                                      //  包含true|false的数组转换成数组输出
     public function generateDateRange(Carbon $start_date, Carbon $end_date);            //  获取指定范围内的所有时间戳
     public function generateRandomCode(int $len);                                       //  生成指定长度的随机数
+    public function createInviteCode(string $mobile);                                   //  生成邀请码
 
     public function setMobile(string $mobile);                                          //  设置手机到缓存
     public function checkMobileExist(string $mobile);                                   //  检查手机是否已存在

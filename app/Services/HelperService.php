@@ -89,7 +89,38 @@ class HelperService implements HelperContract
         return substr(strval(rand(10000,19999)),1,$len);
     }
 
-    /*** 用户相关 ***/
+
+    /**
+     * 生成邀请码
+     * @param string $mobile 手机号
+     * @return string
+     */
+    public function createInviteCode(string $mobile) {
+        static $sourceString = [
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            'a', 'b', 'c', 'd', 'e', 'f',
+            'g', 'h', 'i', 'j', 'k', 'l',
+            'm', 'n', 'o', 'p', 'q', 'r',
+            's', 't', 'u', 'v', 'w', 'x',
+            'y', 'z'
+        ];
+
+        $num = $mobile;
+        $code = '';
+        while ($num) {
+            $mod = $num % 36;
+            $num = (int)($num / 36);
+            $code = "{$sourceString[$mod]}{$code}";
+        }
+
+        //判断code的长度
+        if (empty($code[4]))
+            str_pad($code, 5, '0', STR_PAD_LEFT);
+
+        return $code;
+    }
+
+        /*** 用户相关 ***/
     public function setUserInfo(string $userId, array $data) {
         $key = $this->getUserKey($userId);
         Redis::select(Config::get('constants.USERS_INDEX'));

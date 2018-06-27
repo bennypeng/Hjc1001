@@ -48,6 +48,7 @@ return [
     'NOT_FOUND_HIS_MATCH'      => ['message' => '未找到历史比赛',               'code' => 10033],
     'NOT_FOUND_EXTRA'          => ['message' => '未找到该提现请求',             'code' => 10034],
     'NOT_FOUND_TX'             => ['message' => '未找到该订单',                 'code' => 10035],
+    'NOT_FOUND_AG_LEVEL'       => ['message' => '未找到代理等级',               'code' => 10036],
 
     'VERFY_CODE_ERROR'         => ['message' => '验证码错误',                   'code' => 10041],
     'VERFY_IP_ERROR'           => ['message' => '请求来源错误',                 'code' => 10042],
@@ -91,6 +92,10 @@ return [
     'EXTRA_CANCEL_ERROR'       => ['message' => '提现请求已取消',               'code' => 10300],
 
     'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
+
+    'INV_CREATED_ERROR'        => ['message' => '邀请码生成失败',               'code' => 10500],
+
+
 
     /**
      * 宠物参数设置
@@ -159,6 +164,15 @@ return [
 
     'MATCHES_REWARDS'         => "1）参与周比赛获得4-50名均可获得1000个HLW币奖励#2）周冠军、亚军、季军奖励分别为：5ETH、3ETH、2ETH#3) 参与月度比赛获得4-50名均可获得3000个HLW币奖励#4）月冠军、亚军、季军奖励分别为：12ETH、8ETH、3ETH#5）参与年度大赛获得4-50名均可获得8000个HLW币奖励#6）年度总冠军、亚军、季军奖励分别:玛莎拉蒂总裁1辆、88ETH、30ETH",
 
+    /**
+     * 代理奖励设置
+     * 代理等级 => 奖励HLW数量
+     */
+    'AGENT_OPTIONS'           => [
+        1 => 15,
+        2 => 10,
+        3 => 5
+    ],
 
 
 ];

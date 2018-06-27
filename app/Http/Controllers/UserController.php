@@ -483,6 +483,12 @@ class UserController extends Controller
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
+
+    /**
+     * 下发积分
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendCoin(Request $req) {
 
         $id   = $req->get('id');
@@ -527,6 +533,45 @@ class UserController extends Controller
         if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
 
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+    }
+
+    /**
+     * 获取邀请及代理信息
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getInviteInfo() {
+        $userInfo = Auth::guard('api')->user()->toArray();
+
+        //  验证token错误
+        if (!$userInfo) return response()->json(Config::get('constants.VERFY_TOKEN_ERROR'));
+
+        //  生成邀请码
+        if (!$userInfo['invite_code']) {
+            $code = $this->helper->createInviteCode($userInfo['mobile']);
+            $invCode= sprintf('%08s', $code);
+            $res = $this->userModel->updateUser($userInfo['id'], ['invite_code' => $invCode]);
+            //  生成邀请码失败
+            if (!$res) return response()->json(Config::get('constants.INV_CREATED_ERROR'));
+        } else {
+            $invCode = $userInfo['invite_code'];
+        }
+
+        $agentLevel = $userInfo['agent_level'];
+
+        //  获取代理等级配置
+        $agentOptions = Config::get('constants.AGENT_OPTIONS');
+
+        //  未找到代理等级
+        if (!isset($agentOptions[$agentLevel])) return response()->json(Config::get('constants.NOT_FOUND_AG_LEVEL'));
+
+        return response()->json(array_merge(
+            [
+                'inviteCode'  => $invCode,
+                'agentReward' => $agentOptions[$agentLevel],
+            ],
+            Config::get('constants.HANDLE_SUCCESS'))
+        );
+
     }
 
 }

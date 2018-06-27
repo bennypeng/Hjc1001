@@ -53,6 +53,16 @@ class UserController extends Controller
                     return $address ? $address : '-';
                 })->editable();
 
+                $grid->agent_level('代理等级');
+
+                $grid->invite_code('邀请码')->display(function ($ic) {
+                    return $ic ? $ic : '-';
+                });
+
+                $grid->invite_id('邀请人ID')->display(function ($uid) {
+                    return $uid ? $uid : '-';
+                });
+
                 $grid->created_at('创建时间');
 
                 $grid->updated_at('修改时间');
@@ -136,6 +146,14 @@ class UserController extends Controller
 
             $form->text('address', '钱包地址');
 
+            $directors = [
+                '1'  => '一级',
+                '2'  => '二级',
+                '3'  => '三级',
+            ];
+
+            $form->radio('agent_level', '代理等级')->options($directors)->default('3');
+
             $form->divide();
 
             $form->text('hlw_wallet', 'HLW余额')->default(0)->readOnly();
@@ -146,13 +164,19 @@ class UserController extends Controller
 
             $form->text('eth_lock_wallet', 'ETH冻结余额')->default(0)->readOnly();
 
-            $form->text('icon', '头像')->default('1')->readOnly();
+            $form->text('invite_code', '邀请码')->placeholder(' ')->readOnly();
 
-            $form->display('created_at', '创建时间')->readOnly();
+            $form->text('invite_id', '邀请人ID')->placeholder(' ')->readOnly();
 
-            $form->display('updated_at', '修改时间')->readOnly();
+            //$form->text('icon', '头像')->default('1')->readOnly();
+
+            $form->display('created_at', '创建时间');
+
+            $form->display('updated_at', '修改时间');
 
             $form->saving(function(Form $form) {
+                if (!$form->password)
+                    $form->ignore(['password']);
                 if($form->password && $form->model()->password != $form->password)
                 {
                     $form->password = bcrypt($form->password);
