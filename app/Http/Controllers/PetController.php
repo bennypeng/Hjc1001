@@ -214,6 +214,7 @@ class PetController extends Controller
         $update = [
             'ownerId' => $userId,
             'on_sale' => 1,
+            'price' => $petDetails['price'],
             'expired_at' => Carbon::now()
         ];
         if ($this->petModel->updatePet($petDetails['ownerId'], $petId, $update)) {

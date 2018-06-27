@@ -41,7 +41,7 @@ class PetController extends Controller
 
                 $grid->attr3('装饰完整度')->display(function ($attr3) {
                     $helper = new HelperService();
-                    return implode(',', $helper->parseNum2Bit($attr3));
+                    return implode(', ', $helper->parseNum2Bit($attr3));
                     //return $attr3;
                 });
 
@@ -77,6 +77,10 @@ class PetController extends Controller
 
                 $grid->fp('终止价格');
 
+                $grid->price('成交价格')->display(function ($p) {
+                    return $p ? $p : '-';
+                })->sortable();
+
                 $grid->expired_at('拍卖过期时间')->sortable();
 
                 $grid->created_at('出生时间')->sortable();
@@ -84,7 +88,7 @@ class PetController extends Controller
             });
 
             $grid->model()->orderBy('ownerId', 'desc');
-            $grid->paginate(15);
+            $grid->paginate(20);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
             $grid->disableActions();
