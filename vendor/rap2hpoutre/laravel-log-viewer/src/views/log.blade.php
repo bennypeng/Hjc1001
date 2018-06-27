@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Log Viewer</title>
+  <title>Laravel log viewer</title>
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -67,8 +67,8 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col sidebar mb-3">
-      <h1><i class="fa fa-calendar" aria-hidden="true"></i> Log Viewer</h1>
-      <p class="text-muted"><i>by LiZhi</i></p>
+      <h1><i class="fa fa-calendar" aria-hidden="true"></i> Laravel Log Viewer</h1>
+      <p class="text-muted"><i>by Rap2h</i></p>
       <div class="list-group">
         @foreach($files as $file)
           <a href="?l={{ \Illuminate\Support\Facades\Crypt::encrypt($file) }}"
