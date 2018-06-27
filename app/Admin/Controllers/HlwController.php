@@ -13,6 +13,7 @@ use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
 use App\Services\HelperService;
+use Illuminate\Support\Facades\Config;
 
 class HlwController extends Controller
 {
@@ -70,7 +71,8 @@ class HlwController extends Controller
                 });
             });
 
-
+            $ethAddr = Config::get('constants.ETH_ADDR');
+            $appDomain = env('APP_DOMAIN');
             $this->script = <<<EOT
 $('.pass').unbind('click').click(function() {
     var id = $(this).data('id');
@@ -88,7 +90,7 @@ $('.pass').unbind('click').click(function() {
     function(){
         $.ajax({
             method: 'POST',
-            url: 'http://hjc1001.test/api/user/send',
+            url: 'http://$appDomain/api/user/send',
             data: {
                 "id": id
             },
@@ -109,7 +111,7 @@ EOT;
             Admin::script($this->script);
 
             $grid->model()->where('tokenSymbol', '=', "HLW")
-                ->where('from', '!=', '0x03b8fb0bdc8f73882440f01403d230ff1de91ae9');
+                ->where('from', '!=', $ethAddr);
             $grid->paginate(15);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();

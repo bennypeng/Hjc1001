@@ -15,6 +15,8 @@ use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
 use App\Services\HelperService;
 use Encore\Admin\Widgets\InfoBox;
+use Illuminate\Support\Facades\Config;
+
 class ExtractController extends Controller
 {
     use ModelForm;
@@ -62,7 +64,8 @@ class ExtractController extends Controller
 
 
             });
-
+            
+            $appDomain = env('APP_DOMAIN');
             $this->script = <<<EOT
 $('.pass').unbind('click').click(function() {
     var id = $(this).data('id');
@@ -80,7 +83,7 @@ $('.pass').unbind('click').click(function() {
     function(){
         $.ajax({
             method: 'POST',
-            url: 'http://go.hlwchain.com:8088/api/user/opt/1',
+            url: 'http://$appDomain/api/user/opt/1',
             data: {
                 "id": id
             },
@@ -123,7 +126,7 @@ $('.reject').unbind('click').click(function() {
 
         $.ajax({
             method: 'POST',
-            url: 'http://go.hlwchain.com:8088/api/user/opt/2',
+            url: 'http://$appDomain/api/user/opt/2',
             data: {
                 "id": id,
                 "remark":inputValue
