@@ -88,7 +88,7 @@ $('.pass').unbind('click').click(function() {
     function(){
         $.ajax({
             method: 'POST',
-            url: 'http://go.hlwchain.com:8088/api/user/send',
+            url: 'http://hjc1001.test/api/user/send',
             data: {
                 "id": id
             },
@@ -109,7 +109,7 @@ EOT;
             Admin::script($this->script);
 
             $grid->model()->where('tokenSymbol', '=', null)
-                ->where('from', '!=', '0x36292dc34148a30fa50d7381a78a9c173bdfd3ac');
+                ->where('from', '!=', '0x03b8fb0bdc8f73882440f01403d230ff1de91ae9');
             $grid->paginate(15);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
