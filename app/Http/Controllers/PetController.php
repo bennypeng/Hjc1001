@@ -42,10 +42,13 @@ class PetController extends Controller
         //  没有找到该宠物
         if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
 
+        $petDetails = $this->helper->parsePetDetails(array($petInfo), true);
+        $petDetails[0]['totalCost'] = $this->helper->calcOnekeyCost($petDetails[0]);
+
         return response()->json(
             array_merge(
                 [
-                    'detail' => $this->helper->parsePetDetails(array($petInfo), true)
+                    'detail' => $petDetails
                 ],
                 Config::get('constants.HANDLE_SUCCESS')
             )
@@ -307,8 +310,6 @@ class PetController extends Controller
 
     public function oneKeylevelup(Request $req) {
         $petId    = $req->get('petId');
-        //$update   = [];
-        //$cost     = 0;
 
         //  缺少必填字段
         if (!$petId) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
