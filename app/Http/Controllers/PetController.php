@@ -295,10 +295,54 @@ class PetController extends Controller
                 return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
         }
 
-        if ($this->petModel->updatePet($userId, $petId, $update)) {
-            //  花钱
-            $this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $cost]);
+        //  花钱
+        if ($this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $cost])) {
+            //  变更属性
+            $this->petModel->updatePet($userId, $petId, $update);
             Log::info('levelup pet ' . $petId . ' success! update ', $update);
+            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        }
+        return response()->json(Config::get('constants.HANDLE_ERROR'));
+    }
+
+    public function oneKeylevelup(Request $req) {
+        $petId    = $req->get('petId');
+        //$update   = [];
+        //$cost     = 0;
+
+        //  缺少必填字段
+        if (!$petId) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $petInfo  = $this->petModel->getPetDetails($petId);
+
+        //  未找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        list($petDetails) = $this->helper->parsePetDetails([$petInfo], true);
+
+        $userInfo = Auth::guard('api')->user()->toArray();
+        $userId   = $userInfo['id'];
+        $wallet   = $userInfo['hlw_wallet'];
+
+        //  不是宠物的主人
+        if ($userId != $petDetails['ownerId']) return response()->json(Config::get('constants.PETS_OWNER_ERROR'));
+
+        //  获取总价
+        $totalCost = $this->helper->calcOnekeyCost($petDetails);
+
+        //  已达到最大等级
+        if ($totalCost == 0)
+            return response()->json(Config::get('constants.LEVELUP_MAX_ERROR'));
+
+        //  余额不足
+        if ($wallet < $totalCost)
+            return response()->json(Config::get('constants.WALLET_AMOUNT_ERROR'));
+
+        //  花钱
+        if ($this->userModel->updateUser($userId, ['hlw_wallet' => $wallet - $totalCost])) {
+            //  变更属性
+            $this->petModel->updatePet($userId, $petId, ['attr1' => 6, 'attr2' => 6, 'attr3' => 63]);
+            Log::info('onekey levelup pet ' . $petId . ' success! cost hlw ' . $totalCost);
             return response()->json(Config::get('constants.HANDLE_SUCCESS'));
         }
         return response()->json(Config::get('constants.HANDLE_ERROR'));

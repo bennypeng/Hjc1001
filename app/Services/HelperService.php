@@ -211,6 +211,36 @@ class HelperService implements HelperContract
         $price = $perHourBal == 0 ? $fp : $sp - $perHourBal * $inHours;
         return round($price, 6);
     }
+    public function calcOnekeyCost(array $petDetails) {
+        list($petStrengthOptions, $petAttributeOptions) = array_values(Config::getMany(
+            ['constants.PETS_STRENGTH_OPTIONS', 'constants.PETS_ATTRIBUTE_OPTIONS']
+        ));
+
+        //  计算装饰花费
+        $dDecorationArr   = array_count_values($this->parseBools2Nums($petDetails['decoration']));
+        $dDecorationLevel = isset($dDecorationArr[0]) ? $dDecorationArr[0] : 0;
+        $dDecorationCost  = $dDecorationLevel * $petDetails['decorationCost'];
+
+        //  计算体力花费
+        $dStrengthCost    = 0;
+        $dStrengthLevel   = $petDetails['strength']['current']['level'];
+        foreach($petStrengthOptions as $k => $v) {
+            if ($k > $dStrengthLevel ) {
+                $dStrengthCost += $v[1];
+            }
+        }
+
+        //  计算属性花费
+        $dAttrCost        = 0;
+        $dAttrLevel       = $petDetails['attribute']['current']['level'];
+        foreach($petAttributeOptions as $k => $v) {
+            if ($k > $dAttrLevel) {
+                $dAttrCost += $v[1];
+            }
+        }
+
+        return $dDecorationCost + $dStrengthCost + $dAttrCost;
+    }
     public function parsePetDetails(array $data, bool $fullData = false) {
         $res = array();
         if ($fullData) {

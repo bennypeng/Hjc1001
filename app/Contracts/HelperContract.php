@@ -24,6 +24,7 @@ interface HelperContract
     public function getCoolTime();                                                      //  获取出生冷却时间
     public function setCoolTime(int $ts);                                               //  设置出生冷却时间
 
+    public function calcOnekeyCost(array $petDetails);                                  //  计算一键升级花费
     public function calcPrice(float $sp, float $fp, $expTimestamp);                     //  计算当前价
     public function calcRarity(array $petInfo);                                         //  计算稀有度
     public function parsePetDetails(array $data, bool $fullData = false);               //  解析宠物信息

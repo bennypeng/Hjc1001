@@ -61,7 +61,7 @@ Route::middleware('jwt.auth')->group(function() {
 
         Route::post('/levelup', 'PetController@levelup');          //  宠物属性升级
 
-        //Route::post('/okLevelup', 'PetController@oneKeylevelup');  //  宠物属性一键升级
+        Route::post('/oklevelup', 'PetController@oneKeylevelup');  //  宠物属性一键升级
 
     });
 

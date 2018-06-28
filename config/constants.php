@@ -66,7 +66,6 @@ return [
     'PETS_MATCH_TYPE_ERROR'    => ['message' => '参赛宠物类型错误',             'code' => 10058],
     'PETS_OUT_MATCH_ERROR'     => ['message' => '宠物未参赛',                   'code' => 10059],
 
-
     'HANDLE_SUCCESS'           => ['message' => '操作成功',                     'code' => 10060],
     'HANDLE_ERROR'             => ['message' => '操作失败',                     'code' => 10061],
 
@@ -97,6 +96,8 @@ return [
     'INV_CREATED_ERROR'        => ['message' => '邀请码生成失败',               'code' => 10500],
     'INV_VERFY_ERROR'          => ['message' => '非法的邀请码',                 'code' => 10501],
     'INV_RELATE_ERROR'         => ['message' => '邀请人关联失败',               'code' => 10502],
+
+    'LEVELUP_MAX_ERROR'        => ['message' => '已达到最大等级',               'code' => 10600],
 
 
 
