@@ -142,7 +142,14 @@ class UserController extends Controller
 
             $form->text('nickname', '昵称');
 
-            $form->password('password', '密码');
+            $form->password('password', '密码')->rules('confirmed|required');;
+
+            $form->password('password_confirmation', '确认密码')->rules('required')
+                ->default(function ($form) {
+                    return $form->model()->password;
+                });
+
+            $form->ignore(['password_confirmation']);
 
             $form->text('address', '钱包地址');
 
@@ -175,8 +182,6 @@ class UserController extends Controller
             $form->display('updated_at', '修改时间');
 
             $form->saving(function(Form $form) {
-                if (!$form->password)
-                    $form->ignore(['password']);
                 if($form->password && $form->model()->password != $form->password)
                 {
                     $form->password = bcrypt($form->password);

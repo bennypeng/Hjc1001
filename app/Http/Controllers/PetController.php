@@ -59,8 +59,11 @@ class PetController extends Controller
     public function autoBirth(Request $req) {
 
         //  请求不是来自服务器
-        if (Config::get('constants.SERVER_IP') != $req->getClientIp())
+        if (env('APP_IP') != $req->getClientIp())
             return response()->json(Config::get('constants.VERFY_IP_ERROR'));
+
+        //  执行自动清理
+        $this->petModel->delOutExpPets();
 
         //  出生冷却时间未达到
         if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));

@@ -87,6 +87,8 @@ class PetController extends Controller
 
             });
 
+            //$grid->model()->where('ownerId', '=', 0)
+            //    ->where('unix_timestamp(`expired_at`)', '>', time());
             $grid->model()->orderBy('ownerId', 'desc');
             $grid->paginate(20);
             $grid->perPages([10, 20, 30, 40, 50]);

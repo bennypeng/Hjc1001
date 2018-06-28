@@ -33,7 +33,7 @@ class MatchController extends Controller
     public function autoMatch(Request $req) {
 
         //  请求不是来自服务器
-        if (Config::get('constants.SERVER_IP') != $req->getClientIp())
+        if (env('APP_IP') != $req->getClientIp())
             return response()->json(Config::get('constants.VERFY_IP_ERROR'));
 
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');

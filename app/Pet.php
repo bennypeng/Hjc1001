@@ -106,5 +106,15 @@ class Pet extends Model
             ->count();
     }
 
+    /**
+     * 删除失效的宠物
+     * @throws \Exception
+     */
+    function delOutExpPets() {
+        Pet::where('ownerId', '=', 0)
+            ->where('expired_at', '<=', Carbon::now())
+            ->delete();
+    }
+
 
 }

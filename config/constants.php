@@ -5,7 +5,6 @@ return [
     /**
      * 服务器及其他信息
      */
-    'SERVER_IP'                => '127.0.0.1',                  //  服务器IP
     'PUBLISH_TIME'             => '2018-06-20 00:00:00',            //  发布时间
     'PET_BIRTH_LIMIT'          => 24,                               //  宠物出生数量限制
     'PET_START_PRICE'          => 0.20,                             //  宠物起始价格

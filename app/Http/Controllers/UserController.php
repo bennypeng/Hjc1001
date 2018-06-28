@@ -287,7 +287,7 @@ class UserController extends Controller
 
         //  请求不是来自服务器（允许提现只能有后台进行操作）
         if ($status == 1) {
-            if (Config::get('constants.SERVER_IP') != $req->getClientIp())
+            if (env('APP_IP') != $req->getClientIp())
                 return response()->json(Config::get('constants.VERFY_IP_ERROR'));
         }
 
