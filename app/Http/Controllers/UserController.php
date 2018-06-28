@@ -227,6 +227,7 @@ class UserController extends Controller
         $money    = $req->get('money');
         $type     = $req->get('type');
 
+
         if ($type == 1)
             $money = floor($money);
 
@@ -237,6 +238,12 @@ class UserController extends Controller
         if (!in_array($type, [1, 2])) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
 
         $userInfo = Auth::guard('api')->user()->toArray();
+
+        /**
+         * @todo 临时禁止提现的列表
+         */
+        if (in_array($userInfo['mobile'], array(18688741116,13145835525,17301859453,15574838474,13247918228,13699865359,13763367358,13652307220,17301859453,13468601970)))
+            return response()->json(Config::get('constants.EXTRA_DENY_ERROR'));
 
         //  未绑定钱包
         if (!$userInfo['address']) return response()->json(Config::get('constants.WALLET_NOT_BIND_ERROR'));
@@ -278,6 +285,11 @@ class UserController extends Controller
         return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
+    /**
+     * 更改提现请求状态
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function changeExtractStatus(Request $req) {
         $id        = $req->get('id');
         $status    = $req->get('status');

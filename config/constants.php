@@ -85,10 +85,12 @@ return [
     'MATCH_LEN_ERROR'          => ['message' => '该比赛人数已达上限',           'code' => 10100],
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
     'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
+    'MATCH_JOIN_ERROR'         => ['message' => '未达到参赛条件',               'code' => 10103],
 
     'BIND_REPEAT_ERROR'        => ['message' => '重复绑定',                     'code' => 10200],
 
     'EXTRA_CANCEL_ERROR'       => ['message' => '提现请求已取消',               'code' => 10300],
+    'EXTRA_DENY_ERROR'         => ['message' => '禁止发起提现',                 'code' => 10301],
 
     'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
 

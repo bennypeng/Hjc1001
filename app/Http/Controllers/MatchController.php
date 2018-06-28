@@ -185,6 +185,9 @@ class MatchController extends Controller
 
         foreach($petIdsArr as $v) {
             $petInfo  = $this->petModel->getPetDetails($v);
+            //  未达到参赛条件
+            if ($petInfo['attr1'] != 6 || $petInfo['attr2'] !=6 || $petInfo['attr3'] != 63)
+                return response()->json(Config::get('constants.MATCH_JOIN_ERROR'));
             //  未找到该宠物
             if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
             list($petDetails) = $this->helper->parsePetDetails([$petInfo]);
