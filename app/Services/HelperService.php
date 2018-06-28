@@ -120,6 +120,28 @@ class HelperService implements HelperContract
         return $code;
     }
 
+    /**
+     * 获取下一个15分钟的时间戳
+     * @return int
+     */
+    public function getNextFifteenTs() {
+        $tObj = Carbon::now();
+        $tObj->second = 0;
+        $curMinute = $tObj->minute;
+        if ($curMinute >= 0 && $curMinute < 15) {
+            $m = 15;
+        } else if ($curMinute >= 15 && $curMinute < 30) {
+            $m = 30;
+        } else if ($curMinute >= 30 && $curMinute < 45) {
+            $m = 45;
+        } else {
+            $tObj->hour += 1;
+            $m = 0;
+        }
+        $tObj->minute = $m;
+        return $tObj->timestamp;
+    }
+
         /*** 用户相关 ***/
     public function setUserInfo(string $userId, array $data) {
         $key = $this->getUserKey($userId);

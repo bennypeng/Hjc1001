@@ -93,7 +93,7 @@ class PetController extends Controller
         if (!$petId) return response()->json(Config::get('constants.DATA_INSERT_ERROR'));
 
         //  更新冷却时间
-        $this->helper->setCoolTime(time() + 15 * 60);
+        $this->helper->setCoolTime($this->helper->getNextFifteenTs());
 
         return response()->json(array_merge(
             ['petId' => $petId],
