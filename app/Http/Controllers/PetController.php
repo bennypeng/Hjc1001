@@ -54,16 +54,15 @@ class PetController extends Controller
 
     /**
      * 宠物自动出生
-     * @return JsonResponse
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function autoBirth(Request $req) {
 
         //  请求不是来自服务器
         if (env('APP_IP') != $req->getClientIp())
             return response()->json(Config::get('constants.VERFY_IP_ERROR'));
-
-        //  执行自动清理
-        $this->petModel->delOutExpPets();
 
         //  出生冷却时间未达到
         if (time() < $this->helper->getCoolTime()) return response()->json(Config::get('constants.PETS_COOLTIME_ERROR'));
@@ -96,9 +95,9 @@ class PetController extends Controller
         //  更新冷却时间
         $this->helper->setCoolTime(time() + 15 * 60);
 
-        Log::info('generate pet ' . $petId . ' success!');
-
-        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+        return response()->json(array_merge(
+            ['petId' => $petId],
+            Config::get('constants.HANDLE_SUCCESS')));
     }
 
     /**

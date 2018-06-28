@@ -69,8 +69,9 @@ class MatchController extends Controller
         }
 
         if ($newMatchIds) {
-            Log::info('generate match success!', $newMatchIds);
-            return response()->json(Config::get('constants.HANDLE_SUCCESS'));
+            return response()->json(array_merge(
+                ['matchIds' => $newMatchIds],
+                Config::get('constants.HANDLE_SUCCESS')));
         }
 
     }

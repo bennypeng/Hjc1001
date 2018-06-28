@@ -108,10 +108,11 @@ class Pet extends Model
 
     /**
      * 删除失效的宠物
+     * @return bool|null
      * @throws \Exception
      */
     function delOutExpPets() {
-        Pet::where('ownerId', '=', 0)
+        return Pet::where('ownerId', '=', 0)
             ->where('expired_at', '<=', Carbon::now())
             ->delete();
     }

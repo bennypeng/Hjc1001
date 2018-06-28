@@ -154,6 +154,7 @@ class HelperService implements HelperContract
         Redis::select(Config::get('constants.PETS_INDEX'));
         Redis::del($key);
         Redis::hmset($key, $data);
+        Redis::expireat($key, Carbon::now()->addDay(7)->timestamp);
     }
     public function delPetInfo(string $petId) {
         $key = $this->getPetKey($petId);
