@@ -72,7 +72,7 @@ class PetController extends Controller
 
         //  出生数量已达上限
         if (Config::get('constants.PET_BIRTH_LIMIT') <= $this->petModel->getInExpPetsCounts())
-            return response()->json(Config::get('constants.PETS_AMOUNT_ERROR'));
+            return response()->json(Config::get('constants.MAX_PET_AMOUNT_ERROR'));
 
         //  随机抽取宠物
         $petType = $this->helper->generatePet();
@@ -333,7 +333,7 @@ class PetController extends Controller
 
         //  已达到最大等级
         if ($totalCost == 0)
-            return response()->json(Config::get('constants.LEVELUP_MAX_ERROR'));
+            return response()->json(Config::get('constants.MAX_LEVELUP_ERROR'));
 
         //  余额不足
         if ($wallet < $totalCost)

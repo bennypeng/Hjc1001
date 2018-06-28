@@ -45,15 +45,15 @@ class UserController extends Controller
 
                 $grid->icon('头像');
 
-                $grid->hlw_wallet('HLW余额');
+                $grid->hlw_wallet('HLW余额')->sortable();
 
-                $grid->eth_wallet('ETH余额');
+                $grid->eth_wallet('ETH余额')->sortable();
 
                 $grid->address('钱包地址')->display(function ($address) {
                     return $address ? $address : '-';
                 })->editable();
 
-                $grid->agent_level('代理等级');
+                $grid->agent_level('代理等级')->sortable();
 
                 $grid->invite_code('邀请码')->display(function ($ic) {
                     return $ic ? $ic : '-';

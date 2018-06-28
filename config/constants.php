@@ -97,7 +97,10 @@ return [
     'INV_VERFY_ERROR'          => ['message' => '非法的邀请码',                 'code' => 10501],
     'INV_RELATE_ERROR'         => ['message' => '邀请人关联失败',               'code' => 10502],
 
-    'LEVELUP_MAX_ERROR'        => ['message' => '已达到最大等级',               'code' => 10600],
+    'MAX_LEVELUP_ERROR'        => ['message' => '已达到最大等级',               'code' => 10600],
+    'MAX_PET_AMOUNT_ERROR'     => ['message' => '已达到最大出生数量',           'code' => 10601],
+
+
 
 
 

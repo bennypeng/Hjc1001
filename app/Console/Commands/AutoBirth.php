@@ -42,6 +42,7 @@ class AutoBirth extends Command
         $controller = app()->make('App\Http\Controllers\PetController');
         $req  = app()->call([$controller, 'autoBirth'], []);
         $resp = $req->original;
+
         if ($resp['code'] == 10060) {
             Log::info('generate pet #' . $resp['petId'] . ' success! ');
         } else {
