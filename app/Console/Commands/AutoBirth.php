@@ -46,7 +46,8 @@ class AutoBirth extends Command
         if ($resp['code'] == 10060) {
             Log::info('generate pet #' . $resp['petId'] . ' success! ');
         } else {
-            Log::error('generate pet error! ', $resp);
+            if ($resp['code'] != 10601)
+                Log::error('generate pet error! ', $resp);
         }
         $this->line($resp['message']);
     }
