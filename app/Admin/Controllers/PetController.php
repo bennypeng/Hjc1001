@@ -12,6 +12,7 @@ use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
 use App\Services\HelperService;
+use Illuminate\Support\MessageBag;
 
 class PetController extends Controller
 {
@@ -31,7 +32,11 @@ class PetController extends Controller
 
                 $grid->id('ID')->sortable();
 
-                $grid->ownerId('主人ID')->sortable();;
+                $grid->ownerId('主人ID')->display(function ($ownerId) {
+                    if ($ownerId == 0)
+                        return '-';
+                    return $ownerId;
+                })->sortable();
 
                 $grid->type('类型');
 
@@ -42,7 +47,6 @@ class PetController extends Controller
                 $grid->attr3('装饰完整度')->display(function ($attr3) {
                     $helper = new HelperService();
                     return implode(', ', $helper->parseNum2Bit($attr3));
-                    //return $attr3;
                 });
 
                 $grid->attr4('随机属性值');
@@ -69,10 +73,6 @@ class PetController extends Controller
                     }
                 });
 
-                //$grid->column('petCurPrice', '当前价格')->display(function () {
-                //dd($this->helper->getPetInfo($this->id));
-                //});
-
                 $grid->sp('起始价格');
 
                 $grid->fp('终止价格');
@@ -85,18 +85,21 @@ class PetController extends Controller
 
                 $grid->created_at('出生时间')->sortable();
 
+                //  搜索框设置
+                $grid->filter(function (Grid\Filter $filter) {
+                    $filter->equal('ownerId', '主人ID');
+                });
+
             });
 
-            //$grid->model()->where('ownerId', '=', 0)
-            //    ->where('unix_timestamp(`expired_at`)', '>', time());
             $grid->model()->orderBy('ownerId', 'desc');
             $grid->paginate(20);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();
-            $grid->disableActions();
+            //$grid->disableActions();
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
-                $actions->disableEdit();
+                //$actions->disableEdit();
             });
 
             $content->body($grid);
@@ -113,8 +116,8 @@ class PetController extends Controller
     {
         return Admin::content(function (Content $content) use ($id) {
 
-            $content->header('header');
-            $content->description('description');
+            $content->header('编辑宠物信息');
+            //$content->description('description');
 
             $content->body($this->form()->edit($id));
         });
@@ -161,10 +164,77 @@ class PetController extends Controller
     {
         return Admin::form(Pet::class, function (Form $form) {
 
-            $form->display('id', 'ID');
+            $form->display('id', '宠物ID');
 
-            $form->display('created_at', 'Created At');
-            $form->display('updated_at', 'Updated At');
+            $form->text('ownerId', '主人ID')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->readOnly();
+
+            $level = [0 => '0级', 1 => '1级', 2 => '2级', 3 => '3级', 4 => '4级', 5 => '5级', 6 => '6级'];
+
+            $form->select('attr1', '体力等级')->options($level);
+
+            $form->select('attr2', '属性等级')->options($level);
+
+            $form->text('attr3', '装饰度')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->readOnly();
+
+            $form->text('attr4', '随机加成')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->readOnly();
+
+            $form->divide();
+
+            $form->radio('on_sale', '拍卖状态')->options(['1' => '下架', '2'=> '上架'])->default(1);
+
+            $form->text('sp', '起始价格');
+
+            $form->text('fp', '终止价格');
+
+            $form->text('price', '成交价')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default('-')
+                ->readOnly();
+
+            $form->text('matchId', '当前比赛ID')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default(0)
+                ->readOnly();
+
+            $form->display('expired_at', '下架时间');
+
+            $form->display('created_at', '出生时间');
+
+            $form->display('updated_at', '修改时间');
+
+            //  保存前面回调
+            $form->saving(function(Form $form) {
+                if ($form->model()->ownerId == 0) {
+                    //  禁止修改系统宠物
+                    $error = new MessageBag([
+                        'title'   => '出错啦',
+                        'message' => '系统宠物禁止修改....',
+                    ]);
+                    return back()->with(compact('error'));
+                }
+            });
+
+            //  保存后回调
+            $form->saved(function (Form $form) {
+                //  清除宠物缓存
+                $helper = new HelperService();
+                $helper->delPetInfo($form->model()->id);
+            });
+
+            Admin::script($this->script());
         });
+    }
+
+    protected function script()
+    {
+        return <<<SCRIPT
+
+SCRIPT;
     }
 }

@@ -64,88 +64,8 @@ class ExtractController extends Controller
 
 
             });
-            
-            $appDomain = env('APP_DOMAIN');
-            $this->script = <<<EOT
-$('.pass').unbind('click').click(function() {
-    var id = $(this).data('id');
-    swal({
-        title: "确认提现通过?",
-        text: "执行此操作前请确保已对该钱包进行转账！", 
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#AEDEF4",
-        confirmButtonText: "确认",
-        cancelButtonText: "取消",
-        showLoaderOnConfirm: true,
-        closeOnConfirm: false
-    },
-    function(){
-        $.ajax({
-            method: 'POST',
-            url: 'http://$appDomain/api/user/opt/1',
-            data: {
-                "id": id
-            },
-            success: function (data) {
-                $.pjax.reload('#pjax-container');
-                if (typeof data === 'object') {
-                    if (data.code == 10060) {
-                        swal(data.message, '', 'success');
-                    } else {
-                        swal(data.message, '', 'error');
-                    }
-                }
-            }
-        });
-    });
-});
 
-$('.reject').unbind('click').click(function() {
-    var id = $(this).data('id');
-    swal({
-        title: "拒绝提现？",
-        type: "input",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        animation: "slide-from-top",
-        inputPlaceholder: "拒绝理由",
-        confirmButtonColor: "#DD6B55",
-        confirmButtonText: "确认",
-        cancelButtonText: "取消",
-        closeOnCancel: true,
-        showLoaderOnConfirm: true
-    },
-    function(inputValue){
-        if (inputValue === false) return false;
-
-        if (inputValue === "") {
-          swal.showInputError("请输入拒绝理由！");
-          return false
-        }
-
-        $.ajax({
-            method: 'POST',
-            url: 'http://$appDomain/api/user/opt/2',
-            data: {
-                "id": id,
-                "remark":inputValue
-            },
-            success: function (data) {
-                $.pjax.reload('#pjax-container');
-                if (typeof data === 'object') {
-                    if (data.code == 10060) {
-                        swal(data.message, '', 'success');
-                    } else {
-                        swal(data.message, '', 'error');
-                    }
-                }
-            }
-        });
-    });
-});
-EOT;
-            Admin::script($this->script);
+            Admin::script($this->script());
 
             $grid->model()->orderBy('id', 'desc');
             $grid->paginate(15);
@@ -228,6 +148,90 @@ EOT;
             $form->display('created_at', 'Created At');
             $form->display('updated_at', 'Updated At');
         });
+    }
+
+    protected function script()
+    {
+        $appDomain = env('APP_DOMAIN');
+        return <<<SCRIPT
+$('.pass').unbind('click').click(function() {
+    var id = $(this).data('id');
+    swal({
+        title: "确认提现通过?",
+        text: "执行此操作前请确保已对该钱包进行转账！", 
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#AEDEF4",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        showLoaderOnConfirm: true,
+        closeOnConfirm: false
+    },
+    function(){
+        $.ajax({
+            method: 'POST',
+            url: 'http://$appDomain/api/user/opt/1',
+            data: {
+                "id": id
+            },
+            success: function (data) {
+                $.pjax.reload('#pjax-container');
+                if (typeof data === 'object') {
+                    if (data.code == 10060) {
+                        swal(data.message, '', 'success');
+                    } else {
+                        swal(data.message, '', 'error');
+                    }
+                }
+            }
+        });
+    });
+});
+
+$('.reject').unbind('click').click(function() {
+    var id = $(this).data('id');
+    swal({
+        title: "拒绝提现？",
+        type: "input",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        animation: "slide-from-top",
+        inputPlaceholder: "拒绝理由",
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        closeOnCancel: true,
+        showLoaderOnConfirm: true
+    },
+    function(inputValue){
+        if (inputValue === false) return false;
+
+        if (inputValue === "") {
+          swal.showInputError("请输入拒绝理由！");
+          return false
+        }
+
+        $.ajax({
+            method: 'POST',
+            url: 'http://$appDomain/api/user/opt/2',
+            data: {
+                "id": id,
+                "remark":inputValue
+            },
+            success: function (data) {
+                $.pjax.reload('#pjax-container');
+                if (typeof data === 'object') {
+                    if (data.code == 10060) {
+                        swal(data.message, '', 'success');
+                    } else {
+                        swal(data.message, '', 'error');
+                    }
+                }
+            }
+        });
+    });
+});
+SCRIPT;
     }
 
 }

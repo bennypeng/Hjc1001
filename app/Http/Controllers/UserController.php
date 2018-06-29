@@ -493,6 +493,9 @@ class UserController extends Controller
         //  请求已被取消
         if ($extInfo['status'] == -1)  return response()->json(Config::get('constants.EXTRA_CANCEL_ERROR'));
 
+        //  需要重新发起请求
+        if ($extInfo['status'] == 2)  return response()->json(Config::get('constants.EXTRA_RETRY_ERROR'));
+
         $userInfo = $this->userModel->getUserByUserId($extInfo['userid']);
 
         //  没有找到用户信息

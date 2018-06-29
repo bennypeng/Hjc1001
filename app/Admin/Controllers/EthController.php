@@ -73,43 +73,8 @@ class EthController extends Controller
             });
 
             $ethAddr = Config::get('constants.ETH_ADDR');
-            $appDomain = env('APP_DOMAIN');
-            $this->script = <<<EOT
-$('.pass').unbind('click').click(function() {
-    var id = $(this).data('id');
-    swal({
-        title: "确认下发积分?",
-        text: "执行此操作前请确保该订单已交易成功！", 
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#AEDEF4",
-        confirmButtonText: "确认",
-        cancelButtonText: "取消",
-        showLoaderOnConfirm: true,
-        closeOnConfirm: false
-    },
-    function(){
-        $.ajax({
-            method: 'POST',
-            url: 'http://$appDomain/api/user/send',
-            data: {
-                "id": id
-            },
-            success: function (data) {
-                $.pjax.reload('#pjax-container');
-                if (typeof data === 'object') {
-                    if (data.code == 10060) {
-                        swal(data.message, '', 'success');
-                    } else {
-                        swal(data.message, '', 'error');
-                    }
-                }
-            }
-        });
-    });
-});
-EOT;
-            Admin::script($this->script);
+
+            Admin::script($this->script());
 
             $grid->model()->where('tokenSymbol', '=', null)
                 ->where('from', '!=', $ethAddr)
@@ -193,6 +158,46 @@ EOT;
             $form->display('created_at', 'Created At');
             $form->display('updated_at', 'Updated At');
         });
+    }
+
+    protected function script()
+    {
+        $appDomain = env('APP_DOMAIN');
+        return <<<SCRIPT
+$('.pass').unbind('click').click(function() {
+    var id = $(this).data('id');
+    swal({
+        title: "确认下发积分?",
+        text: "执行此操作前请确保该订单已交易成功！", 
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#AEDEF4",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        showLoaderOnConfirm: true,
+        closeOnConfirm: false
+    },
+    function(){
+        $.ajax({
+            method: 'POST',
+            url: 'http://$appDomain/api/user/send',
+            data: {
+                "id": id
+            },
+            success: function (data) {
+                $.pjax.reload('#pjax-container');
+                if (typeof data === 'object') {
+                    if (data.code == 10060) {
+                        swal(data.message, '', 'success');
+                    } else {
+                        swal(data.message, '', 'error');
+                    }
+                }
+            }
+        });
+    });
+});
+SCRIPT;
     }
 
 }

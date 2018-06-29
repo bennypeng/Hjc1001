@@ -90,6 +90,7 @@ return [
 
     'EXTRA_CANCEL_ERROR'       => ['message' => '提现请求已取消',               'code' => 10300],
     'EXTRA_DENY_ERROR'         => ['message' => '禁止发起提现',                 'code' => 10301],
+    'EXTRA_RETRY_ERROR'        => ['message' => '需要重新发起提现请求',         'code' => 10302],
 
     'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
     'TX_OFFICIAL_ADDR_ERROR'   => ['message' => '非官方订单',                   'code' => 10401],

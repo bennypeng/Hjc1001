@@ -10,18 +10,11 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
-use App\Contracts\HelperContract;
+use App\Services\HelperService;
 
 class UserController extends Controller
 {
     use ModelForm;
-
-    protected $helper;
-
-    public function __construct(HelperContract $helper)
-    {
-        $this->helper = $helper;
-    }
 
     /**
      * Index interface.
@@ -30,12 +23,18 @@ class UserController extends Controller
      */
     public function index()
     {
+        //Grid\Column::extend('color', function ($value, $color) {
+        //    return "<span style='color: $color'>$value</span>";
+        //});
         return Admin::content(function (Content $content) {
 
             $content->header('用户');
             $content->description('用户信息');
 
             $grid = Admin::grid(User::class, function(Grid $grid) {
+                //$grid->column('title', 'aaa')->display(function($a) {
+                //    return $this->index();
+                //})->color('#ccc');
 
                 $grid->id('ID')->sortable();
 
@@ -66,6 +65,13 @@ class UserController extends Controller
                 $grid->created_at('创建时间');
 
                 $grid->updated_at('修改时间');
+
+                //  搜索框设置
+                $grid->filter(function (Grid\Filter $filter) {
+                    //$filter->equal('column')->select('api/users');
+                    $filter->equal('mobile', '手机号码');
+                    $filter->between('created_at', '创建时间')->datetime();
+                });
 
             });
 
@@ -138,7 +144,9 @@ class UserController extends Controller
 
             $form->display('id', '用户ID');
 
-            $form->text('mobile', '手机号码')->readOnly();
+            $form->text('mobile', '手机号码')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->readOnly();
 
             $form->text('nickname', '昵称');
 
@@ -148,8 +156,6 @@ class UserController extends Controller
                 ->default(function ($form) {
                     return $form->model()->password;
                 });
-
-            $form->ignore(['password_confirmation']);
 
             $form->text('address', '钱包地址');
 
@@ -163,17 +169,47 @@ class UserController extends Controller
 
             $form->divide();
 
-            $form->text('hlw_wallet', 'HLW余额')->default(0)->readOnly();
+            $states = [
+                'on'  => ['value' => 1, 'text' => '打开', 'color' => 'success'],
+                'off' => ['value' => 0, 'text' => '关闭', 'color' => 'danger'],
+            ];
 
-            $form->text('eth_wallet', 'ETH余额')->default(0)->readOnly();
+            $form->switch('change_hlw_wallet', '修改HLW余额')
+                ->states($states)
+                ->default('off')
+                ->setElementName('changeHlw');
 
-            $form->text('hlw_lock_wallet', 'HLW冻结余额')->default(0)->readOnly();
+            $form->text('hlw_wallet', 'HLW余额')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default(0)
+                ->readOnly();
 
-            $form->text('eth_lock_wallet', 'ETH冻结余额')->default(0)->readOnly();
+            $form->text('eth_wallet', 'ETH余额')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default(0)
+                ->readOnly();
 
-            $form->text('invite_code', '邀请码')->placeholder(' ')->readOnly();
+            $form->text('hlw_lock_wallet', 'HLW冻结余额')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default(0)
+                ->readOnly();
 
-            $form->text('invite_id', '邀请人ID')->placeholder(' ')->readOnly();
+            $form->text('eth_lock_wallet', 'ETH冻结余额')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default(0)
+                ->readOnly();
+
+            $form->text('invite_code', '邀请码')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default('-')
+                ->placeholder(' ')
+                ->readOnly();
+
+            $form->text('invite_id', '邀请人ID')
+                ->prepend('<i class="fa fa-ban fa-fw"></i>')
+                ->default('-')
+                ->placeholder(' ')
+                ->readOnly();
 
             //$form->text('icon', '头像')->default('1')->readOnly();
 
@@ -181,12 +217,39 @@ class UserController extends Controller
 
             $form->display('updated_at', '修改时间');
 
+            $form->ignore(['password_confirmation', 'change_hlw_wallet']);
+
+            //  保存前面回调
             $form->saving(function(Form $form) {
                 if($form->password && $form->model()->password != $form->password)
                 {
                     $form->password = bcrypt($form->password);
                 }
             });
+
+            //  保存后回调
+            $form->saved(function (Form $form) {
+                //  清除用户缓存
+                $helper = new HelperService();
+                $helper->delUserInfo($form->model()->id);
+            });
+
+            Admin::script($this->script());
         });
+    }
+
+    protected function script()
+    {
+        return <<<SCRIPT
+$('.changeHlw').on('switchChange.bootstrapSwitch', function (event, state) {
+    if (state == true) {
+        $(this).parents().next('.form-group').find('.input-group-addon').children().attr("class", "fa fa-pencil fa-fw");
+        $("#hlw_wallet").attr("disabled", false);    
+    } else {
+    $(this).parents().next('.form-group').find('.input-group-addon').children().attr("class", "fa fa-ban fa-fw");
+        $("#hlw_wallet").attr("disabled", true);    
+    }
+});
+SCRIPT;
     }
 }
