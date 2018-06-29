@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\AutoBirth::class,
         \App\Console\Commands\AutoMatch::class,
         \App\Console\Commands\CleanPet::class,
+        \App\Console\Commands\AutoCoin::class,
     ];
 
     /**
@@ -27,9 +28,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('match:generate')->daily();
-        $schedule->command('pet:birth')->everyFifteenMinutes();
-        $schedule->command('pet:clear')->hourly();
+        $schedule->command('match:generate')->daily();              //  开比赛
+        $schedule->command('pet:birth')->everyFifteenMinutes();     //  出生宠物
+        $schedule->command('pet:clear')->hourly();                  //  宠物出生
+        $schedule->command('tx:send')->everyMinute();               //  下发积分
         //$schedule->call(function () {
         //    DB::table('recent_users')->delete();
         //})->daily();

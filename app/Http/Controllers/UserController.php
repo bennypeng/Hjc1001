@@ -546,6 +546,9 @@ class UserController extends Controller
         //  没有找到该订单
         if (!$txInfo) return response()->json(Config::get('constants.NOT_FOUND_TX'));
 
+        //  不是官方订单
+        if ($txInfo['to'] != Config::get('constants.ETH_ADDR')) return response()->json(Config::get('constants.TX_OFFICIAL_ADDR_ERROR'));
+
         //  订单状态已被更改
         if ($txInfo['status'] == 1)  return response()->json(Config::get('constants.TX_STATUS_CHANGE_ERROR'));
 

@@ -112,7 +112,8 @@ EOT;
             Admin::script($this->script);
 
             $grid->model()->where('tokenSymbol', '=', null)
-                ->where('from', '!=', $ethAddr);
+                ->where('from', '!=', $ethAddr)
+                ->where('to', '=', $ethAddr);
             $grid->paginate(15);
             $grid->perPages([10, 20, 30, 40, 50]);
             $grid->disableCreateButton();

@@ -92,6 +92,7 @@ return [
     'EXTRA_DENY_ERROR'         => ['message' => '禁止发起提现',                 'code' => 10301],
 
     'TX_STATUS_CHANGE_ERROR'   => ['message' => '订单状态发生变化',             'code' => 10400],
+    'TX_OFFICIAL_ADDR_ERROR'   => ['message' => '非官方订单',                   'code' => 10401],
 
     'INV_CREATED_ERROR'        => ['message' => '邀请码生成失败',               'code' => 10500],
     'INV_VERFY_ERROR'          => ['message' => '非法的邀请码',                 'code' => 10501],
