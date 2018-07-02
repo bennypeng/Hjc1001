@@ -127,6 +127,7 @@ class UserController extends Controller
             );
         } else {
             return response()->json(Config::get('constants.LOGIN_ERROR'));
+            Log::error($mobile . ' login error');
         }
     }
 
