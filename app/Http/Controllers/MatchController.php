@@ -156,6 +156,11 @@ class MatchController extends Controller
         $petIds     = $req->get('petIds');
         $matchType  = $req->get('matchType');
 
+        /**
+         * @todo 临时关闭比赛
+         */
+        return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
+
         //  缺少必填字段
         if (!$petIds || !$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 
