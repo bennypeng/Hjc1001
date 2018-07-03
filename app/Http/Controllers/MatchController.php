@@ -107,6 +107,11 @@ class MatchController extends Controller
         $sp        = $req->route('sp');
         $fp        = $req->route('fp');
 
+        /**
+         * @todo 临时关闭比赛
+         */
+        return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
+
         //  缺少必填字段
         if (!$matchType || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
 

@@ -85,6 +85,7 @@ return [
     'MATCH_TYPE_ERROR'         => ['message' => '比赛类型错误',                 'code' => 10101],
     'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
     'MATCH_JOIN_ERROR'         => ['message' => '未达到参赛条件',               'code' => 10103],
+    'MATCH_OPEN_ERROR'         => ['message' => '比赛暂未开放',                 'code' => 10104],
 
     'BIND_REPEAT_ERROR'        => ['message' => '重复绑定',                     'code' => 10200],
 
