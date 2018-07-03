@@ -106,7 +106,7 @@ class MatchController extends Controller
         $matchType = $req->route('matchType');
         $sp        = $req->route('sp');
         $fp        = $req->route('fp');
-        
+
         /**
          * @todo 临时关闭比赛
          */
