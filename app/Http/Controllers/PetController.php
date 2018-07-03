@@ -308,6 +308,11 @@ class PetController extends Controller
         return response()->json(Config::get('constants.HANDLE_ERROR'));
     }
 
+    /**
+     * 一键升级
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function oneKeylevelup(Request $req) {
         $petId    = $req->get('petId');
 
@@ -374,6 +379,58 @@ class PetController extends Controller
                 Config::get('constants.HANDLE_SUCCESS')
             )
         );
+    }
+
+    /**
+     * 下发宠物
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendPet(Request $req) {
+
+        $petId    = $req->get('petid');
+        $userId   = $req->get('userid');
+
+        //  缺少必填字段
+        if (!$petId || !$userId) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        $petInfo = $this->petModel->getPetDetails($petId);
+
+        //  没有找到该宠物
+        if (!$petInfo) return response()->json(Config::get('constants.NOT_FOUND_PET'));
+
+        //  宠物已有主人
+        if ($petInfo['ownerId'] != 0) return response()->json(Config::get('constants.PETS_OWNER_ERROR'));
+
+        //  宠物正在拍卖
+        if ($petInfo['ownerId'] != 0 && strtotime($petInfo['expired_at']) > time() && $petInfo['on_sale'] == 2)
+            return response()->json(Config::get('constants.PETS_ON_SALE_ERROR'));
+
+        //  宠物正在比赛
+        if ($petInfo['matchId'] == $this->helper->getMatchId(1) && !is_null($petInfo['matchId']))
+            return response()->json(Config::get('constants.PETS_ON_MATCH_ERROR'));
+
+        //  宠物已失效
+        if (strtotime($petInfo['expired_at']) <= time() && $petInfo['ownerId'] == 0)
+            return response()->json(Config::get('constants.PETS_OUT_EXP_ERROR'));
+
+        $userInfo = $this->userModel->getUserByUserId($userId);
+
+        //  没有找到用户信息
+        if (!$userInfo) return response()->json(Config::get('constants.NOT_FOUND_USER'));
+
+        //  下发宠物
+        $update = [
+            'ownerId' => $userId,
+            'on_sale' => 1,
+            'expired_at' => Carbon::now()
+        ];
+        $res = $this->petModel->updatePet(0, $petId, $update);
+
+        //  修改失败
+        if (!$res) return response()->json(Config::get('constants.HANDLE_ERROR'));
+
+        return response()->json(Config::get('constants.HANDLE_SUCCESS'));
     }
 
 }

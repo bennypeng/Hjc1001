@@ -88,7 +88,7 @@ Route::prefix('user')->group(function() {
     Route::post('opt/{type}', 'UserController@sendOpt')
         ->where('type', '[1-2]');                      //  同意/拒绝提现请求
 
-    Route::post('send', 'UserController@sendCoin');            //  下发eth或hlw
+    Route::post('send', 'UserController@sendCoin');           //  下发eth或hlw
 
 });
 
@@ -102,6 +102,8 @@ Route::prefix('pet')->group(function () {
 
     Route::get('/details/{id}', 'PetController@getDetails')
         ->where('id', '[0-9]+');                        //  获取宠物详情
+
+    Route::post('send', 'PetController@sendPet');              //  赠送宠物
 
 });
 

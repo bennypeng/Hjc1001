@@ -102,6 +102,8 @@ return [
     'MAX_LEVELUP_ERROR'        => ['message' => '已达到最大等级',               'code' => 10600],
     'MAX_PET_AMOUNT_ERROR'     => ['message' => '已达到最大出生数量',           'code' => 10601],
 
+    'PETS_OWNER_ERROR'         => ['message' => '宠物已有主人',                 'code' => 10700],
+
 
 
 

@@ -92,6 +92,8 @@ class PetController extends Controller
 
             });
 
+            Admin::script($this->script());
+
             $grid->model()->orderBy('ownerId', 'desc');
             $grid->paginate(20);
             $grid->perPages([10, 20, 30, 40, 50]);
@@ -100,6 +102,7 @@ class PetController extends Controller
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 //$actions->disableEdit();
+                $actions->prepend("<a href='' title='赠送宠物' class='sentto' data-id='{$actions->getKey()}'><i class='fa fa-rocket'></i></a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;");
             });
 
             $content->body($grid);
@@ -233,8 +236,48 @@ class PetController extends Controller
 
     protected function script()
     {
+        $appDomain = env('APP_DOMAIN');
         return <<<SCRIPT
-
+$('.sentto').unbind('click').click(function() {
+    var id = $(this).data('id');
+    swal({
+        title: "赠送宠物",
+        inputPlaceholder: "用户ID",
+        type: "input",
+        showCancelButton: true,
+        confirmButtonColor: "#AEDEF4",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        showLoaderOnConfirm: true,
+        closeOnConfirm: false,
+        closeOnCancel:false
+    },
+    function(inputValue){
+        if (inputValue === false) return false; 
+        if (inputValue === "") { 
+            swal.showInputError("请输入用户ID");
+            return false
+        } 
+        $.ajax({
+            method: 'POST',
+            url: 'http://$appDomain/api/pet/send',
+            data: {
+                "petid": id,
+                "userid": inputValue
+            },
+            success: function (data) {
+                $.pjax.reload('#pjax-container');
+                if (typeof data === 'object') {
+                    if (data.code == 10060) {
+                        swal(data.message, '', 'success');
+                    } else {
+                        swal(data.message, '', 'error');
+                    }
+                }
+            }
+        });
+    });
+});
 SCRIPT;
     }
 }
