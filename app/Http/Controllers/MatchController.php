@@ -82,6 +82,11 @@ class MatchController extends Controller
      */
     public function getLists() {
 
+        /**
+         * @todo 临时关闭比赛
+         */
+        return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
+
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
 
         //  没有找到比赛
