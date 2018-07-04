@@ -200,10 +200,7 @@ class PetController extends Controller
                 ->default('-')
                 ->readOnly();
 
-            $form->text('matchId', '当前比赛ID')
-                ->prepend('<i class="fa fa-ban fa-fw"></i>')
-                ->default(0)
-                ->readOnly();
+            $form->text('matchId', '当前比赛ID');
 
             $form->display('expired_at', '下架时间');
 
