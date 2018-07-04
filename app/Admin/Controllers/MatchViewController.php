@@ -38,6 +38,7 @@ class MatchViewController
     public static function matchRanking() {
         $helper = new HelperService();
         $matchType = $helper->getMatchType();
+        $matchType = $matchType ? $matchType : 1;
         $matchId   = $helper->getMatchId($matchType);
         $list   = $helper->getMatchRanking($matchType, $matchId, 0, 99);
         $ranking['ranking'] = $list;
