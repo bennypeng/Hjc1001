@@ -102,5 +102,5 @@ interface HelperContract
     public function getEthMd5Key(string $action);                                       //  获取以太坊MD5 KEY
     public function getExtractKey(string $address);                                     //  获取提现 KEY
 
-    public function getAddressUserIdKey();                                                    //  获取地址映射 KEY
+    public function getAddressUserIdKey();                                              //  获取地址映射 KEY
 }
