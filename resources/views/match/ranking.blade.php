@@ -15,41 +15,19 @@
 <table class="table table-hover">
     <thead>
     <tr>
-        <th>比赛类型</th>
-        <!--<th>允许参赛类型</th>-->
-        <!--<th>参赛花费</th>-->
-        <!--<th>人数限制</th>-->
-        <!--<th>投票次数限制</th>-->
-        <!--<th>投票花费</th>-->
-        <th>比赛时间</th>
+        <th>名次</th>
+        <th>宠物ID</th>
+        <th>主人昵称</th>
+        <th>票数</th>
     </tr>
     </thead>
     <tbody>
-@foreach($matchList['lists'] as $val)
+@foreach($ranking['ranking'] as $k => $val)
         <tr>
-            <td>
-                @if($val['matchType'] == 1)
-                    模特大赛
-                @elseif($val['matchType'] == 2)
-                    健美大赛
-                @elseif($val['matchType'] == 3)
-                    萌宠大赛
-                @else($val['matchType'] == 4)
-                    神兽大赛
-                @endif
-            </td>
-            <td>
-                @foreach($val['openTime'] as $i => $f)
-                    <ul class="list-unstyled">
-                        @if($f[2])
-                            <li class="bg-green-active">第 {{ $i + 1 }} 场 {{$f[0]}} - {{$f[1]}}</li>
-                        @else
-                            <li class="grey">第 {{ $i + 1 }} 场 {{$f[0]}} - {{$f[1]}}</li>
-                        @endif
-
-                    </ul>
-                @endforeach
-            </td>
+            <td>#{{ $k + 1 }}</td>
+            <td>{{ $val['petId'] }}</td>
+            <td>{{ $val['nickname'] }}</td>
+            <td>{{ $val['ticket'] }}</td>
         </tr>
 @endforeach
     </tbody>

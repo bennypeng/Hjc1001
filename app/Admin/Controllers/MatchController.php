@@ -26,9 +26,9 @@ class MatchController extends Controller
                 $row->column(3, function (Column $column) {
                     $column->append(MatchViewController::matchRanking());
                 });
-                $row->column(6, function (Column $column) {
-                    $column->append(MatchViewController::matchList());
-                });
+                //$row->column(6, function (Column $column) {
+                //    $column->append(MatchViewController::matchList());
+                //});
             });
         });
     }

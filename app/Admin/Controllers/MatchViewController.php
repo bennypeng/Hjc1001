@@ -39,8 +39,9 @@ class MatchViewController
         $helper = new HelperService();
         $matchType = $helper->getMatchType();
         $matchId   = $helper->getMatchId($matchType);
-        $ranking   = $helper->getMatchRanking($matchType, $matchId, 0, 99);
-        dd($ranking);
+        $list   = $helper->getMatchRanking($matchType, $matchId, 0, 99);
+        $ranking['ranking'] = $list;
+        $ranking['matchid'] = $matchId;
         return view('match.ranking', compact('ranking'));
     }
 }
