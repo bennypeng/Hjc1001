@@ -8,7 +8,7 @@ return [
     'PUBLISH_TIME'             => '2018-06-20 00:00:00',            //  发布时间
     'PET_BIRTH_LIMIT'          => 24,                               //  宠物出生数量限制
     'PET_START_PRICE'          => 0.20,                             //  宠物起始价格
-    'PET_FINAL_PRICE'          => 0.10,                             //  宠物终止价格
+    'PET_FINAL_PRICE'          => 0.20,                             //  宠物终止价格
     'PET_SALE_EXP_SEC'         => 86400,                            //  宠物拍卖时长
     'VERFY_CODE_LIMIT'         => 5,                                //  每日最多发送验证码次数
     'ETH_API_URL'              => 'https://api.etherscan.io/api',   //  以太坊交易查询地址

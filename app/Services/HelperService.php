@@ -263,7 +263,7 @@ class HelperService implements HelperContract
                 'on_sale'    => $v['on_sale'],
                 'matchId'    => $v['matchId'],
                 'rarity'     => $this->calcRarity($v),
-                'price'      => $price,                //   当前价格，需要根据拍卖时长来计算
+                'price'      => $v['ownerId'] == 0 ? $v['sp'] : $price,                //   当前价格，需要根据拍卖时长来计算
                 'exp'        => $expTs
             );
             if ($fullData) {
