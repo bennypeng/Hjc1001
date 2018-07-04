@@ -34,8 +34,8 @@ class MatchController extends Controller
     public function autoMatch(Request $req) {
 
         //  请求不是来自服务器
-        //if (env('APP_IP') != $req->getClientIp())
-        //    return response()->json(Config::get('constants.VERFY_IP_ERROR'));
+        if (env('APP_IP') != $req->getClientIp())
+            return response()->json(Config::get('constants.VERFY_IP_ERROR'));
 
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
 
@@ -133,11 +133,6 @@ class MatchController extends Controller
         $matchType = $req->route('matchType');
         $sp        = $req->route('sp');
         $fp        = $req->route('fp');
-
-        /**
-         * @todo 临时关闭比赛
-         */
-        //return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
 
         //  缺少必填字段
         if (!$matchType || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
