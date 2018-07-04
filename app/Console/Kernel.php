@@ -28,10 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        /**
-         * @todo 临时关闭比赛
-         */
-        //$schedule->command('match:generate')->daily();              //  开比赛
+        $schedule->command('match:generate')->daily();              //  开比赛
         $schedule->command('pet:birth')->everyFifteenMinutes();     //  出生宠物
         $schedule->command('pet:clear')->hourly();                  //  宠物出生
         $schedule->command('tx:send')->everyMinute();               //  下发积分

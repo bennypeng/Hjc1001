@@ -36,7 +36,9 @@ interface HelperContract
     public function parseMatchOptions(array $data, bool $fullData = false);             //  解析比赛配置
     public function setMatchCoolTime(int $matchType, int $ts);                          //  设置比赛冷却时间
     public function getMatchCoolTime(int $matchType);                                   //  获取比赛冷却时间
-    public function setMatchId(int $matchType);                                         //  设置当前比赛ID
+    public function getMatchType();                                                     //  获取当前比赛类型
+    public function setMatchType(int $matchType);                                       //  设置当前比赛类型
+    public function setMatchId(int $matchType, int $flag);                              //  设置当前比赛ID
     public function getMatchId(int $matchType);                                         //  获取当前比赛ID
     public function setMatchHisIds(int $matchType, string $matchId);                    //  设置往期比赛ID
     public function getMatchHisIds(int $matchType);                                     //  获取往期比赛ID集合
@@ -69,10 +71,10 @@ interface HelperContract
     public function setEthMd5(string $action, string $mdstr);                           //  设置以太坊MD5
 
     public function getExtractList(string $address);                                    //  获取提现列表
-    public function setExtract(string $address, array $data);                       //  设置提现列表
+    public function setExtract(string $address, array $data);                           //  设置提现列表
     public function checkExtractExist(string $address, int $id);                        //  检查提现单是否存在
     public function setExtractStatus(string $address, int $id, int $status);            //  设置提现单的状态
-    public function delExtract(string $address);//  删除key
+    public function delExtract(string $address);                                        //  删除key
 
     public function setAddressUserId(string $address, string $userId);                  //  设置address与userID映射
     public function getAddressUserId(string $address);                                  //  通过address获取userid
@@ -88,6 +90,7 @@ interface HelperContract
     public function getMatchCurIdKey(int $matchType);                                   //  比赛当前ID KEY
     public function getMatchRankingKey(int $matchType, string $matchId);                //  比赛排行榜 KEY
     public function getMatchVoteKey(int $matchType, string $userId);                    //  比赛投票 KEY
+    public function getMatchCurTypeKey();                                               //  比赛当前类型 KEY
 
     public function getVerfyCodeKey(string $mobile);                                    //  获取验证码KEY
     public function getVerfyCodeLimitKey(string $ip);                                   //  获取当前IP地址请求验证码次数KEY

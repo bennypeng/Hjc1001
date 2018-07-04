@@ -6,6 +6,7 @@ use App\Contracts\HelperContract;
 use App\Match;
 use App\Pet;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -33,8 +34,8 @@ class MatchController extends Controller
     public function autoMatch(Request $req) {
 
         //  请求不是来自服务器
-        if (env('APP_IP') != $req->getClientIp())
-            return response()->json(Config::get('constants.VERFY_IP_ERROR'));
+        //if (env('APP_IP') != $req->getClientIp())
+        //    return response()->json(Config::get('constants.VERFY_IP_ERROR'));
 
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
 
@@ -45,26 +46,52 @@ class MatchController extends Controller
 
         $newMatchIds = array();
         $curTs = time();
+        $curDay = Carbon::createFromTimestamp($curTs)->dayOfWeekIso;
+
+        //  获取当前比赛类型
+        $matchType = $this->helper->getMatchType();
+
+        //  初始比赛类型
+        if (!$matchType) {
+            $matchType = 1;
+            $this->helper->setMatchType($matchType);
+        }
+
         foreach($macthesInfo['lists'] as $k => $v) {
-            //  如果没有设置冷却值，先给它设置;
-            //  如果当前时间大于冷却时间，则再开一场
-            $coolTime = $this->helper->getMatchCoolTime($v['matchType']);
+
+            $fg = false;
+
+            if ($v['matchType'] != $matchType)
+                continue;
+
+            $coolTime = $this->helper->getMatchCoolTime($matchType);
             if (!$coolTime || $curTs > $coolTime) {
                 //  每周两场， 需要判断当前该开那一场
-                foreach($v['openTime'] as $idx => $val) {
-                    if (!($curTs > $val[0] && $curTs < $val[1]))
-                        continue;
-                    $coolTime = $val[1];
+                if ($curDay != 7) {
+                    foreach($v['openTime'] as $idx => $val) {
+                        if ($curTs >= $val[0] && $curTs < $val[1]) {
+                            $coolTime = $val[1];
+                            $flag = $idx + 1;
+                            //  设置冷却时间
+                            $this->helper->setMatchCoolTime($matchType, $coolTime);
+                            //  生成新的比赛ID
+                            $matchId = $this->helper->setMatchId($matchType, $flag);
+                            //  设置往期比赛ID
+                            $this->helper->setMatchHisIds($matchType, $matchId);
+                            $newMatchIds[] = $matchId;
+                            $fg = true;
+                        }
+                    }
                 }
-                $this->helper->setMatchCoolTime($v['matchType'], !isset($coolTime) ? time() : $coolTime);
-
-                //  生成新的比赛ID
-                $matchId = $this->helper->setMatchId($v['matchType']);
-
-                //  设置往期比赛ID
-                $this->helper->setMatchHisIds($v['matchType'], $matchId);
-
-                $newMatchIds[] = $matchId;
+                if (!$fg) {
+                    if ($curDay == 7) {
+                        if ($matchType == 4) {
+                            $this->helper->setMatchType(1);
+                        } else {
+                            $this->helper->setMatchType($matchType + 1);
+                        }
+                    }
+                }
             }
         }
 
@@ -110,7 +137,7 @@ class MatchController extends Controller
         /**
          * @todo 临时关闭比赛
          */
-        return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
+        //return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
 
         //  缺少必填字段
         if (!$matchType || !$sp || !$fp) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
@@ -156,13 +183,11 @@ class MatchController extends Controller
         $petIds     = $req->get('petIds');
         $matchType  = $req->get('matchType');
 
-        /**
-         * @todo 临时关闭比赛
-         */
-        return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
-
         //  缺少必填字段
         if (!$petIds || !$matchType) return response()->json(Config::get('constants.DATA_EMPTY_ERROR'));
+
+        //  比赛暂未开放
+        if ($matchType != $this->helper->getMatchType()) return response()->json(Config::get('constants.MATCH_OPEN_ERROR'));
 
         $matchOptions = Config::get('constants.MATCHES_OPTIONS');
 

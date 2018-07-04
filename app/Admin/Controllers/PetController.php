@@ -250,7 +250,7 @@ $('.sentto').unbind('click').click(function() {
         cancelButtonText: "取消",
         showLoaderOnConfirm: true,
         closeOnConfirm: false,
-        closeOnCancel:false
+        closeOnCancel:true
     },
     function(inputValue){
         if (inputValue === false) return false; 

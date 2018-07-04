@@ -345,6 +345,10 @@ class HelperService implements HelperContract
     /*** 比赛相关 ***/
     public function parseMatchOptions(array $data, bool $fullData = false) {
 
+        //  当前开启的活动类型
+        $matchType = $this->getMatchType();
+        $matchType = $matchType ? $matchType : 1;
+
         $res = array();
 
         //  获取一周的时间戳
@@ -363,8 +367,18 @@ class HelperService implements HelperContract
             if ($fullData) {
                 $timeArr = array();
                 foreach($v[5] as $j => $idxArr) {
-                    $timeArr[$j][] = $tsArr[$idxArr[0] - 1];
-                    $timeArr[$j][] = $tsArr[$idxArr[1] - 1] + 86400 - 1;
+                    if ($matchType > $k) {
+                        $offset = ($k - $matchType + count($data)) * 86400 * 7;
+                    } else if ($matchType < $k) {
+                        $offset = ($k - $matchType) * 86400 * 7;
+                    } else {
+                        $offset = 0;
+                    }
+
+                    //$timeArr[$j][] = Carbon::createFromTimestamp($tsArr[$idxArr[0] - 1] + $offset)->format('Y-m-d H:i:s');
+                    //$timeArr[$j][] = Carbon::createFromTimestamp($tsArr[$idxArr[1] - 1] + 86400 - 1  + $offset)->format('Y-m-d H:i:s');
+                    $timeArr[$j][] = $tsArr[$idxArr[0] - 1] + $offset;
+                    $timeArr[$j][] = $tsArr[$idxArr[1] - 1] + 86400 - 1  + $offset;
                 }
                 $res['lists'][$k]['openTime'] = $timeArr;
                 $res['lists'][$k]['joinLimit'] = $v[2];
@@ -376,12 +390,12 @@ class HelperService implements HelperContract
         $res['rewards'] = Config::get('constants.MATCHES_REWARDS');
         return $res;
     }
-    public function setMatchId(int $matchType) {
+    public function setMatchId(int $matchType, int $flag) {
         $key = $this->getMatchCurIdKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         $st   = Carbon::now()->startOfWeek()->format('Ymd');
         $ft   = Carbon::now()->endOfWeek()->format('Ymd');
-        $flag = Carbon::now()->dayOfWeek <= 3 ? 1 : 2;
+        //$flag = Carbon::now()->dayOfWeek <= 3 ? 1 : 2;
         $id   = $st . "_" . $ft . "_" . $flag;
         Redis::set($key, $id);
         return $id;
@@ -406,6 +420,16 @@ class HelperService implements HelperContract
         $key = $this->getMatchCurIdKey($matchType);
         Redis::select(Config::get('constants.MATCHES_INDEX'));
         return Redis::get($key);
+    }
+    public function getMatchType() {
+        $key = $this->getMatchCurTypeKey();
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::get($key);
+    }
+    public function setMatchType(int $matchType) {
+        $key = $this->getMatchCurTypeKey();
+        Redis::select(Config::get('constants.MATCHES_INDEX'));
+        return Redis::set($key, $matchType);
     }
     public function getMatchHisIds(int $matchType) {
         $key = $this->getMatchHisIdsKey($matchType);
@@ -469,6 +493,7 @@ class HelperService implements HelperContract
             $ret[$v] = [
                 'period' => array_search($str, $hisArr) + 1,        //    第几期
                 'flag'   => (int) $flag                             //    第几次
+                //'flag'   => 1                                       //    第几次
             ];
         }
         return $ret;
@@ -688,6 +713,9 @@ class HelperService implements HelperContract
     }
     public function getMatchCurIdKey(int $matchType) {
         return 'MATCH:CURRENT:' . $matchType;
+    }
+    public function getMatchCurTypeKey() {
+        return 'MATCH:CURRENT:TYPE';
     }
     public function getMatchRankingKey(int $matchType, string $matchId) {
         return 'MATCH:RANKING:' . $matchType . ":" . $matchId;
