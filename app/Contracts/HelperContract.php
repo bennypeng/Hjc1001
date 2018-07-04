@@ -91,6 +91,7 @@ interface HelperContract
     public function getMatchRankingKey(int $matchType, string $matchId);                //  比赛排行榜 KEY
     public function getMatchVoteKey(int $matchType, string $userId);                    //  比赛投票 KEY
     public function getMatchCurTypeKey();                                               //  比赛当前类型 KEY
+    public function getMatchJoinInCostKey(int $matchId, string $userId);                //  比赛参加花费金额 KEY（用于比赛没有开成返还HLW）
 
     public function getVerfyCodeKey(string $mobile);                                    //  获取验证码KEY
     public function getVerfyCodeLimitKey(string $ip);                                   //  获取当前IP地址请求验证码次数KEY

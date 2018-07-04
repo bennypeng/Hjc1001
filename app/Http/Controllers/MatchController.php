@@ -85,6 +85,19 @@ class MatchController extends Controller
                 }
                 if (!$fg) {
                     if ($curDay == 7) {
+                        //  如果比赛没有开成，返还门票
+                        $matchId = $this->helper->getMatchId($matchType);
+                        if ($this->helper->getMatchRankingLen($matchType, $matchId) < 100 ) {
+                            $ranking = $this->helper->getMatchRanking($matchType, $matchId, 0, -1);
+                            foreach($ranking as $v) {
+                                $userInfo = $this->userModel->getUserByUserId($v['userid']);
+                                if ($userInfo) {
+                                    $this->userModel->updateUser($v['userid'], ['hlw_wallet' => $userInfo['hlw_wallet'] + 100]);
+                                    Log::info('return 100 hlw to user '. $v['userid']);
+                                }
+                            }
+                        }
+
                         if ($matchType == 4) {
                             $this->helper->setMatchType(1);
                         } else {

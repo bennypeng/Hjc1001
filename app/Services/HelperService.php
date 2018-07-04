@@ -456,7 +456,8 @@ class HelperService implements HelperContract
                 'petId'    => $petId,
                 'ticket'   => (int) $scores,
                 'icon'     => $userInfo['icon'],
-                'nickname' => $userInfo['nickname']
+                'nickname' => $userInfo['nickname'],
+                'userid'   => $petDetails['ownerId'],
             ];
         }
         return $ret;
@@ -722,6 +723,9 @@ class HelperService implements HelperContract
     }
     public function getMatchVoteKey(int $matchType, string $userId) {
         return 'MATCH:VOTE:' . $matchType . ":" . $userId;
+    }
+    public function getMatchJoinInCostKey(int $matchId, string $userId) {
+        return 'MATCH:JOIN:COST';
     }
     public function getVerfyCodeKey(string $mobile) {
         return 'VERFYCODE:' . $mobile;
