@@ -21,7 +21,7 @@ return [
     'LOGIN_INDEX'              => 1,    //  登录信息
     'PETS_INDEX'               => 2,    //  宠物信息
     'MATCHES_INDEX'            => 3,    //  比赛信息
-    'RANKING_INDEX'            => 4,    //  排行榜信息
+    //'RANKING_INDEX'            => 4,    //  排行榜信息
     'MOBILES_INDEX'            => 5,    //  手机信息
     'VERFY_CODE_INDEX'         => 6,    //  验证码信息
     'AUCTION_INDEX'            => 7,    //  拍卖信息
@@ -86,6 +86,7 @@ return [
     'MATCH_VOTE_ERROR'         => ['message' => '投票次数上限',                 'code' => 10102],
     'MATCH_JOIN_ERROR'         => ['message' => '未达到参赛条件',               'code' => 10103],
     'MATCH_OPEN_ERROR'         => ['message' => '比赛暂未开放',                 'code' => 10104],
+    'MATCH_VOTE_OPEN_ERROR'    => ['message' => '投票暂未开启',                 'code' => 10105],
 
     'BIND_REPEAT_ERROR'        => ['message' => '重复绑定',                     'code' => 10200],
 

@@ -281,6 +281,10 @@ class MatchController extends Controller
         if (!$matchInfo) return response()->json(Config::get('constants.VERFY_ARGS_ERROR'));
 
         $matchId  = $this->helper->getMatchId($matchType);
+        $matchLen = $this->helper->getMatchRankingLen($matchType, $matchId);
+
+        //  投票暂未开启
+        if ($matchLen < $matchInfo['joinLimit']) return response()->json(Config::get('constants.MATCH_VOTE_OPEN_ERROR'));
 
         //  宠物未参赛
         if (!$this->helper->checkRankingMemExist($matchType, $matchId, $petId))

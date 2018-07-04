@@ -16,7 +16,7 @@ Route::group([
     $router->resource('eth', EthController::class);
     $router->resource('hlw', HlwController::class);
     $router->resource('ext', ExtractController::class);
-    //$router->get('tx/eth', 'TxController@getEthTxList');
+    $router->get('match', 'MatchController@index');
     //$router->get('tx/hlw', 'TxController@getHlwTxList');
 
 });
