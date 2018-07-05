@@ -95,6 +95,10 @@ class UserController extends Controller
         //  注册失败
         if (!$userId) return response()->json(Config::get('constants.REGIST_ERROR'));
 
+        //  前300个 50 个HLW
+        if ($userId <= 10300)
+            $this->userModel->updateUser($userId, ['hlw_wallet' => 50]);
+
         //  获取用户信息，并写入缓存
         $res = $this->userModel->getUserByUserId($userId);
         if ($res) {
