@@ -378,9 +378,13 @@ class UserController extends Controller
                 'flag'  => $v['tokenSymbol'] ? $v['tokenSymbol'] : 'ETH'
             ];
             if ($v['from'] == $userInfo['address']) {
-                $res['txLists']['out'][] = $info;
+                if ($v['to'] == Config::get('constants.ETH_ADDR')) {
+                    $res['txLists']['out'][] = $info;
+                }
             } else {
-                $res['txLists']['in'][] = $info;
+                if ($v['from'] == Config::get('constants.ETH_ADDR')) {
+                    $res['txLists']['in'][] = $info;
+                }
             }
         }
 
