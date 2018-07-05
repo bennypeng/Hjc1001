@@ -162,10 +162,9 @@ class UserController extends Controller
             $directors = [
                 '1'  => '一级',
                 '2'  => '二级',
-                '3'  => '三级',
             ];
 
-            $form->radio('agent_level', '代理等级')->options($directors)->default('3');
+            $form->radio('agent_level', '代理等级')->options($directors)->default('2');
 
             $form->divide();
 
