@@ -13,10 +13,6 @@ use Illuminate\Http\Request;
 |
 */
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
 /**
  * 需要登录权限的接口
  * 需要在header带上Authorization参数
@@ -42,12 +38,6 @@ Route::middleware('jwt.auth')->group(function() {
         Route::get('record', 'UserController@getTxRecord');              //  查看交易记录
 
         Route::get('invite', 'UserController@getInviteInfo');            //  查看邀请码及代理信息
-
-        //Route::post('agent', 'UserController@generateAgent');     //  生成代理身份
-
-        //Route::get('qrcode/{id}', function ($address) {
-        //    return view('QrCode')->with('address', $address);           //  生成二维码
-        //});
     });
 
     //  宠物路由
@@ -135,6 +125,7 @@ Route::prefix('eth')->group(function () {
 
 });
 
+//  重建号码缓存
 Route::get('/rebuild/mobile', function () {
     $mobiles = \Illuminate\Support\Facades\DB::select('SELECT mobile FROM Hjc1001.users');
     if ($mobiles) {

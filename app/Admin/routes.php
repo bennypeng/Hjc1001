@@ -17,6 +17,5 @@ Route::group([
     $router->resource('hlw', HlwController::class);
     $router->resource('ext', ExtractController::class);
     $router->get('match', 'MatchController@index');
-    //$router->get('tx/hlw', 'TxController@getHlwTxList');
 
 });

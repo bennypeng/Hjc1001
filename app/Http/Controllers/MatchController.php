@@ -30,6 +30,8 @@ class MatchController extends Controller
 
     /**
      * 自动生成一场比赛
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
      */
     public function autoMatch(Request $req) {
 

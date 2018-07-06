@@ -251,11 +251,11 @@ class HelperService implements HelperContract
 
         foreach($data as $k => $v) {
             $expTs = strtotime($v['expired_at']);
-            //if ($v['ownerId'] == 0) {
-            //    $price = $v['sp'];  //  系统诞生的，当前价不变
-            //} else {
-            $price = $this->calcPrice($v['sp'], $v['fp'], $expTs);
-            //}
+            if ($v['ownerId'] == 0) {
+                $price = $v['sp'];  //  系统诞生的，当前价不变
+            } else {
+                $price = $this->calcPrice($v['sp'], $v['fp'], $expTs);
+            }
             $res[$v['id']] = array(
                 'id'         => $v['id'],
                 'ownerId'    => $v['ownerId'],
@@ -263,7 +263,7 @@ class HelperService implements HelperContract
                 'on_sale'    => $v['on_sale'],
                 'matchId'    => $v['matchId'],
                 'rarity'     => $this->calcRarity($v),
-                'price'      => $v['ownerId'] == 0 ? $v['sp'] : $price,                //   当前价格，需要根据拍卖时长来计算
+                'price'      => $price,
                 'exp'        => $expTs
             );
             if ($fullData) {
