@@ -96,6 +96,9 @@ class MatchController extends Controller
                                     Log::info('return 100 hlw to user '. $v['userid']);
                                 }
                             }
+                        } else {
+                            //  发放奖励
+                            //$ranking = $this->helper->getMatchRanking($matchType, $matchId, 0, 99);
                         }
 
                         if ($matchType == 4) {
